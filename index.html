@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Java, OOP ve algoritma teknik mülakatları için tamamen yerel çalışan sınav ve tekrar uygulaması.">
+  <meta name="color-scheme" content="light dark">
+  <title>DevInterview · Java Mülakat Sınavı</title>
+  <script>
+    (function () {
+      try {
+        var theme = localStorage.getItem('jmis.theme') || 'system';
+        document.documentElement.dataset.theme = theme;
+        if (theme === 'system') {
+          document.documentElement.dataset.resolvedTheme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        } else {
+          document.documentElement.dataset.resolvedTheme = theme;
+        }
+      } catch (error) {
+        document.documentElement.dataset.theme = 'system';
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Ana içeriğe geç</a>
+
+  <div class="app-shell" id="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#/dashboard" aria-label="DevInterview ana sayfa">
+        <span class="brand-mark" aria-hidden="true"><span>&lt;/&gt;</span></span>
+        <span class="brand-copy">
+          <strong>DevInterview</strong>
+          <small>Java mülakat laboratuvarı</small>
+        </span>
+      </a>
+
+      <nav class="main-nav" aria-label="Ana menü">
+        <a href="#/dashboard" data-nav="dashboard">Panel</a>
+        <a href="#/builder" data-nav="builder">Yeni test</a>
+        <a href="#/review" data-nav="review">Tekrar</a>
+        <a href="#/history" data-nav="history">Geçmiş</a>
+        <a href="#/analytics" data-nav="analytics">Analiz</a>
+        <a href="#/explorer" data-nav="explorer">Sorular</a>
+      </nav>
+
+      <div class="topbar-actions">
+        <button class="icon-button" id="focus-toggle" type="button" title="Odak modunu aç/kapat" aria-label="Odak modunu aç veya kapat" aria-pressed="false">
+          <span aria-hidden="true">◱</span>
+        </button>
+        <button class="icon-button" id="theme-toggle" type="button" title="Temayı değiştir" aria-label="Temayı değiştir">
+          <span aria-hidden="true">◐</span>
+        </button>
+        <button class="icon-button" id="help-open" type="button" title="Klavye kısayolları" aria-label="Yardım ve klavye kısayolları" aria-keyshortcuts="?">
+          <span aria-hidden="true">?</span>
+        </button>
+        <a class="icon-button" href="#/settings" data-nav="settings" title="Ayarlar" aria-label="Ayarlar">
+          <span aria-hidden="true">⚙</span>
+        </a>
+      </div>
+    </header>
+
+    <main id="main-content" tabindex="-1">
+      <div id="app" aria-busy="true">
+        <section class="loading-state" aria-label="Uygulama yükleniyor">
+          <div class="loading-orbit" aria-hidden="true"></div>
+          <h1>Çalışma alanı hazırlanıyor</h1>
+          <p>Soru bankası ve yerel geçmiş yükleniyor…</p>
+        </section>
+      </div>
+    </main>
+
+    <footer class="app-footer">
+      <span>Veriler yalnızca bu Chrome profilinde saklanır.</span>
+      <span id="storage-indicator" role="status">Yerel kayıt kontrol ediliyor…</span>
+      <span>Soru bankası <strong>v2026.07</strong></span>
+    </footer>
+  </div>
+
+  <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+  <div id="sr-live" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
+
+  <dialog id="onboarding-dialog" class="modal onboarding-modal" aria-labelledby="onboarding-title">
+    <form method="dialog">
+      <div class="modal-head">
+        <span class="eyebrow">HOŞ GELDİN</span>
+        <button class="icon-button" value="skip" aria-label="Tanıtımı kapat">×</button>
+      </div>
+      <div id="onboarding-content"></div>
+      <div class="modal-actions">
+        <button class="button ghost" id="onboarding-back" type="button">Geri</button>
+        <span class="step-dots" id="onboarding-dots" aria-label="Tanıtım ilerlemesi"></span>
+        <button class="button primary" id="onboarding-next" type="button">Devam</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="help-dialog" class="modal" aria-labelledby="help-title">
+    <form method="dialog">
+      <div class="modal-head">
+        <div>
+          <span class="eyebrow">KLAVYE</span>
+          <h2 id="help-title">Hızlı kullanım</h2>
+        </div>
+        <button class="icon-button" value="close" aria-label="Yardımı kapat">×</button>
+      </div>
+      <div class="shortcut-grid">
+        <kbd>1–9</kbd><span>Seçenek seç</span>
+        <kbd>Enter</kbd><span>Cevabı kaydet / sonraki soru</span>
+        <kbd>← / →</kbd><span>Önceki / sonraki soru</span>
+        <kbd>F</kbd><span>Sonra dön işaretini değiştir</span>
+        <kbd>V</kbd><span>Favoriyi değiştir</span>
+        <kbd>H</kbd><span>Mevcutsa ipucunu göster</span>
+        <kbd>?</kbd><span>Bu yardımı aç</span>
+      </div>
+      <p class="muted">Metin alanına yazarken uygulama kısayolları devre dışı kalır.</p>
+      <div class="modal-actions end"><button class="button primary" value="close">Anladım</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="issue-dialog" class="modal" aria-labelledby="issue-title">
+    <form id="issue-form">
+      <div class="modal-head">
+        <div>
+          <span class="eyebrow">YEREL NOT</span>
+          <h2 id="issue-title">Sorun bildir</h2>
+        </div>
+        <button class="icon-button" type="button" data-close-dialog="issue-dialog" aria-label="Pencereyi kapat">×</button>
+      </div>
+      <input type="hidden" id="issue-question-id">
+      <label class="field">
+        <span>Sorunun neyi belirsiz veya hatalı?</span>
+        <textarea id="issue-text" rows="5" maxlength="1200" required></textarea>
+      </label>
+      <p class="muted">Bu bildirim yalnızca cihazında saklanır ve JSON yedeğine eklenir.</p>
+      <div class="modal-actions end">
+        <button class="button ghost" type="button" data-close-dialog="issue-dialog">İptal</button>
+        <button class="button primary" type="submit">Listeye ekle</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="confirm-dialog" class="modal compact-modal" aria-labelledby="confirm-title">
+    <form method="dialog">
+      <div class="modal-head">
+        <div>
+          <span class="eyebrow">ONAY</span>
+          <h2 id="confirm-title">Devam etmek istiyor musun?</h2>
+        </div>
+      </div>
+      <p id="confirm-message"></p>
+      <div class="modal-actions end">
+        <button class="button ghost" value="cancel">İptal</button>
+        <button class="button danger" value="confirm" id="confirm-action">Onayla</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="assets/source-questions.js"></script>
+  <script src="assets/questions-java.js"></script>
+  <script src="assets/questions-oop.js"></script>
+  <script src="assets/questions-algorithms.js"></script>
+  <script src="assets/storage.js"></script>
+  <script src="assets/engine.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>

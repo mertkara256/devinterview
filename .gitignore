@@ -1,0 +1,13 @@
+# Personal exports and backups
+*.json
+*.csv
+backups/
+exports/
+
+# Local system and development files
+.DS_Store
+.env
+.env.*
+node_modules/
+*.class
+*.log
