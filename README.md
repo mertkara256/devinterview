@@ -53,7 +53,7 @@ SOURCE_MD="/tam/yol/sorular.md" node qa/validate-static.cjs
 
 ## Modlar
 
-- **Pratik:** İlk yanlışta küçük ipucu, ikinci denemeden sonra çözüm.
+- **Pratik:** İlk yanlışta küçük ipucu, ikinci denemeden sonra çözüm. Doğru/Yanlış sorularında ikinci deneme anlamsız olduğundan çözüm ilk yanlıştan hemen sonra gösterilir.
 - **Sınav:** Doğruluk ve çözüm oturum bitene kadar gizlidir.
 - **Kaynak sırası:** Markdown dosyasındaki önerilen çalışma yolu.
 - **Karışık test:** Bölüm, konu, zorluk, tür ve geçmiş durumuyla filtrelenir.

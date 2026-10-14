@@ -1006,7 +1006,8 @@
       response.stage = 'completed';
       response.blank = false;
       await recordOutcome(card, response);
-    } else if (result.correct) {
+    } else if (result.correct || card.type === 'boolean') {
+      // A True/False card has only one other answer, so a second try would always succeed; show the solution right away.
       response.firstScore = result.score;
       response.finalScore = result.score;
       response.supported = false;
