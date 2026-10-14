@@ -102,6 +102,7 @@
     normalized.options = asArray(normalized.options).map(function (option, index) {
       return typeof option === 'string' ? { id: String.fromCharCode(97 + index), text: option } : option;
     });
+    normalized.assumptions = asArray(normalized.assumptions);
     normalized.items = asArray(normalized.items).map(function (item, index) {
       return typeof item === 'string' ? { id: 'i' + (index + 1), text: item } : item;
     });
