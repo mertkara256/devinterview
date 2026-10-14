@@ -433,6 +433,7 @@
       storageIndicator.textContent = 'Soru bankası doğrulanamadı';
       return;
     }
+    await removeUnseenPlaceholders();
     var savedSettings = await DB.get('settings', 'app');
     state.settings = Object.assign({}, DEFAULT_SETTINGS, savedSettings || {});
     await saveSettings();
@@ -1037,11 +1038,9 @@
       var item = attempt.items[index];
       var card = state.bankById[item.questionId] || item.snapshot;
       var id = responseId(attempt.id, item.questionId);
-      var response = state.responseMap[id] || {
-        id: id, attemptId: attempt.id, questionId: item.questionId, sourceId: item.sourceId,
-        section: card.section, difficulty: card.difficulty, type: card.type, currentAnswer: '', confidence: '',
-        trials: [], timeMs: 0, flagged: false, scratch: '', touched: false, blank: true, stage: 'completed'
-      };
+      var response = state.responseMap[id];
+      // A card that was never opened says nothing about what the user knows, so it stays out of progress and review scheduling.
+      if (!response) continue;
       if (attempt.mode === 'exam') {
         var examBlank = responseIsBlank(card, response);
         var result = examBlank ? { score: 0, correct: false, blank: true } : E.grade(card, response.currentAnswer);
@@ -1492,6 +1491,7 @@
     var existingResponses = await recordsMap('responses');
     for (var responseIndex = 0; responseIndex < (incoming.responses || []).length; responseIndex += 1) {
       var response = E.clone(incoming.responses[responseIndex]);
+      if (isUnseenPlaceholder(response)) continue;
       response.attemptId = attemptIdMap[response.attemptId] || response.attemptId;
       response.id = responseId(response.attemptId, response.questionId);
       if (existingResponses[response.id] && JSON.stringify(existingResponses[response.id]) !== JSON.stringify(response)) {
@@ -1531,6 +1531,19 @@
     state.pendingImport = null;
     toast('Yedek mevcut verilerle birleştirildi.', 'success');
     await refreshPreservingFocus(renderSettings);
+  }
+
+  function isUnseenPlaceholder(response) {
+    return !response.seenAt && !!response.blank;
+  }
+
+  async function removeUnseenPlaceholders() {
+    var placeholders = (await DB.all('responses')).filter(isUnseenPlaceholder);
+    if (!placeholders.length) return;
+    for (var index = 0; index < placeholders.length; index += 1) {
+      await DB.remove('responses', placeholders[index].id);
+    }
+    await rebuildProgress([]);
   }
 
   async function rebuildProgress(importedProgress) {
