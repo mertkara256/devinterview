@@ -513,19 +513,26 @@
     return review;
   }
 
+  // One pass over the raw source, so later rules never match inside markup or entities produced by earlier ones.
+  var JAVA_TOKEN = new RegExp([
+    '(\\/\\/[^\\n]*|\\/\\*[\\s\\S]*?\\*\\/)',
+    '("(?:\\\\.|[^"\\\\\\n])*"|\'(?:\\\\.|[^\'\\\\\\n])*\')',
+    '\\b(public|private|protected|static|final|class|interface|abstract|extends|implements|new|return|if|else|for|while|do|switch|case|break|continue|try|catch|finally|throw|throws|this|super|instanceof|void|default|synchronized)\\b',
+    '\\b(int|long|short|byte|double|float|boolean|char|String|Integer|Object|List|Set|Map|ArrayList|LinkedList|HashMap|HashSet)\\b',
+    '\\b(\\d+(?:\\.\\d+)?[fFdDlL]?)\\b'
+  ].join('|'), 'g');
+
   function highlightJava(code) {
-    var escaped = escapeHtml(code || '');
-    var placeholders = [];
-    escaped = escaped.replace(/(&quot;.*?&quot;|'(?:\\.|[^'])*')/g, function (match) {
-      placeholders.push('<span class="tok-string">' + match + '</span>');
-      return '@@STR' + (placeholders.length - 1) + '@@';
+    var source = String(code || '');
+    var html = '';
+    var last = 0;
+    source.replace(JAVA_TOKEN, function (match, comment, string, keyword, type, number, offset) {
+      var kind = comment ? 'comment' : string ? 'string' : keyword ? 'keyword' : type ? 'type' : 'number';
+      html += escapeHtml(source.slice(last, offset)) + '<span class="tok-' + kind + '">' + escapeHtml(match) + '</span>';
+      last = offset + match.length;
+      return match;
     });
-    escaped = escaped.replace(/(\/\/.*$)/gm, '<span class="tok-comment">$1</span>');
-    escaped = escaped.replace(/\b(public|private|protected|static|final|class|interface|abstract|extends|implements|new|return|if|else|for|while|do|switch|case|break|continue|try|catch|finally|throw|throws|this|super|instanceof|void|default|synchronized)\b/g, '<span class="tok-keyword">$1</span>');
-    escaped = escaped.replace(/\b(int|long|short|byte|double|float|boolean|char|String|Integer|Object|List|Set|Map|ArrayList|LinkedList|HashMap|HashSet)\b/g, '<span class="tok-type">$1</span>');
-    escaped = escaped.replace(/\b(\d+(?:\.\d+)?[fFdDlL]?)\b/g, '<span class="tok-number">$1</span>');
-    escaped = escaped.replace(/@@STR(\d+)@@/g, function (_, index) { return placeholders[Number(index)]; });
-    return escaped;
+    return html + escapeHtml(source.slice(last));
   }
 
   function toCsv(rows) {

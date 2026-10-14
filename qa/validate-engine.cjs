@@ -72,6 +72,16 @@ responses[`attempt::${sampleCards[0].id}`] = { firstScore: 1, finalScore: 1, com
 responses[`attempt::${sampleCards[1].id}`] = { firstScore: 0, finalScore: 0, completed: true, currentAnswer: '' };
 check(E.summarizeAttempt(attempt, responses).firstPercent === 50, 'Aynı kaynak alt kartları kaynak başına ortalanmalı.');
 
+check(E.highlightJava('int x = 1; // return x') === '<span class="tok-type">int</span> x = <span class="tok-number">1</span>; <span class="tok-comment">// return x</span>', 'Yorum satırı vurgusu iç içe etiket üretmemeli.');
+check(E.highlightJava("c - 'a'") === 'c - <span class="tok-string">&#039;a&#039;</span>', 'Char literal kaçış kodu bozulmadan vurgulanmalı.');
+const decodeHighlight = (html) => html.replace(/<[^>]*>/g, '').replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+const snippets = E.getBank().filter((card) => card.code).map((card) => card.code)
+  .concat(Object.values(context.window.SOURCE_QUESTIONS).flatMap((source) => E.promptBlocks(source.prompt).filter((block) => block.type === 'code').map((block) => block.text)));
+check(snippets.every((code) => {
+  const html = E.highlightJava(code);
+  return decodeHighlight(html) === code && /^(?:[^<]|<span class="tok-\w+">[^<]*<\/span>)*$/.test(html);
+}), 'Her kod parçası vurgulandıktan sonra aynı metni ve düz span yapısını korumalı.');
+
 const interviewBank = E.buildInterviewBank(E.getBank());
 check(interviewBank.length === 135, 'Mülakat bankası her kaynak soruyu içermeli.');
 check(interviewBank.every((item) => item.keyPoints.length > 0 && item.explanations.length + item.examples.length > 0), 'Her mülakat sorusunun kontrol listesi ve açıklaması olmalı.');
