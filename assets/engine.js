@@ -12,6 +12,12 @@
   };
   var SECTION_ORDER = { Java: 0, OOP: 1, Algoritma: 2 };
   var INTERVALS = [1, 3, 7, 14, 30];
+  var INTERVIEW_RATINGS = {
+    again: 'Anlatamadım',
+    partial: 'Eksik kaldı',
+    good: 'Rahat anlattım'
+  };
+  var INTERVIEW_MINUTES = { Kolay: 2, Orta: 3, Zorlayıcı: 5 };
 
   function clone(value) {
     return value == null ? value : JSON.parse(JSON.stringify(value));
@@ -545,6 +551,99 @@
       sessionResponseSignature(existingResponses) === sessionResponseSignature(incomingResponses);
   }
 
+  function unique(values) {
+    return values.filter(function (value, index) { return value && values.indexOf(value) === index; });
+  }
+
+  function compactCode(code) {
+    return String(code || '').replace(/\s+/g, ' ').trim();
+  }
+
+  function promptBlocks(text) {
+    var blocks = [];
+    var pattern = /```\w*\n([\s\S]*?)```/g;
+    var source = String(text || '');
+    var last = 0;
+    var match;
+    while ((match = pattern.exec(source))) {
+      blocks.push({ type: 'text', text: source.slice(last, match.index).trim() });
+      blocks.push({ type: 'code', text: match[1].replace(/\s+$/, '') });
+      last = pattern.lastIndex;
+    }
+    blocks.push({ type: 'text', text: source.slice(last).trim() });
+    return blocks.filter(function (block) { return block.text; });
+  }
+
+  function inlineMarkdown(text) {
+    return escapeHtml(text).replace(/`([^`]+)`/g, '<code>$1</code>');
+  }
+
+  function buildInterviewBank(bank) {
+    var sources = window.SOURCE_QUESTIONS || {};
+    var groups = {};
+    bank.forEach(function (card) {
+      if (!groups[card.sourceId]) groups[card.sourceId] = [];
+      groups[card.sourceId].push(card);
+    });
+    return Object.keys(sources).filter(function (sourceId) { return groups[sourceId]; }).map(function (sourceId) {
+      var source = sources[sourceId];
+      var cards = groups[sourceId].slice().sort(function (a, b) { return a.id.localeCompare(b.id); });
+      var descriptor = String(source.descriptor || '').split(' · ');
+      var sourceCode = compactCode(promptBlocks(source.prompt).filter(function (block) { return block.type === 'code'; }).map(function (block) { return block.text; })[0]);
+      // Cards built on a snippet the question does not show only make sense next to that snippet.
+      var shown = cards.filter(function (card) { return !card.code || compactCode(card.code) === sourceCode; });
+      var shortText = function (card) { return String(card.explanationShort || '').replace(/^(Doğru|Yanlış)\.\s*/, ''); };
+      return {
+        sourceId: sourceId,
+        section: cards[0].section,
+        difficulty: INTERVIEW_MINUTES[descriptor[0]] ? descriptor[0] : cards[0].difficulty,
+        kind: descriptor.slice(1).join(' · '),
+        topic: cards[0].topic,
+        prompt: source.prompt,
+        keyPoints: unique((shown.length ? shown : cards).map(shortText)),
+        explanations: unique(shown.map(function (card) { return card.explanationLong; })),
+        expectedOutputs: unique(shown.filter(function (card) { return card.type === 'output'; }).map(function (card) { return card.answer; })),
+        examples: cards.filter(function (card) { return shown.indexOf(card) === -1 && card.type !== 'order'; }).map(function (card) {
+          return {
+            code: card.code,
+            caption: shortText(card),
+            detail: card.explanationLong,
+            output: card.type === 'output' ? card.answer : '',
+            blank: card.type === 'fill' ? card.answer : ''
+          };
+        }),
+        steps: cards.filter(function (card) { return card.type === 'order'; }).map(function (card) {
+          return asArray(card.answer).map(function (id) {
+            var item = (card.items || []).find(function (entry) { return entry.id === id; });
+            return item ? item.text : id;
+          });
+        })
+      };
+    });
+  }
+
+  function nextInterviewState(previous, outcome) {
+    var now = outcome.at || new Date().toISOString();
+    var record = Object.assign({ id: outcome.sourceId, sourceId: outcome.sourceId, reviewStage: 0, ratings: [] }, clone(previous) || {});
+    var rated = !!(previous && previous.ratings && previous.ratings.length && typeof previous.reviewStage === 'number');
+    if (outcome.rating === 'good') record.reviewStage = rated ? Math.min(previous.reviewStage + 1, INTERVALS.length - 1) : 1;
+    else if (outcome.rating === 'partial') record.reviewStage = rated ? Math.max(previous.reviewStage - 1, 0) : 0;
+    else record.reviewStage = 0;
+    record.dueAt = addDays(now, INTERVALS[record.reviewStage]);
+    record.ratings = record.ratings.concat([{
+      rating: outcome.rating,
+      at: now,
+      covered: outcome.covered || 0,
+      total: outcome.total || 0,
+      timeMs: Math.round(outcome.timeMs || 0),
+      answerText: outcome.answerText || ''
+    }]);
+    record.lastRating = outcome.rating;
+    record.lastRatedAt = now;
+    record.updatedAt = now;
+    return record;
+  }
+
   function download(filename, content, mime) {
     var blob = content instanceof Blob ? content : new Blob([content], { type: mime || 'application/octet-stream' });
     var url = URL.createObjectURL(blob);
@@ -587,6 +686,12 @@
     toCsv: toCsv,
     sessionResponseSignature: sessionResponseSignature,
     sessionsEquivalent: sessionsEquivalent,
+    INTERVIEW_RATINGS: INTERVIEW_RATINGS,
+    INTERVIEW_MINUTES: INTERVIEW_MINUTES,
+    promptBlocks: promptBlocks,
+    inlineMarkdown: inlineMarkdown,
+    buildInterviewBank: buildInterviewBank,
+    nextInterviewState: nextInterviewState,
     download: download
   };
 })();

@@ -661,6 +661,35 @@ kbd { display: inline-flex; justify-content: center; min-width: 52px; padding: .
 
 .storage-warning { padding: .75rem 1rem; border: 1px solid color-mix(in srgb, var(--warning) 35%, var(--line)); border-radius: 11px; background: var(--warning-soft); color: var(--warning); font-size: .8rem; }
 
+.interview-prompt p { color: var(--text-soft); line-height: 1.65; white-space: pre-wrap; }
+.interview-prompt :not(pre) > code,
+.interview-reveal :not(pre) > code { padding: .05rem .32rem; border: 1px solid var(--line); border-radius: 6px; background: var(--surface-soft); font: 600 .86em/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+.question-title code { font-size: .82em; }
+.interview-timer { min-width: 4.2rem; justify-content: center; font-variant-numeric: tabular-nums; }
+.interview-timer.over { color: var(--warning); background: var(--warning-soft); border-color: transparent; }
+.interview-steps { display: grid; gap: .4rem; margin: 0 0 1rem; padding-left: 1.3rem; }
+.interview-reveal h2 { margin-bottom: .6rem; }
+.interview-reveal h3 { margin: 1.1rem 0 .45rem; font-size: .95rem; }
+.interview-checklist { gap: .45rem; margin-bottom: .4rem; }
+.interview-checklist .option { grid-template-columns: 22px minmax(0, 1fr); min-height: 0; padding: .6rem .8rem; }
+.interview-checklist .option input { position: static; width: 18px; height: 18px; margin: .15rem 0 0; opacity: 1; pointer-events: auto; accent-color: var(--success); }
+.interview-checklist .option:has(input:checked) { border-color: var(--success); background: var(--success-soft); }
+.interview-output { margin: 0 0 1rem; padding: .8rem 1rem; border-radius: 10px; background: var(--code-bg); color: var(--code-text); font: 500 .86rem/1.6 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; white-space: pre-wrap; }
+.interview-example + .interview-example { margin-top: 1rem; padding-top: .25rem; border-top: 1px solid color-mix(in srgb, currentColor 14%, transparent); }
+.interview-rating { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+.interview-rating h2 { margin-bottom: .7rem; font-size: 1.05rem; }
+.rating-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .6rem; }
+.rating-button { position: relative; display: grid; gap: .2rem; min-height: 72px; padding: .8rem .9rem .8rem 2.9rem; border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface); color: var(--text); font: inherit; text-align: left; cursor: pointer; transition: transform var(--motion), border-color var(--motion); }
+.rating-button:hover { transform: translateY(-1px); }
+.rating-button small { color: var(--text-soft); font-size: .74rem; }
+.rating-key { position: absolute; top: .85rem; left: .85rem; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 7px; background: color-mix(in srgb, currentColor 12%, transparent); font-size: .74rem; font-weight: 800; }
+.rating-button.again { border-color: color-mix(in srgb, var(--danger) 45%, var(--line)); background: var(--danger-soft); }
+.rating-button.again strong, .rating-button.again .rating-key { color: var(--danger); }
+.rating-button.partial { border-color: color-mix(in srgb, var(--warning) 45%, var(--line)); background: var(--warning-soft); }
+.rating-button.partial strong, .rating-button.partial .rating-key { color: var(--warning); }
+.rating-button.good { border-color: color-mix(in srgb, var(--success) 45%, var(--line)); background: var(--success-soft); }
+.rating-button.good strong, .rating-button.good .rating-key { color: var(--success); }
+
 @media (max-width: 1100px) {
   .brand-copy small { display: none; }
   .main-nav { justify-content: flex-start; }
@@ -689,6 +718,7 @@ kbd { display: inline-flex; justify-content: center; min-width: 52px; padding: .
   .card-head { flex-wrap: wrap; }
   .stats-grid, .metric-grid, .section-grid, .session-side, .filter-bar { grid-template-columns: 1fr; }
   .check-grid { grid-template-columns: 1fr; }
+  .rating-grid { grid-template-columns: 1fr; }
   .question-card { padding: 1rem; }
   .question-meta { align-items: flex-start; flex-direction: column; }
   .question-actions, .question-actions-left, .question-actions-right { width: 100%; }

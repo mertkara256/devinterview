@@ -72,6 +72,28 @@ responses[`attempt::${sampleCards[0].id}`] = { firstScore: 1, finalScore: 1, com
 responses[`attempt::${sampleCards[1].id}`] = { firstScore: 0, finalScore: 0, completed: true, currentAnswer: '' };
 check(E.summarizeAttempt(attempt, responses).firstPercent === 50, 'Aynı kaynak alt kartları kaynak başına ortalanmalı.');
 
+const interviewBank = E.buildInterviewBank(E.getBank());
+check(interviewBank.length === 135, 'Mülakat bankası her kaynak soruyu içermeli.');
+check(interviewBank.every((item) => item.keyPoints.length > 0 && item.explanations.length + item.examples.length > 0), 'Her mülakat sorusunun kontrol listesi ve açıklaması olmalı.');
+const o24 = interviewBank.find((item) => item.sourceId === 'O24');
+check(o24.keyPoints.length === 1 && o24.examples.length === 1 && o24.examples[0].code && o24.examples[0].output, 'Soruda görünmeyen koda dayanan kart kontrol listesine değil, koduyla örneğe girmeli.');
+check(interviewBank.every((item) => ['Kolay', 'Orta', 'Zorlayıcı'].includes(item.difficulty)), 'Mülakat zorluğu kaynak tanımından okunmalı.');
+const j03 = interviewBank.find((item) => item.sourceId === 'J03');
+check(j03.expectedOutputs.length === 1 && j03.expectedOutputs[0] === '10\n99', 'Aynı kodu çalıştıran çıktı kartı beklenen çıktı olarak gösterilmeli.');
+check(interviewBank.every((item) => item.keyPoints.every((point) => !/^(Doğru|Yanlış)\./.test(point))), 'Kontrol listesi Doğru/Yanlış önekini taşımamalı.');
+check(JSON.stringify(E.promptBlocks('Soru\n\n```java\nint a;\n```\nSon').map((block) => block.type)) === '["text","code","text"]', 'Soru metni ve kod blokları ayrılmalı.');
+check(E.inlineMarkdown('`<T>` tipi') === '<code>&lt;T&gt;</code> tipi', 'Satır içi kod kaçışlı biçimde işlenmeli.');
+
+let interview = E.nextInterviewState(null, { sourceId: 'J01', rating: 'good', at: baseDate });
+check(interview.reviewStage === 1 && interview.dueAt === '2026-07-20T10:00:00.000Z', 'İlk rahat anlatım 3 gün sonra tekrar gelmeli.');
+interview = E.nextInterviewState(interview, { sourceId: 'J01', rating: 'good', at: '2026-07-20T10:00:00.000Z' });
+check(interview.reviewStage === 2 && interview.dueAt === '2026-07-27T10:00:00.000Z', 'Art arda rahat anlatım aralığı büyütmeli.');
+interview = E.nextInterviewState(interview, { sourceId: 'J01', rating: 'partial', at: '2026-07-27T10:00:00.000Z' });
+check(interview.reviewStage === 1 && interview.dueAt === '2026-07-30T10:00:00.000Z', 'Eksik anlatım bir aşama geri gitmeli.');
+interview = E.nextInterviewState(interview, { sourceId: 'J01', rating: 'again', at: '2026-07-30T10:00:00.000Z', answerText: 'cevap' });
+check(interview.reviewStage === 0 && interview.dueAt === '2026-07-31T10:00:00.000Z', 'Anlatamama ertesi güne almalı.');
+check(interview.ratings.length === 4 && interview.ratings[3].answerText === 'cevap' && interview.lastRating === 'again', 'Mülakat geçmişi ve son puan saklanmalı.');
+
 if (failures.length) {
   console.error(failures.join('\n'));
   process.exit(1);

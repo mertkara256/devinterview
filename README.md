@@ -58,6 +58,7 @@ SOURCE_MD="/tam/yol/sorular.md" node qa/validate-static.cjs
 - **Kaynak sırası:** Markdown dosyasındaki önerilen çalışma yolu.
 - **Karışık test:** Bölüm, konu, zorluk, tür ve geçmiş durumuyla filtrelenir.
 - **Akıllı tekrar:** 1, 3, 7, 14 ve 30 günlük aralıklarla zayıf konuları geri getirir.
+- **Mülakat:** 135 kaynak soruyu açık uçlu olarak sorar. Cevabı sesli anlatır veya yazarsın; ardından örnek cevap ve kontrol listesiyle karşılaştırıp kendini "Anlatamadım", "Eksik kaldı" veya "Rahat anlattım" olarak puanlarsın. Örnek cevap, o kaynağa ait kartların açıklamalarından oluşturulur. Mülakat puanları kendi tekrar takvimini kullanır; test sonuçlarını ve ustalık hesabını etkilemez.
 
 ## Klavye
 
@@ -68,6 +69,7 @@ SOURCE_MD="/tam/yol/sorular.md" node qa/validate-static.cjs
 - `V`: Favori
 - `H`: Gösterilmiş ipucuna odaklan
 - `?`: Yardım paneli
+- Mülakat modunda `Enter` örnek cevabı açar (yazarken `Cmd/Ctrl + Enter`), `1–3` kendini puanlar
 
 ## Not
 

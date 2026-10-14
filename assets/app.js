@@ -11,7 +11,9 @@
   var saveTimers = {
     draft: null,
     builder: null,
-    explorer: null
+    explorer: null,
+    interview: null,
+    interviewForm: null
   };
   var timerCheckpointing = false;
 
@@ -44,7 +46,13 @@
     pendingImport: null,
     explorerLimit: 60,
     explorerFilters: { search: '', section: 'all', difficulty: 'all', type: 'all' },
-    builderDefaults: null
+    builderDefaults: null,
+    interviewBank: [],
+    interviewById: {},
+    interview: null,
+    interviewClock: null,
+    interviewDefaults: null,
+    interviewFocusReveal: false
   };
 
   function routeInfo() {
@@ -172,7 +180,7 @@
   }
 
   function setActiveNav(name) {
-    var aliases = { session: 'builder', result: 'history', settings: 'settings' };
+    var aliases = { session: 'builder', result: 'history', settings: 'settings', 'interview-session': 'interview' };
     document.querySelectorAll('[data-nav]').forEach(function (link) {
       if (link.dataset.nav === (aliases[name] || name)) link.setAttribute('aria-current', 'page');
       else link.removeAttribute('aria-current');
@@ -372,6 +380,13 @@
     var route = routeInfo();
     if (route.name !== 'builder') { clearTimeout(saveTimers.builder); saveTimers.builder = null; }
     if (route.name !== 'explorer') { clearTimeout(saveTimers.explorer); saveTimers.explorer = null; }
+    if (route.name !== 'interview') { clearTimeout(saveTimers.interviewForm); saveTimers.interviewForm = null; }
+    if (state.interview) {
+      stopInterviewClock();
+      clearTimeout(saveTimers.interview);
+      await saveInterview();
+      if (route.name !== 'interview-session') state.interview = null;
+    }
     if (route.name !== 'session' && state.currentAttempt && document.getElementById('question-form')) {
       await saveCurrentDraft();
     }
@@ -392,6 +407,8 @@
       else if (route.name === 'history') await renderHistory();
       else if (route.name === 'analytics') await renderAnalytics();
       else if (route.name === 'explorer') await renderExplorer();
+      else if (route.name === 'interview') await renderInterview();
+      else if (route.name === 'interview-session') await renderInterviewSession();
       else if (route.name === 'settings') await renderSettings();
       else navigate('dashboard');
       if (token !== state.routeToken) {
@@ -426,6 +443,8 @@
     state.bank = E.getBank();
     state.validation = E.validateBank(state.bank);
     state.bank.forEach(function (card) { state.bankById[card.id] = card; });
+    state.interviewBank = E.buildInterviewBank(state.bank);
+    state.interviewBank.forEach(function (item) { state.interviewById[item.sourceId] = item; });
     if (!state.validation.valid) {
       app.innerHTML = pageHeader('Soru bankası', 'Bankada doğrulama sorunu var', 'Uygulama hatalı cevap anahtarıyla başlamadı.') +
         '<div class="card pad"><ul>' + state.validation.errors.slice(0, 30).map(function (error) { return '<li>' + E.escapeHtml(error) + '</li>'; }).join('') + '</ul></div>';
@@ -466,6 +485,7 @@
     var progressMap = await recordsMap('progress');
     var cardStateMap = await recordsMap('cardState');
     var dailyRecords = await DB.all('daily');
+    var interviewSummary = interviewStats(await recordsMap('interview'), progressMap);
     var now = Date.now();
     var due = Object.keys(cardStateMap).filter(function (id) {
       var card = state.bankById[id];
@@ -524,7 +544,10 @@
         '<div class="stack"><div class="card pad"><div class="card-head"><div><span class="eyebrow">USTALIK</span><h2>Bölüm ilerlemesi</h2></div><a href="#/analytics" class="button small ghost">Tüm analiz</a></div>' +
         '<div class="section-grid">' + sections.map(function (section) { var item = mastery[section]; return '<div class="section-tile"><strong>' + section + '</strong>' + progressHtml(item.percent, section + ' ustalığı') + '<p class="tiny muted" style="margin:.55rem 0 0">' + item.mastered + '/' + item.total + ' kaynak · %' + item.percent + '</p></div>'; }).join('') + '</div></div>' +
         '<div class="card pad"><div class="card-head"><div><span class="eyebrow">DEVAM ET</span><h2>Yarım oturumlar</h2></div><a href="#/history" class="button small ghost">Tümünü gör</a></div><div class="list">' + activeHtml + '</div></div></div>' +
-        '<aside class="stack"><div class="card pad"><span class="eyebrow">SON ÇALIŞMALAR</span><h2>Geçmiş</h2><div class="list">' + recentHtml + '</div></div>' +
+        '<aside class="stack"><div class="card pad"><span class="eyebrow">MÜLAKAT MODU</span><h2>Anlatarak çalış</h2><p class="muted tiny">Soruyu sesli ya da yazılı açıkla, örnek cevapla karşılaştır ve kendini puanla.</p>' +
+          '<div class="badge-row" style="margin-bottom:.8rem"><span class="badge warning">' + interviewSummary.due + ' anlatım tekrarı</span><span class="badge">' + interviewSummary.rated + '/' + interviewSummary.total + ' soru anlatıldı</span></div>' +
+          '<div class="page-actions" style="justify-content:flex-start">' + (interviewSummary.due ? '<button class="button small secondary" data-action="start-interview-due">Tekrarları anlat</button>' : '') + '<a class="button small soft" href="#/interview">Mülakat başlat</a></div></div>' +
+        '<div class="card pad"><span class="eyebrow">SON ÇALIŞMALAR</span><h2>Geçmiş</h2><div class="list">' + recentHtml + '</div></div>' +
         '<div class="card pad"><span class="eyebrow">YEREL VE ÖZEL</span><h3>Verin cihazından çıkmaz</h3><p class="muted tiny">Bu uygulama hiçbir ağ isteği göndermez. Klasörü taşımadan önce JSON yedeği al.</p><a class="button small ghost" href="#/settings">Yedekleme ayarları</a></div></aside>' +
       '</section>';
   }
@@ -1374,6 +1397,417 @@
       }).join('') + '</section>' + (shown.length < cards.length ? '<div style="text-align:center;margin-top:1rem"><button class="button ghost" data-action="explorer-more">Daha fazla göster</button></div>' : '');
   }
 
+  var INTERVIEW_ORDER = ['again', 'partial', 'good'];
+  var interviewTicker = null;
+
+  function interviewFormDefaults() {
+    return { sections: ['Java', 'OOP', 'Algoritma'], difficulties: ['Kolay', 'Orta', 'Zorlayıcı'], status: 'all', size: '10' };
+  }
+
+  function readInterviewForm(form) {
+    var data = new FormData(form);
+    return {
+      sections: data.getAll('sections'),
+      difficulties: data.getAll('difficulties'),
+      status: data.get('status') || 'all',
+      size: data.get('size') || '10'
+    };
+  }
+
+  function interviewIsDue(record, now) {
+    return !!(record && record.dueAt && new Date(record.dueAt).getTime() <= (now || Date.now()));
+  }
+
+  function filterInterviewItems(filters, recordMap, progressMap) {
+    var now = Date.now();
+    return state.interviewBank.filter(function (item) {
+      var record = recordMap[item.sourceId];
+      if ((progressMap[item.sourceId] || {}).excluded) return false;
+      if (filters.sections && filters.sections.indexOf(item.section) === -1) return false;
+      if (filters.difficulties && filters.difficulties.indexOf(item.difficulty) === -1) return false;
+      if (filters.status === 'new' && record) return false;
+      if (filters.status === 'due' && !interviewIsDue(record, now)) return false;
+      if (filters.status === 'weak' && !(record && record.lastRating && record.lastRating !== 'good')) return false;
+      return true;
+    });
+  }
+
+  function interviewStats(recordMap, progressMap) {
+    var now = Date.now();
+    var ids = Object.keys(recordMap).filter(function (id) { return state.interviewById[id] && recordMap[id].lastRating; });
+    return {
+      total: state.interviewBank.length,
+      rated: ids.length,
+      due: ids.filter(function (id) { return interviewIsDue(recordMap[id], now) && !(progressMap[id] || {}).excluded; }).length,
+      good: ids.filter(function (id) { return recordMap[id].lastRating === 'good'; }).length
+    };
+  }
+
+  function newInterviewCurrent(sourceId) {
+    return { sourceId: sourceId, revealed: false, answerText: '', checked: [], elapsedMs: 0 };
+  }
+
+  async function saveInterview() {
+    if (!state.interview) return;
+    state.interview.updatedAt = new Date().toISOString();
+    await DB.put('meta', state.interview);
+  }
+
+  function clockText(milliseconds) {
+    var total = Math.floor(Math.max(0, milliseconds || 0) / 1000);
+    return String(Math.floor(total / 60)).padStart(2, '0') + ':' + String(total % 60).padStart(2, '0');
+  }
+
+  function interviewElapsed() {
+    var current = state.interview && state.interview.current;
+    if (!current) return 0;
+    return (current.elapsedMs || 0) + (state.interviewClock ? performance.now() - state.interviewClock.startedAt : 0);
+  }
+
+  function interviewOverTime(item, elapsed) {
+    return elapsed > (E.INTERVIEW_MINUTES[item.difficulty] || 3) * 60000;
+  }
+
+  function updateInterviewTimer() {
+    var element = document.getElementById('interview-timer');
+    var current = state.interview && state.interview.current;
+    if (!element || !current || !state.interviewById[current.sourceId]) return;
+    var elapsed = interviewElapsed();
+    element.textContent = clockText(elapsed);
+    element.classList.toggle('over', interviewOverTime(state.interviewById[current.sourceId], elapsed));
+  }
+
+  function stopInterviewClock() {
+    if (state.interviewClock && state.interview && state.interview.current) state.interview.current.elapsedMs = interviewElapsed();
+    state.interviewClock = null;
+    clearInterval(interviewTicker);
+    interviewTicker = null;
+  }
+
+  function startInterviewClock() {
+    stopInterviewClock();
+    if (document.hidden) return;
+    state.interviewClock = { startedAt: performance.now() };
+    interviewTicker = setInterval(updateInterviewTimer, 1000);
+    updateInterviewTimer();
+  }
+
+  async function renderInterview() {
+    var recordMap = await recordsMap('interview');
+    var progressMap = await recordsMap('progress');
+    var session = await DB.get('meta', 'interviewSession');
+    var defaults = state.interviewDefaults || interviewFormDefaults();
+    state.interviewDefaults = defaults;
+    var pool = filterInterviewItems(defaults, recordMap, progressMap);
+    var expected = defaults.size === 'all' ? pool.length : Math.min(pool.length, Number(defaults.size));
+    var stats = interviewStats(recordMap, progressMap);
+    var unfinished = session && !session.finishedAt && session.current;
+
+    function chips(values, selected, name, label) {
+      return '<div class="check-grid" role="group" aria-label="' + label + '">' + values.map(function (value) {
+        return '<label class="choice-chip"><input type="checkbox" name="' + name + '" value="' + E.escapeHtml(value) + '" ' + (selected.indexOf(value) !== -1 ? 'checked' : '') + '><span>' + E.escapeHtml(value) + '</span></label>';
+      }).join('') + '</div>';
+    }
+
+    function segmented(name, label, options) {
+      return '<div class="segmented" role="radiogroup" aria-label="' + label + '">' + options.map(function (option) {
+        return '<label><input type="radio" name="' + name + '" value="' + option[0] + '" ' + (defaults[name] === option[0] ? 'checked' : '') + '><span>' + option[1] + '</span></label>';
+      }).join('') + '</div>';
+    }
+
+    var sessionHtml = '';
+    if (unfinished) {
+      sessionHtml = '<div class="card pad"><span class="eyebrow">YARIM MÜLAKAT</span><h2>' + (session.index + 1) + ' / ' + session.queue.length + '. soru</h2><p class="tiny muted">Puanladığın sorular kaydedildi. Kaldığın sorudan devam edebilirsin.</p><a class="button primary full" href="#/interview-session">Devam et</a></div>';
+    } else if (session && session.finishedAt) {
+      sessionHtml = '<div class="card pad"><span class="eyebrow">SON MÜLAKAT</span><h2>' + Object.keys(session.results || {}).length + ' soru</h2><p class="tiny muted">' + E.formatDate(session.finishedAt, true) + '</p><a class="button ghost full" href="#/interview-session">Özeti gör</a></div>';
+    }
+
+    app.innerHTML = pageHeader('MÜLAKAT MODU', 'Anlatarak çalış', 'Soruyu mülakattaymış gibi sesli ya da yazılı açıkla, örnek cevapla karşılaştır ve kendini puanla.', '<a class="button ghost" href="#/dashboard">Panele dön</a>') +
+      '<form id="interview-form" class="builder-layout">' +
+        '<div class="card">' +
+          '<section class="form-section"><span class="eyebrow">NASIL ÇALIŞIR</span><h2>Önce anlat, sonra karşılaştır</h2><ol class="interview-steps">' +
+            '<li>Soruyu oku; süre işlemeye başlar.</li>' +
+            '<li>Cevabını sesli anlat ya da yazarak açıkla.</li>' +
+            '<li>Örnek cevabı aç ve kontrol listesinde değindiğin noktaları işaretle.</li>' +
+            '<li>Kendini puanla; soru buna göre 1–30 gün sonra yeniden gelir.</li></ol></section>' +
+          '<section class="form-section"><span class="eyebrow">1 · KAPSAM</span><h2>Bölümler</h2>' + chips(['Java', 'OOP', 'Algoritma'], defaults.sections, 'sections', 'Bölümler') + '</section>' +
+          '<section class="form-section"><h2>Zorluk</h2>' + chips(['Kolay', 'Orta', 'Zorlayıcı'], defaults.difficulties, 'difficulties', 'Zorluklar') + '</section>' +
+          '<section class="form-section"><span class="eyebrow">2 · HAVUZ</span><h2>Hangi sorular?</h2>' + segmented('status', 'Soru havuzu', [['all', 'Tümü'], ['new', 'Yeni'], ['due', 'Tekrar zamanı'], ['weak', 'Zayıf']]) +
+            '<p class="tiny muted" style="margin:.65rem 0 0">Zayıf: son puanı "Anlatamadım" veya "Eksik kaldı" olan sorular.</p></section>' +
+          '<section class="form-section"><span class="eyebrow">3 · BOYUT</span><h2>Kaç soru?</h2>' + segmented('size', 'Soru sayısı', [['5', '5'], ['10', '10'], ['20', '20'], ['all', 'Tümü']]) + '</section>' +
+        '</div>' +
+        '<aside class="stack">' + sessionHtml +
+          '<div class="card pad summary-panel"><span class="eyebrow">MÜLAKAT ÖZETİ</span><h2>Anlatım oturumu</h2><div class="summary-number">' + expected + '</div><p class="muted">soru</p><div class="summary-list">' +
+            '<div><span>Uygun havuz</span><strong>' + pool.length + '</strong></div>' +
+            '<div><span>Anlatılan soru</span><strong>' + stats.rated + '/' + stats.total + '</strong></div>' +
+            '<div><span>Tekrar bekleyen</span><strong>' + stats.due + '</strong></div>' +
+            '<div><span>Rahat anlatılan</span><strong>' + stats.good + '</strong></div></div>' +
+            '<button class="button primary full" type="submit" ' + (pool.length ? '' : 'disabled') + '>Mülakatı başlat</button>' +
+            (unfinished ? '<p class="tiny muted" style="margin:.75rem 0 0">Yeni mülakat yarım olanın yerini alır; puanladığın sorular korunur.</p>' : '') + '</div>' +
+        '</aside>' +
+      '</form>';
+  }
+
+  async function beginInterview(sourceIds, filters) {
+    stopInterviewClock();
+    state.interview = {
+      id: 'interviewSession',
+      queue: sourceIds,
+      index: 0,
+      results: {},
+      current: newInterviewCurrent(sourceIds[0]),
+      filters: filters || {},
+      startedAt: new Date().toISOString(),
+      finishedAt: null
+    };
+    await saveInterview();
+    if (routeInfo().name !== 'interview-session') return navigate('interview-session');
+    await renderInterviewSession();
+    afterInterviewStep();
+  }
+
+  async function startInterview(form) {
+    var filters = readInterviewForm(form);
+    state.interviewDefaults = filters;
+    var pool = filterInterviewItems(filters, await recordsMap('interview'), await recordsMap('progress'));
+    if (!pool.length) return toast('Seçtiğin filtrelere uygun soru bulunamadı.', 'warning');
+    var count = filters.size === 'all' ? pool.length : Math.min(pool.length, Number(filters.size));
+    await beginInterview(E.shuffled(pool, E.uuid()).slice(0, count).map(function (item) { return item.sourceId; }), filters);
+  }
+
+  async function startDueInterview() {
+    var due = filterInterviewItems({ status: 'due' }, await recordsMap('interview'), await recordsMap('progress'));
+    if (!due.length) return toast('Zamanı gelmiş mülakat tekrarı yok.', 'success');
+    await beginInterview(E.shuffled(due, E.uuid()).map(function (item) { return item.sourceId; }), { status: 'due' });
+  }
+
+  async function retryWeakInterview() {
+    var session = state.interview;
+    if (!session) return;
+    var weak = session.queue.filter(function (id) { return session.results[id] === 'again' || session.results[id] === 'partial'; });
+    if (!weak.length) return toast('Yeniden anlatılacak zayıf soru yok.', 'success');
+    await beginInterview(E.shuffled(weak, E.uuid()), session.filters);
+  }
+
+  function afterInterviewStep() {
+    document.getElementById('main-content').focus({ preventScroll: true });
+    window.scrollTo({ top: 0, behavior: state.settings.reducedMotion ? 'auto' : 'smooth' });
+    var heading = app.querySelector('h1');
+    if (heading) {
+      document.title = heading.textContent + ' · DevInterview';
+      announce(heading.textContent);
+    }
+  }
+
+  function interviewPromptHtml(item) {
+    var blocks = E.promptBlocks(item.prompt);
+    var titleIndex = blocks.findIndex(function (block) { return block.type === 'text'; });
+    var html = blocks.map(function (block, index) {
+      if (block.type === 'code') return renderCode(block.text);
+      if (index === titleIndex) return '<h1 class="question-title">' + E.inlineMarkdown(block.text) + '</h1>';
+      return '<p>' + E.inlineMarkdown(block.text) + '</p>';
+    }).join('');
+    return titleIndex === -1 ? '<h1 class="question-title">' + E.escapeHtml(item.sourceId) + '</h1>' + html : html;
+  }
+
+  function interviewRevealHtml(item, current, record) {
+    var checklist = item.keyPoints.map(function (point, index) {
+      return '<label class="option"><input type="checkbox" name="interview-point" value="' + index + '" ' + (current.checked.indexOf(index) !== -1 ? 'checked' : '') + '><span class="option-text">' + E.inlineMarkdown(point) + '</span></label>';
+    }).join('');
+    var outputs = item.expectedOutputs.length ? '<h3>Beklenen çıktı</h3>' + item.expectedOutputs.map(function (output) { return '<pre class="interview-output">' + E.escapeHtml(output) + '</pre>'; }).join('') : '';
+    var examples = item.examples.length ? '<h3>Örnek kod</h3>' + item.examples.map(function (example) {
+      return '<div class="interview-example">' + renderCode(example.code) +
+        (example.output ? '<p class="tiny muted">Çıktı</p><pre class="interview-output">' + E.escapeHtml(example.output) + '</pre>' : '') +
+        (example.blank ? '<p>Eksik parça: <code>' + E.escapeHtml(example.blank) + '</code></p>' : '') +
+        '<p><strong>' + E.inlineMarkdown(example.caption) + '</strong> ' + E.inlineMarkdown(example.detail) + '</p></div>';
+    }).join('') : '';
+    var steps = item.steps.map(function (list) {
+      return '<h3>Çözüm adımları</h3><ol class="interview-steps">' + list.map(function (step) { return '<li>' + E.inlineMarkdown(step) + '</li>'; }).join('') + '</ol>';
+    }).join('');
+    var previous = record && record.lastRating
+      ? '<p class="tiny muted">Önceki değerlendirmen: ' + E.escapeHtml(E.INTERVIEW_RATINGS[record.lastRating]) + ' · ' + E.formatDate(record.lastRatedAt) + '</p>'
+      : '';
+    var ratingButtons = INTERVIEW_ORDER.map(function (rating, index) {
+      var days = E.INTERVALS[E.nextInterviewState(record, { sourceId: item.sourceId, rating: rating }).reviewStage];
+      return '<button type="button" class="rating-button ' + rating + '" data-action="interview-rate" data-rating="' + rating + '" aria-keyshortcuts="' + (index + 1) + '">' +
+        '<span class="rating-key" aria-hidden="true">' + (index + 1) + '</span><strong>' + E.INTERVIEW_RATINGS[rating] + '</strong><small>' + days + ' gün sonra tekrar</small></button>';
+    }).join('');
+    return '<section class="feedback interview-reveal" id="interview-reveal" tabindex="-1" aria-labelledby="interview-reveal-title">' +
+        '<h2 id="interview-reveal-title">Örnek cevap</h2>' +
+        '<h3>Kontrol listesi</h3><p class="tiny muted">Anlatırken bu noktalara değindin mi? İşaretlemek isteğe bağlı.</p><div class="options interview-checklist">' + checklist + '</div>' +
+        (item.explanations.length ? '<h3>Açıklama</h3>' + item.explanations.map(function (text) { return '<p>' + E.inlineMarkdown(text) + '</p>'; }).join('') : '') + outputs + steps + examples + previous +
+      '</section>' +
+      '<section class="interview-rating" aria-labelledby="interview-rating-title"><h2 id="interview-rating-title">Kendini puanla</h2><div class="rating-grid">' + ratingButtons + '</div></section>';
+  }
+
+  async function renderInterviewSession() {
+    stopInterviewClock();
+    if (!state.interview) state.interview = await DB.get('meta', 'interviewSession') || null;
+    var session = state.interview;
+    if (!session || !session.queue || !session.queue.length) {
+      app.innerHTML = emptyState('?', 'Aktif mülakat yok', 'Yeni bir mülakat başlatarak soruları anlatmaya başlayabilirsin.', '<a class="button primary" href="#/interview">Mülakat modu</a>');
+      return;
+    }
+    if (!session.current) return renderInterviewSummary(session);
+    var current = session.current;
+    var item = state.interviewById[current.sourceId];
+    if (!item) {
+      session.results[current.sourceId] = 'skipped';
+      return advanceInterview();
+    }
+    var record = await DB.get('interview', item.sourceId);
+    var counts = { good: 0, partial: 0, again: 0, skipped: 0 };
+    Object.keys(session.results).forEach(function (id) { counts[session.results[id]] = (counts[session.results[id]] || 0) + 1; });
+
+    app.innerHTML = '<section class="session-page">' +
+      '<div class="session-top"><div class="session-top-main"><a class="button small ghost" href="#/interview">Çıkış</a><div class="session-progress"><div class="session-progress-meta"><span>Mülakat modu</span><strong>' + (session.index + 1) + ' / ' + session.queue.length + '</strong></div>' + progressHtml((session.index + 1) / session.queue.length * 100, 'Mülakat ilerlemesi') + '</div></div>' +
+      '<div class="badge-row"><span class="badge primary">Mülakat</span><span class="badge">Otomatik kayıt</span></div></div>' +
+      '<div class="session-layout"><article class="card question-card">' +
+        '<div class="question-meta"><div class="question-meta-left"><span class="badge primary">' + E.escapeHtml(item.sourceId) + '</span>' + difficultyBadge(item.difficulty) + (item.kind ? '<span class="badge">' + E.escapeHtml(item.kind) + '</span>' : '') + '<span class="badge">' + E.escapeHtml(item.topic) + '</span></div>' +
+        '<div class="question-meta-right"><span class="badge interview-timer' + (interviewOverTime(item, current.elapsedMs) ? ' over' : '') + '" id="interview-timer" role="timer" title="Geçen süre">' + clockText(current.elapsedMs) + '</span></div></div>' +
+        '<div class="interview-prompt">' + interviewPromptHtml(item) + '</div>' +
+        '<p class="tiny muted">Önerilen süre: ' + (E.INTERVIEW_MINUTES[item.difficulty] || 3) + ' dk · Mülakattaymış gibi sesli anlat ya da aşağıya yaz.</p>' +
+        '<label class="field"><span>Yazılı cevabın (isteğe bağlı)</span><textarea id="interview-answer" rows="7" maxlength="6000" spellcheck="false" placeholder="Ana fikirleri, örnek kodu veya karmaşıklığı yaz…" ' + (current.revealed ? 'readonly' : '') + '>' + E.escapeHtml(current.answerText || '') + '</textarea></label>' +
+        (current.revealed ? interviewRevealHtml(item, current, record) :
+          '<div class="question-actions"><div class="question-actions-left"><button class="button ghost" type="button" data-action="interview-skip">Atla</button></div>' +
+          '<div class="question-actions-right"><button class="button primary" type="button" data-action="interview-reveal" aria-keyshortcuts="Enter">Örnek cevabı göster</button></div></div>') +
+      '</article>' +
+      '<aside class="session-side"><div class="card pad"><span class="eyebrow">BU MÜLAKAT</span><h3>' + Object.keys(session.results).length + ' / ' + session.queue.length + ' soru tamamlandı</h3><div class="summary-list">' +
+          '<div><span>Rahat anlattım</span><strong>' + counts.good + '</strong></div>' +
+          '<div><span>Eksik kaldı</span><strong>' + counts.partial + '</strong></div>' +
+          '<div><span>Anlatamadım</span><strong>' + counts.again + '</strong></div>' +
+          '<div><span>Atlanan</span><strong>' + counts.skipped + '</strong></div></div>' +
+          '<button class="button ghost full" style="margin-top:1rem" type="button" data-action="interview-finish">Mülakatı bitir</button></div>' +
+        '<div class="card pad"><span class="eyebrow">KISAYOLLAR</span><p class="tiny muted" style="margin:0">Enter örnek cevabı açar; yazarken Cmd/Ctrl + Enter. Cevap açıkken 1, 2 ve 3 puan verir.</p></div></aside></div></section>';
+
+    if (!current.revealed) {
+      startInterviewClock();
+    } else if (state.interviewFocusReveal) {
+      state.interviewFocusReveal = false;
+      document.getElementById('interview-reveal').focus();
+    }
+  }
+
+  async function renderInterviewSummary(session) {
+    var records = await recordsMap('interview');
+    var done = session.queue.filter(function (id) { return session.results[id]; });
+    var counts = { good: 0, partial: 0, again: 0, skipped: 0 };
+    done.forEach(function (id) { counts[session.results[id]] += 1; });
+    var weakCount = counts.again + counts.partial;
+    var listHtml = done.map(function (id) {
+      var item = state.interviewById[id] || { topic: '' };
+      var rating = session.results[id];
+      var badge = rating === 'good' ? 'success' : rating === 'partial' ? 'warning' : rating === 'again' ? 'danger' : '';
+      var record = records[id];
+      return '<div class="list-item"><div class="list-item-main"><strong>' + E.escapeHtml(id + (item.topic ? ' · ' + item.topic : '')) + '</strong><small>' +
+        (rating !== 'skipped' && record && record.dueAt ? 'Sonraki tekrar: ' + E.formatDate(record.dueAt) : 'Puanlanmadı') + '</small></div>' +
+        '<span class="badge ' + badge + '">' + E.escapeHtml(E.INTERVIEW_RATINGS[rating] || 'Atlandı') + '</span></div>';
+    }).join('');
+    app.innerHTML = pageHeader('MÜLAKAT TAMAMLANDI', 'Mülakat özeti', E.formatDate(session.finishedAt || session.updatedAt, true) + ' · ' + done.length + ' soru', '<a class="button primary" href="#/interview">Yeni mülakat</a>') +
+      '<section class="card pad-lg"><div class="metric-grid">' +
+        '<div class="metric"><strong>' + counts.good + '</strong><span>Rahat anlattım</span></div>' +
+        '<div class="metric"><strong>' + counts.partial + '</strong><span>Eksik kaldı</span></div>' +
+        '<div class="metric"><strong>' + counts.again + '</strong><span>Anlatamadım</span></div>' +
+        '<div class="metric"><strong>' + counts.skipped + '</strong><span>Atlanan</span></div></div></section>' +
+      '<section class="content-grid"><div class="card pad"><div class="card-head"><div><span class="eyebrow">SORULAR</span><h2>Bu mülakattaki puanların</h2></div></div><div class="list">' + (listHtml || '<p class="muted">Puanlanan soru yok.</p>') + '</div></div>' +
+        '<aside class="stack"><div class="card pad"><span class="eyebrow">TEKRAR</span><h2>Zayıf kalanlar</h2><p class="muted tiny">Anlatamadığın ve eksik kaldığın sorular takvime göre yeniden gelir. İstersen hemen bir kez daha anlatabilirsin.</p>' +
+          '<button class="button secondary full" type="button" data-action="interview-retry-weak" ' + (weakCount ? '' : 'disabled') + '>' + (weakCount ? weakCount + ' soruyu yeniden anlat' : 'Zayıf soru yok') + '</button></div>' +
+          '<div class="card pad"><span class="eyebrow">NOT</span><p class="tiny muted" style="margin:0">Mülakat puanları kendi tekrar takvimini kullanır; test sonuçlarını ve ustalık hesabını etkilemez.</p></div></aside></section>';
+  }
+
+  async function advanceInterview() {
+    var session = state.interview;
+    stopInterviewClock();
+    clearTimeout(saveTimers.interview);
+    session.index += 1;
+    session.current = session.index < session.queue.length ? newInterviewCurrent(session.queue[session.index]) : null;
+    if (!session.current) session.finishedAt = new Date().toISOString();
+    await saveInterview();
+    await renderInterviewSession();
+    afterInterviewStep();
+  }
+
+  async function revealInterviewAnswer() {
+    var current = state.interview && state.interview.current;
+    if (!current || current.revealed) return;
+    stopInterviewClock();
+    var answer = document.getElementById('interview-answer');
+    if (answer) current.answerText = answer.value;
+    current.revealed = true;
+    state.interviewFocusReveal = true;
+    clearTimeout(saveTimers.interview);
+    await saveInterview();
+    await renderInterviewSession();
+  }
+
+  async function rateInterview(rating) {
+    var session = state.interview;
+    var current = session && session.current;
+    if (!current || !current.revealed || !E.INTERVIEW_RATINGS[rating]) return;
+    var item = state.interviewById[current.sourceId];
+    var previous = await DB.get('interview', current.sourceId);
+    await DB.put('interview', E.nextInterviewState(previous, {
+      sourceId: current.sourceId,
+      rating: rating,
+      covered: current.checked.length,
+      total: item ? item.keyPoints.length : 0,
+      timeMs: current.elapsedMs,
+      answerText: String(current.answerText || '').trim()
+    }));
+    session.results[current.sourceId] = rating;
+    await advanceInterview();
+  }
+
+  async function skipInterview() {
+    var session = state.interview;
+    if (!session || !session.current) return;
+    session.results[session.current.sourceId] = 'skipped';
+    await advanceInterview();
+  }
+
+  async function finishInterview() {
+    var session = state.interview;
+    if (!session) return;
+    var remaining = session.queue.length - Object.keys(session.results).length;
+    if (remaining > 0) {
+      var approved = await confirmAction('Mülakatı bitir', remaining + ' soru puanlanmadan kalacak. Puanladığın sorular kayıtlı kalır.', 'Mülakatı bitir');
+      if (!approved) return;
+    }
+    stopInterviewClock();
+    session.queue = session.queue.filter(function (id) { return session.results[id]; });
+    session.current = null;
+    session.finishedAt = new Date().toISOString();
+    if (!session.queue.length) {
+      await DB.remove('meta', 'interviewSession');
+      state.interview = null;
+      return navigate('interview');
+    }
+    await saveInterview();
+    await renderInterviewSession();
+    afterInterviewStep();
+  }
+
+  function handleInterviewKey(event, active) {
+    var current = state.interview && state.interview.current;
+    if (!current) return;
+    if (event.key === 'Enter' && (event.metaKey || event.ctrlKey) && active && active.id === 'interview-answer' && !current.revealed) {
+      event.preventDefault();
+      revealInterviewAnswer();
+      return;
+    }
+    if (event.metaKey || event.ctrlKey || event.altKey) return;
+    var editing = active && (active.tagName === 'TEXTAREA' || active.tagName === 'SELECT' || active.isContentEditable || (active.tagName === 'INPUT' && !/^(checkbox|radio)$/.test(active.type)));
+    if (editing) return;
+    if (event.key === 'Enter' && !current.revealed) {
+      if (active && /^(BUTTON|A|SUMMARY)$/.test(active.tagName)) return;
+      event.preventDefault();
+      revealInterviewAnswer();
+    } else if (/^[1-3]$/.test(event.key) && current.revealed) {
+      event.preventDefault();
+      rateInterview(INTERVIEW_ORDER[Number(event.key) - 1]);
+    }
+  }
+
   async function renderSettings() {
     var issues = (await DB.all('issues')).sort(function (a, b) { return String(b.createdAt).localeCompare(String(a.createdAt)); });
     var dump = await DB.dump();
@@ -1512,8 +1946,8 @@
         await DB.put('settings', importedSettings);
       }
     }
-    for (var storeIndex = 0; storeIndex < ['cardState', 'notes', 'issues', 'daily', 'meta'].length; storeIndex += 1) {
-      var storeName = ['cardState', 'notes', 'issues', 'daily', 'meta'][storeIndex];
+    for (var storeIndex = 0; storeIndex < ['cardState', 'notes', 'issues', 'daily', 'meta', 'interview'].length; storeIndex += 1) {
+      var storeName = ['cardState', 'notes', 'issues', 'daily', 'meta', 'interview'][storeIndex];
       var existing = await recordsMap(storeName);
       var records = incoming[storeName] || [];
       for (var recordIndex = 0; recordIndex < records.length; recordIndex += 1) {
@@ -1783,6 +2217,12 @@
     if (action === 'delete-issue') { await DB.remove('issues', target.dataset.id); toast('Bildirim silindi.', 'success'); return refreshPreservingFocus(renderSettings); }
     if (action === 'reset-all') return resetAllData();
     if (action === 'open-help') return document.getElementById('help-dialog').showModal();
+    if (action === 'start-interview-due') return startDueInterview();
+    if (action === 'interview-reveal') return revealInterviewAnswer();
+    if (action === 'interview-rate') return rateInterview(target.dataset.rating);
+    if (action === 'interview-skip') return skipInterview();
+    if (action === 'interview-finish') return finishInterview();
+    if (action === 'interview-retry-weak') return retryWeakInterview();
   }
 
   function handleAppChange(event) {
@@ -1806,6 +2246,17 @@
       state.settings.reducedMotion = form.get('reducedMotion') === 'on';
       state.settings.dailyGoal = Math.max(1, Math.min(100, Number(form.get('dailyGoal')) || 10));
       saveSettings().then(function () { toast('Ayarlar kaydedildi.', 'success'); });
+    }
+    if (event.target.closest('#interview-form')) {
+      state.interviewDefaults = readInterviewForm(document.getElementById('interview-form'));
+      clearTimeout(saveTimers.interviewForm);
+      saveTimers.interviewForm = setTimeout(function () {
+        refreshPreservingFocus(renderInterview);
+      }, 120);
+    }
+    if (event.target.name === 'interview-point' && state.interview && state.interview.current) {
+      state.interview.current.checked = Array.from(document.querySelectorAll('input[name="interview-point"]:checked')).map(function (input) { return Number(input.value); });
+      saveInterview().catch(function (error) { console.error(error); });
     }
     if (event.target.id === 'import-file' && event.target.files[0]) readImportFile(event.target.files[0]);
     if (['explorer-section', 'explorer-difficulty', 'explorer-type'].indexOf(event.target.id) !== -1) {
@@ -1831,6 +2282,14 @@
       var questionId = currentCard().id;
       var value = event.target.value;
       DB.put('notes', { id: questionId, questionId: questionId, text: value, updatedAt: new Date().toISOString() }).catch(function (error) { console.error(error); });
+    }
+    if (event.target.id === 'interview-answer' && state.interview && state.interview.current && !state.interview.current.revealed) {
+      state.interview.current.answerText = event.target.value;
+      clearTimeout(saveTimers.interview);
+      saveTimers.interview = setTimeout(function () {
+        saveTimers.interview = null;
+        saveInterview().catch(function (error) { console.error(error); });
+      }, 400);
     }
     if (event.target.id === 'explorer-search') {
       state.explorerFilters.search = event.target.value;
@@ -1880,6 +2339,7 @@
     app.addEventListener('submit', function (event) {
       if (event.target.id === 'builder-form') { event.preventDefault(); createFromBuilder(event.target); }
       if (event.target.id === 'question-form') { event.preventDefault(); submitCurrentAnswer(); }
+      if (event.target.id === 'interview-form') { event.preventDefault(); startInterview(event.target); }
     });
     document.getElementById('issue-form').addEventListener('submit', saveIssue);
     document.querySelectorAll('[data-close-dialog]').forEach(function (button) {
@@ -1910,8 +2370,13 @@
       if (document.hidden) {
         await saveCurrentDraft();
         await flushTimer();
+        if (state.interview) {
+          stopInterviewClock();
+          await saveInterview();
+        }
       }
       else if (state.route && state.route.name === 'session' && currentResponse()) startTimer(currentResponse());
+      else if (state.route && state.route.name === 'interview-session' && state.interview && state.interview.current && !state.interview.current.revealed) startInterviewClock();
     });
     window.addEventListener('beforeunload', persistSessionOnExit);
     window.addEventListener('pagehide', persistSessionOnExit);
@@ -1933,6 +2398,7 @@
     var typing = active && (/^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName) || active.isContentEditable);
     var openDialog = document.querySelector('dialog[open]');
     if (event.key === '?' && !typing && !openDialog) { event.preventDefault(); document.getElementById('help-dialog').showModal(); return; }
+    if (state.route && state.route.name === 'interview-session' && !openDialog) return handleInterviewKey(event, active);
     if (typing || !state.route || state.route.name !== 'session' || openDialog) return;
     if (/^[1-9]$/.test(event.key)) {
       var options = document.querySelectorAll('#question-form .option input:not(:disabled)');

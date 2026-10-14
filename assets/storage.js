@@ -2,7 +2,7 @@
   'use strict';
 
   var DB_NAME = 'javaInterviewExamDB';
-  var DB_VERSION = 1;
+  var DB_VERSION = 2;
   var FALLBACK_KEY = 'javaInterviewExamDB.fallback.v1';
   var STORE_NAMES = [
     'settings',
@@ -13,7 +13,8 @@
     'notes',
     'issues',
     'daily',
-    'meta'
+    'meta',
+    'interview'
   ];
 
   function clone(value) {
