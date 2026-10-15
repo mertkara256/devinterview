@@ -1797,8 +1797,7 @@
       return;
     }
     if (event.metaKey || event.ctrlKey || event.altKey) return;
-    var editing = active && (active.tagName === 'TEXTAREA' || active.tagName === 'SELECT' || active.isContentEditable || (active.tagName === 'INPUT' && !/^(checkbox|radio)$/.test(active.type)));
-    if (editing) return;
+    if (isTextEntry(active)) return;
     if (event.key === 'Enter' && !current.revealed) {
       if (active && /^(BUTTON|A|SUMMARY)$/.test(active.tagName)) return;
       event.preventDefault();
@@ -2394,13 +2393,22 @@
     document.addEventListener('keydown', handleKeyboard);
   }
 
+  // Radio buttons and checkboxes keep focus after a click, but nobody is typing into them.
+  function isTextEntry(element) {
+    if (!element) return false;
+    if (element.isContentEditable || element.tagName === 'TEXTAREA' || element.tagName === 'SELECT') return true;
+    return element.tagName === 'INPUT' && !/^(radio|checkbox|button|submit|reset)$/.test(element.type);
+  }
+
   function handleKeyboard(event) {
     var active = document.activeElement;
-    var typing = active && (/^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName) || active.isContentEditable);
+    var typing = isTextEntry(active);
     var openDialog = document.querySelector('dialog[open]');
-    if (event.key === '?' && !typing && !openDialog) { event.preventDefault(); document.getElementById('help-dialog').showModal(); return; }
+    var modified = event.metaKey || event.ctrlKey || event.altKey;
+    if (event.key === '?' && !modified && !typing && !openDialog) { event.preventDefault(); document.getElementById('help-dialog').showModal(); return; }
     if (state.route && state.route.name === 'interview-session' && !openDialog) return handleInterviewKey(event, active);
-    if (typing || !state.route || state.route.name !== 'session' || openDialog) return;
+    // Cmd/Ctrl/Alt combinations (find, paste, switching tabs, history) always belong to the browser.
+    if (modified || typing || !state.route || state.route.name !== 'session' || openDialog) return;
     if (/^[1-9]$/.test(event.key)) {
       var options = document.querySelectorAll('#question-form .option input:not(:disabled)');
       var input = options[Number(event.key) - 1];
