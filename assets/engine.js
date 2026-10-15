@@ -125,12 +125,7 @@
   }
 
   function getBank() {
-    var bank = []
-      .concat(window.JAVA_QUESTIONS || [])
-      .concat(window.OOP_QUESTIONS || [])
-      .concat(window.ALGORITHM_QUESTIONS || [])
-      .map(normalizeCard);
-    return bank;
+    return (window.QUESTION_CARDS || []).map(normalizeCard);
   }
 
   function validateBank(bank) {
@@ -149,8 +144,7 @@
       if (card.answer == null) errors.push(card.id + ': cevap anahtarı eksik.');
       if (!card.originalPrompt) errors.push(card.id + ': kaynak soru bulunamadı.');
     });
-    if (bank.length !== 259) errors.push('Kart sayısı 259 yerine ' + bank.length + '.');
-    if (Object.keys(sources).length !== 135) errors.push('Kaynak kimliği sayısı 135 yerine ' + Object.keys(sources).length + '.');
+    if (!bank.length) errors.push('Soru bankası boş; sorular/ klasöründen assets/bank.js üretilmeli.');
     return { valid: errors.length === 0, errors: errors, cardCount: bank.length, sourceCount: Object.keys(sources).length };
   }
 

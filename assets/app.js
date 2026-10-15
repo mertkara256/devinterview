@@ -449,6 +449,8 @@
     storageIndicator.textContent = DB.mode() === 'indexeddb' ? 'IndexedDB ile otomatik kayıt etkin' : 'Yedek yerel kayıt etkin';
     state.bank = E.getBank();
     state.validation = E.validateBank(state.bank);
+    var bankVersion = document.getElementById('bank-version');
+    if (bankVersion) bankVersion.textContent = 'v' + ((window.SOURCE_BANK_META || {}).version || '?');
     state.bank.forEach(function (card) { state.bankById[card.id] = card; });
     state.interviewBank = E.buildInterviewBank(state.bank);
     state.interviewBank.forEach(function (item) { state.interviewById[item.sourceId] = item; });
@@ -543,7 +545,7 @@
       '</section>' +
       '<section class="stats-grid">' +
         '<div class="card stat-card"><span class="stat-label">Tamamlanan oturum</span><div class="stat-value">' + completed.length + '</div><span class="stat-meta">Tüm zamanlar</span></div>' +
-        '<div class="card stat-card"><span class="stat-label">Öğrenilen kaynak</span><div class="stat-value">' + Object.keys(progressMap).filter(function (id) { return E.isLearned(progressMap[id]); }).length + '</div><span class="stat-meta">135 kaynak konudan</span></div>' +
+        '<div class="card stat-card"><span class="stat-label">Öğrenilen kaynak</span><div class="stat-value">' + Object.keys(progressMap).filter(function (id) { return E.isLearned(progressMap[id]); }).length + '</div><span class="stat-meta">' + state.validation.sourceCount + ' kaynak konudan</span></div>' +
         '<div class="card stat-card"><span class="stat-label">Soru bankası</span><div class="stat-value">' + state.bank.length + '</div><span class="stat-meta">Atomik kart</span></div>' +
         '<div class="card stat-card"><span class="stat-label">Aktif oturum</span><div class="stat-value">' + active.length + '</div><span class="stat-meta">Kaldığın yer korunuyor</span></div>' +
       '</section>' +
@@ -610,7 +612,7 @@
           '<section class="form-section"><span class="eyebrow">4 · BOYUT</span><h2>Kaç ekran sorusu?</h2><div class="segmented" role="radiogroup" aria-label="Test boyutu">' + ['10', '20', '40', 'all', 'custom'].map(function (value) {
             var label = value === 'all' ? 'Tümü' : value === 'custom' ? 'Özel' : value;
             return '<label><input type="radio" name="size" value="' + value + '" ' + (defaults.size === value ? 'checked' : '') + '><span>' + label + '</span></label>';
-          }).join('') + '</div><label class="field" id="custom-size-field" style="margin-top:.8rem;' + (defaults.size === 'custom' ? '' : 'display:none') + '"><span>Özel soru sayısı</span><input type="number" name="customSize" min="1" max="259" value="' + defaults.customSize + '"></label></section>' +
+          }).join('') + '</div><label class="field" id="custom-size-field" style="margin-top:.8rem;' + (defaults.size === 'custom' ? '' : 'display:none') + '"><span>Özel soru sayısı</span><input type="number" name="customSize" min="1" max="' + state.bank.length + '" value="' + defaults.customSize + '"></label></section>' +
         '</div>' +
         '<aside class="card pad summary-panel"><span class="eyebrow">OTURUM ÖZETİ</span><h2>' + (defaults.mode === 'practice' ? 'Pratik oturumu' : 'Sınav denemesi') + '</h2>' +
           '<div class="summary-number">' + expected + '</div><p class="muted">ekran sorusu</p><div class="summary-list">' +
@@ -630,7 +632,7 @@
       topic: data.get('topic') || 'all',
       status: data.get('status') || 'all',
       size: data.get('size') || '20',
-      customSize: Math.max(1, Math.min(259, Number(data.get('customSize')) || 20))
+      customSize: Math.max(1, Math.min(state.bank.length, Number(data.get('customSize')) || 20))
     };
   }
 
@@ -1374,7 +1376,7 @@
     app.innerHTML = pageHeader('ANALİZ', 'Bölüm bazlı ustalık', 'Tek bir hazırlık puanı yerine ilk-deneme başarısını, tekrar durumunu ve konu gelişimini ayrı gör.', '<button class="button ghost" data-action="export-csv">CSV indir</button>') +
       '<section class="stats-grid"><div class="card stat-card"><span class="stat-label">İlk-deneme başarısı</span><div class="stat-value">%' + Math.round(firstAccuracy) + '</div><span class="stat-meta">' + completedResponses.length + ' tamamlanan cevap</span></div>' +
       '<div class="card stat-card"><span class="stat-label">Destekli doğru</span><div class="stat-value">' + supported + '</div><span class="stat-meta">İpucu sonrası</span></div>' +
-      '<div class="card stat-card"><span class="stat-label">Öğrenilen kaynak</span><div class="stat-value">' + masteredTotal + '</div><span class="stat-meta">135 kaynak konudan</span></div>' +
+      '<div class="card stat-card"><span class="stat-label">Öğrenilen kaynak</span><div class="stat-value">' + masteredTotal + '</div><span class="stat-meta">' + state.validation.sourceCount + ' kaynak konudan</span></div>' +
       '<div class="card stat-card"><span class="stat-label">Bekleyen tekrar</span><div class="stat-value">' + dueTotal + '</div><span class="stat-meta">Bugün veya gecikmiş</span></div></section>' +
       '<section class="content-grid"><div class="stack"><div class="card pad"><div class="card-head"><div><span class="eyebrow">BÖLÜM USTALIĞI</span><h2>Java, OOP ve algoritma</h2></div></div><div class="chart-list">' + sectionData.map(function (item) {
         return '<div><div class="progress-row"><strong>' + item.section + '</strong>' + progressHtml(item.mastery, item.section + ' ustalığı') + '<span>%' + Math.round(item.mastery) + '</span></div><p class="tiny muted" style="margin:-.35rem 0 .7rem">' + item.mastered + '/' + item.total + ' kaynak öğrenildi · İlk cevap ortalaması %' + Math.round(item.accuracy) + '</p></div>';
@@ -1397,7 +1399,7 @@
       return true;
     });
     var shown = cards.slice(0, state.explorerLimit);
-    app.innerHTML = pageHeader('SORU GEZGİNİ', '259 atomik kart', 'Soruları kaynak kimliği, konu, zorluk ve türe göre bul. Cevap anahtarı çözümden önce gösterilmez.', '<a class="button primary" href="#/builder">Test oluştur</a>') +
+    app.innerHTML = pageHeader('SORU GEZGİNİ', state.bank.length + ' atomik kart', 'Soruları kaynak kimliği, konu, zorluk ve türe göre bul. Cevap anahtarı çözümden önce gösterilmez.', '<a class="button primary" href="#/builder">Test oluştur</a>') +
       '<div class="filter-bar"><label class="field"><span class="sr-only">Sorularda ara</span><input type="search" id="explorer-search" placeholder="Kimlik, konu veya soru metninde ara…" value="' + E.escapeHtml(filters.search) + '"></label>' +
       '<label class="field"><span class="sr-only">Bölüm</span><select id="explorer-section"><option value="all">Tüm bölümler</option>' + ['Java', 'OOP', 'Algoritma'].map(function (value) { return '<option ' + (filters.section === value ? 'selected' : '') + '>' + value + '</option>'; }).join('') + '</select></label>' +
       '<label class="field"><span class="sr-only">Zorluk</span><select id="explorer-difficulty"><option value="all">Tüm zorluklar</option>' + ['Kolay', 'Orta', 'Zorlayıcı'].map(function (value) { return '<option ' + (filters.difficulty === value ? 'selected' : '') + '>' + value + '</option>'; }).join('') + '</select></label>' +

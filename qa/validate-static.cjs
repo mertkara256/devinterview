@@ -1,6 +1,5 @@
 'use strict';
 
-const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
@@ -23,14 +22,11 @@ function sameList(actual, expected, label) {
   check(JSON.stringify(left) === JSON.stringify(right), `${label}: ${JSON.stringify(left)}; beklenen ${JSON.stringify(right)}.`);
 }
 
-const expectedRoot = ['.gitignore', 'README.md', 'assets', 'index.html', 'qa'];
+const expectedRoot = ['.gitignore', 'README.md', 'assets', 'build.cjs', 'index.html', 'qa', 'sorular'];
 const expectedAssets = [
   'app.js',
+  'bank.js',
   'engine.js',
-  'questions-algorithms.js',
-  'questions-java.js',
-  'questions-oop.js',
-  'source-questions.js',
   'storage.js',
   'styles.css'
 ];
@@ -57,10 +53,7 @@ check(!/<script\b[^>]*\btype\s*=\s*["']module["']/i.test(html), 'ES module scrip
 
 const scriptSources = Array.from(html.matchAll(/<script\b[^>]*\bsrc\s*=\s*["']([^"']+)["'][^>]*>/gi), (match) => match[1]);
 const expectedScripts = [
-  'assets/source-questions.js',
-  'assets/questions-java.js',
-  'assets/questions-oop.js',
-  'assets/questions-algorithms.js',
+  'assets/bank.js',
   'assets/storage.js',
   'assets/engine.js',
   'assets/app.js'
@@ -115,10 +108,7 @@ context.window.window = context.window;
 vm.createContext(context);
 
 for (const relative of [
-  'assets/source-questions.js',
-  'assets/questions-java.js',
-  'assets/questions-oop.js',
-  'assets/questions-algorithms.js',
+  'assets/bank.js',
   'assets/engine.js'
 ]) {
   const absolute = path.join(root, relative);
@@ -131,18 +121,18 @@ const sources = context.window.SOURCE_QUESTIONS;
 const meta = context.window.SOURCE_BANK_META;
 const allowedTypes = ['single', 'multi', 'boolean', 'fill', 'output', 'order', 'match'];
 const allowedDifficulties = ['Kolay', 'Orta', 'Zorlayıcı'];
-const expectedSectionCounts = { Java: 92, OOP: 74, Algoritma: 93 };
-const expectedTypeCounts = { single: 63, multi: 46, boolean: 23, fill: 12, output: 60, order: 16, match: 39 };
 
-check(bank.length === 259, `Kart sayısı 259 yerine ${bank.length}.`);
-check(Object.keys(sources).length === 135, `Kaynak soru sayısı 135 yerine ${Object.keys(sources).length}.`);
-check(meta.sourceQuestionCount === 135, 'Kaynak meta sayacı 135 değil.');
+// assets/bank.js must be exactly what build.cjs produces from sorular/.
+const build = require(path.join(root, 'build.cjs'));
+const built = build.buildBank();
+check(!built.errors.length, `sorular/ dosyalarında hata var:\n${built.errors.join('\n')}`);
+check(built.output === fs.readFileSync(path.join(assetsDir, 'bank.js'), 'utf8'), 'assets/bank.js sorular/ ile güncel değil; `node build.cjs` çalıştırın.');
+const buildLabels = {};
+Object.keys(build.TYPES).forEach((label) => { buildLabels[build.TYPES[label]] = label; });
+check(JSON.stringify(buildLabels, Object.keys(buildLabels).sort()) === JSON.stringify(Object.assign({}, E.TYPE_LABELS), Object.keys(buildLabels).sort()), 'build.cjs tür adları engine.js TYPE_LABELS ile aynı olmalı.');
 
-const expectedSourceIds = [];
-for (const [prefix, count] of [['J', 45], ['O', 40], ['A', 50]]) {
-  for (let number = 1; number <= count; number += 1) expectedSourceIds.push(prefix + String(number).padStart(2, '0'));
-}
-sameList(Object.keys(sources), expectedSourceIds, 'Kaynak kimliği kümesi değişti');
+check(bank.length > 0, 'Soru bankası boş.');
+check(meta.sourceQuestionCount === Object.keys(sources).length && meta.cardCount === bank.length, 'Banka meta sayaçları içerikle uyuşmuyor.');
 
 const cardIds = new Set();
 const usedSources = new Set();
@@ -158,7 +148,7 @@ function unique(values) {
 }
 
 for (const card of bank) {
-  check(/^([JOA]\d{2})-\d{2}$/.test(card.id), `${card.id}: kart kimliği biçimi geçersiz.`);
+  check(/^([JOA]\d+)-\d+$/.test(card.id), `${card.id}: kart kimliği biçimi geçersiz.`);
   check(!cardIds.has(card.id), `${card.id}: kart kimliği yineleniyor.`);
   cardIds.add(card.id);
   usedSources.add(card.sourceId);
@@ -169,14 +159,14 @@ for (const card of bank) {
   check(card.section === (card.sourceId[0] === 'J' ? 'Java' : card.sourceId[0] === 'O' ? 'OOP' : 'Algoritma'), `${card.id}: bölüm/kaynak öneki uyuşmuyor.`);
   check(allowedTypes.includes(card.type), `${card.id}: bilinmeyen soru türü ${card.type}.`);
   check(allowedDifficulties.includes(card.difficulty), `${card.id}: bilinmeyen zorluk ${card.difficulty}.`);
-  check(/^\d+\.\d+\.\d+$/.test(card.version), `${card.id}: semantik kart sürümü geçersiz.`);
+  check(/^[0-9a-f]{8}$/.test(card.version), `${card.id}: kart sürümü içerikten üretilen 8 haneli özet olmalı.`);
 
   for (const field of ['topic', 'prompt', 'hint', 'explanationShort', 'explanationLong']) {
     check(typeof card[field] === 'string' && card[field].trim().length > 0, `${card.id}: ${field} boş.`);
   }
   const assumptions = Array.isArray(card.assumptions) ? card.assumptions : [card.assumptions];
-  check(assumptions.length > 0 && assumptions.every((value) => typeof value === 'string' && value.trim()), `${card.id}: varsayım bilgisi boş veya geçersiz.`);
-  check(Array.isArray(card.tags) && card.tags.length > 0 && card.tags.every((tag) => typeof tag === 'string' && tag.trim()), `${card.id}: etiketler boş veya geçersiz.`);
+  check(assumptions.every((value) => typeof value === 'string' && value.trim()), `${card.id}: varsayım bilgisi geçersiz.`);
+  check(Array.isArray(card.tags) && card.tags.every((tag) => typeof tag === 'string' && tag.trim()), `${card.id}: etiketler geçersiz.`);
   check(typeof card.caseSensitive === 'boolean', `${card.id}: caseSensitive boolean olmalı.`);
   check(Array.isArray(card.acceptedAnswers), `${card.id}: acceptedAnswers dizi olmalı.`);
 
@@ -226,19 +216,7 @@ for (const card of bank) {
   typeCounts[card.type] = (typeCounts[card.type] || 0) + 1;
 }
 
-sameList(Array.from(usedSources), expectedSourceIds, 'Kartların kaynak kapsamı eksik');
-check(JSON.stringify(sectionCounts) === JSON.stringify(expectedSectionCounts), `Bölüm kart sayıları değişti: ${JSON.stringify(sectionCounts)}.`);
-for (const [type, expected] of Object.entries(expectedTypeCounts)) {
-  check(typeCounts[type] === expected, `${type}: ${expected} yerine ${typeCounts[type] || 0} kart.`);
-}
-
-const sourcePath = process.env.SOURCE_MD || '/Users/mertkara/Desktop/Mülakat soru dostası.md';
-check(fs.existsSync(sourcePath), `Kaynak Markdown bulunamadı: ${sourcePath}`);
-let actualHash = '';
-if (fs.existsSync(sourcePath)) {
-  actualHash = crypto.createHash('sha256').update(fs.readFileSync(sourcePath)).digest('hex');
-  check(actualHash === meta.sourceSha256, `Kaynak SHA-256 değişti: ${actualHash}; beklenen ${meta.sourceSha256}.`);
-}
+sameList(Array.from(usedSources), Object.keys(sources), 'Her kaynak sorunun en az bir kartı olmalı');
 
 if (failures.length) {
   console.error(failures.join('\n'));
@@ -252,7 +230,7 @@ console.log(JSON.stringify({
   sources: Object.keys(sources).length,
   sections: sectionCounts,
   types: typeCounts,
-  sourceSha256: actualHash,
+  bankVersion: meta.version,
   networkApis: 0,
   moduleScripts: 0
 }, null, 2));

@@ -6,7 +6,7 @@ const root = path.resolve(__dirname, '..');
 const context = { window: {}, console, Intl, URLSearchParams, Blob: global.Blob, setTimeout };
 context.window.window = context.window;
 vm.createContext(context);
-for (const relative of ['assets/source-questions.js', 'assets/questions-java.js', 'assets/questions-oop.js', 'assets/questions-algorithms.js', 'assets/engine.js']) {
+for (const relative of ['assets/bank.js', 'assets/engine.js']) {
   vm.runInContext(fs.readFileSync(path.join(root, relative), 'utf8'), context, { filename: relative });
 }
 
@@ -123,7 +123,7 @@ check(trueShare >= 0.35 && trueShare <= 0.65, `Doğru/Yanlış cevapları dengel
 check(E.getBank().filter((card) => card.type === 'match').every((card) => card.pairs.right.length > card.pairs.left.length), 'Her eşleştirmede son eşleşmeyi eleme ile bedava yapmayan en az bir yanıltıcı seçenek olmalı.');
 
 const interviewBank = E.buildInterviewBank(E.getBank());
-check(interviewBank.length === 135, 'Mülakat bankası her kaynak soruyu içermeli.');
+check(interviewBank.length === Object.keys(context.window.SOURCE_QUESTIONS).length, 'Mülakat bankası her kaynak soruyu içermeli.');
 check(interviewBank.every((item) => item.keyPoints.length > 0 && item.explanations.length + item.examples.length > 0), 'Her mülakat sorusunun kontrol listesi ve açıklaması olmalı.');
 const o24 = interviewBank.find((item) => item.sourceId === 'O24');
 check(o24.keyPoints.length === 1 && o24.examples.length === 1 && o24.examples[0].code && o24.examples[0].output, 'Soruda görünmeyen koda dayanan kart kontrol listesine değil, koduyla örneğe girmeli.');

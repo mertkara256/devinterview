@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
-const crypto = require('crypto');
 
 const root = path.resolve(__dirname, '..');
 const context = {
@@ -21,28 +20,13 @@ function load(relativePath) {
   vm.runInContext(fs.readFileSync(filePath, 'utf8'), context, { filename: filePath });
 }
 
-load('assets/source-questions.js');
-load('assets/questions-java.js');
-load('assets/questions-oop.js');
-load('assets/questions-algorithms.js');
+load('assets/bank.js');
 load('assets/engine.js');
 
 const engine = context.window.ExamEngine;
 const bank = engine.getBank();
 const validation = engine.validateBank(bank);
 const failures = validation.errors.slice();
-
-const expectedSections = { Java: 92, OOP: 74, Algoritma: 93 };
-for (const [section, expected] of Object.entries(expectedSections)) {
-  const actual = bank.filter((card) => card.section === section).length;
-  if (actual !== expected) failures.push(`${section}: ${expected} yerine ${actual} kart.`);
-}
-
-const expectedSources = { J: 45, O: 40, A: 50 };
-for (const [prefix, expected] of Object.entries(expectedSources)) {
-  const actual = new Set(bank.filter((card) => card.sourceId.startsWith(prefix)).map((card) => card.sourceId)).size;
-  if (actual !== expected) failures.push(`${prefix}: ${expected} yerine ${actual} kaynak.`);
-}
 
 const types = new Set(bank.map((card) => card.type));
 for (const type of ['single', 'multi', 'boolean', 'fill', 'output', 'order', 'match']) {
@@ -73,11 +57,6 @@ for (const card of bank) {
   }
 }
 
-const originalPath = '/Users/mertkara/Desktop/Mülakat soru dostası.md';
-const expectedHash = context.window.SOURCE_BANK_META.sourceSha256;
-const actualHash = crypto.createHash('sha256').update(fs.readFileSync(originalPath)).digest('hex');
-if (actualHash !== expectedHash) failures.push(`Kaynak SHA-256 değişti: ${actualHash}`);
-
 if (failures.length) {
   console.error(failures.join('\n'));
   process.exit(1);
@@ -89,7 +68,7 @@ console.log(JSON.stringify({
   ok: true,
   cards: bank.length,
   sources: validation.sourceCount,
-  sections: expectedSections,
+  sections: bank.reduce((counts, card) => { counts[card.section] = (counts[card.section] || 0) + 1; return counts; }, {}),
   types: typeCounts,
-  sourceSha256: actualHash,
+  bankVersion: context.window.SOURCE_BANK_META.version,
 }, null, 2));
