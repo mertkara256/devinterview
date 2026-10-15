@@ -490,7 +490,7 @@
     var due = Object.keys(cardStateMap).filter(function (id) {
       var card = state.bankById[id];
       var sourceProgress = card ? progressMap[card.sourceId] || {} : {};
-      return cardStateMap[id].dueAt && new Date(cardStateMap[id].dueAt).getTime() <= now && !sourceProgress.excluded;
+      return cardStateMap[id].dueAt && new Date(cardStateMap[id].dueAt).getTime() <= now && !E.skipsReview(sourceProgress);
     });
     var active = attempts.filter(function (attempt) { return attempt.status === 'active'; }).sort(function (a, b) { return String(b.updatedAt).localeCompare(String(a.updatedAt)); });
     var completed = attempts.filter(function (attempt) { return attempt.status === 'completed'; }).sort(function (a, b) { return String(b.completedAt).localeCompare(String(a.completedAt)); });
@@ -503,7 +503,7 @@
     var mastery = {};
     sections.forEach(function (section) {
       var ids = Object.keys(allSources).filter(function (id) { return allSources[id] === section; });
-      var mastered = ids.filter(function (id) { return progressMap[id] && progressMap[id].mastered; }).length;
+      var mastered = ids.filter(function (id) { return E.isLearned(progressMap[id]); }).length;
       mastery[section] = { mastered: mastered, total: ids.length, percent: ids.length ? Math.round(mastered / ids.length * 100) : 0 };
     });
     var lastBackup = state.settings.lastBackupAt ? new Date(state.settings.lastBackupAt).getTime() : 0;
@@ -536,7 +536,7 @@
       '</section>' +
       '<section class="stats-grid">' +
         '<div class="card stat-card"><span class="stat-label">Tamamlanan oturum</span><div class="stat-value">' + completed.length + '</div><span class="stat-meta">Tüm zamanlar</span></div>' +
-        '<div class="card stat-card"><span class="stat-label">Öğrenilen kaynak</span><div class="stat-value">' + Object.keys(progressMap).filter(function (id) { return progressMap[id].mastered; }).length + '</div><span class="stat-meta">135 kaynak konudan</span></div>' +
+        '<div class="card stat-card"><span class="stat-label">Öğrenilen kaynak</span><div class="stat-value">' + Object.keys(progressMap).filter(function (id) { return E.isLearned(progressMap[id]); }).length + '</div><span class="stat-meta">135 kaynak konudan</span></div>' +
         '<div class="card stat-card"><span class="stat-label">Soru bankası</span><div class="stat-value">' + state.bank.length + '</div><span class="stat-meta">Atomik kart</span></div>' +
         '<div class="card stat-card"><span class="stat-label">Aktif oturum</span><div class="stat-value">' + active.length + '</div><span class="stat-meta">Kaldığın yer korunuyor</span></div>' +
       '</section>' +
@@ -1253,7 +1253,7 @@
       var card = state.bankById[questionId];
       var review = cardStateMap[questionId];
       var sourceProgress = card ? progressMap[card.sourceId] || {} : {};
-      return card && review.dueAt && new Date(review.dueAt).getTime() <= now && !sourceProgress.excluded;
+      return card && review.dueAt && new Date(review.dueAt).getTime() <= now && !E.skipsReview(sourceProgress);
     }).map(function (questionId) { return state.bankById[questionId]; });
   }
 
@@ -1301,7 +1301,7 @@
     var progressMap = await recordsMap('progress');
     var upcoming = cardStates.filter(function (entry) {
       var card = state.bankById[entry.questionId || entry.id];
-      return card && entry.dueAt && new Date(entry.dueAt).getTime() > now && !(progressMap[card.sourceId] || {}).excluded;
+      return card && entry.dueAt && new Date(entry.dueAt).getTime() > now && !E.skipsReview(progressMap[card.sourceId]);
     }).sort(function (a, b) { return String(a.dueAt).localeCompare(String(b.dueAt)); });
     var dueHtml = cards.length ? cards.map(function (card) {
       var record = cardStates.find(function (entry) { return entry.id === card.id; }) || {};
@@ -1310,11 +1310,11 @@
     var upcomingHtml = upcoming.length ? upcoming.slice(0, 20).map(function (record) {
       var card = state.bankById[record.questionId || record.id];
       var sourceProgress = card ? progressMap[card.sourceId] || {} : {};
-      return '<div class="list-item"><div class="list-item-main"><strong>' + E.escapeHtml(card ? card.id + ' · ' + card.sourceId : record.id) + '</strong><small>' + E.escapeHtml(record.lastResult || '') + ' · ' + (sourceProgress.mastered ? 'Öğrenildi' : 'Öğreniliyor') + '</small></div><span class="badge">' + E.formatDate(record.dueAt, false) + '</span></div>';
+      return '<div class="list-item"><div class="list-item-main"><strong>' + E.escapeHtml(card ? card.id + ' · ' + card.sourceId : record.id) + '</strong><small>' + E.escapeHtml(record.lastResult || '') + ' · ' + (E.isLearned(sourceProgress) ? 'Öğrenildi' : 'Öğreniliyor') + '</small></div><span class="badge">' + E.formatDate(record.dueAt, false) + '</span></div>';
     }).join('') : '<p class="muted">Planlanmış ileri tarihli tekrar yok.</p>';
     app.innerHTML = pageHeader('AKILLI TEKRAR', 'Tekrar kuyruğu', 'Yanlış, boş, destekli ve düşük eminlikli cevaplar 1–3–7–14–30 gün aralıklarıyla geri gelir.', '<button class="button secondary" data-action="start-due" ' + (cards.length ? '' : 'disabled') + '>' + cards.length + ' tekrarı başlat</button>') +
       '<section class="content-grid"><div class="card pad"><div class="card-head"><div><span class="eyebrow">BUGÜN</span><h2>Zamanı gelenler</h2></div><span class="badge warning">' + cards.length + '</span></div><div class="list">' + dueHtml + '</div></div>' +
-      '<aside class="stack"><div class="card pad"><span class="eyebrow">YAKLAŞAN</span><h2>Takvim</h2><div class="list">' + upcomingHtml + '</div></div><div class="card pad"><span class="eyebrow">USTALIK KURALI</span><p class="muted">Bir kaynak konu, en az iki farklı günde üç desteksiz doğru sonrasında öğrenildi sayılır.</p></div></aside></section>';
+      '<aside class="stack"><div class="card pad"><span class="eyebrow">YAKLAŞAN</span><h2>Takvim</h2><div class="list">' + upcomingHtml + '</div></div><div class="card pad"><span class="eyebrow">USTALIK KURALI</span><p class="muted">Bir kaynak konu, en az iki farklı günde üç desteksiz doğru sonrasında öğrenildi sayılır. Soru gezgininde "Zaten biliyorum" işaretlenen kaynaklar da öğrenildi sayılır ve tekrar kuyruğuna girmez.</p></div></aside></section>';
   }
 
   async function renderAnalytics() {
@@ -1329,7 +1329,7 @@
     progress.forEach(function (entry) { sourceProgress[entry.id] = entry; });
     var sectionData = sections.map(function (section) {
       var ids = Object.keys(allSources).filter(function (id) { return allSources[id] === section; });
-      var mastered = ids.filter(function (id) { return sourceProgress[id] && sourceProgress[id].mastered; }).length;
+      var mastered = ids.filter(function (id) { return E.isLearned(sourceProgress[id]); }).length;
       var answeredResponses = responses.filter(function (response) { return response.section === section && response.completed; });
       var avg = answeredResponses.length ? answeredResponses.reduce(function (sum, response) { return sum + (response.firstScore || 0); }, 0) / answeredResponses.length * 100 : 0;
       return { section: section, total: ids.length, mastered: mastered, mastery: ids.length ? mastered / ids.length * 100 : 0, accuracy: avg };
@@ -1337,10 +1337,10 @@
     var completedResponses = responses.filter(function (response) { return response.completed; });
     var firstAccuracy = completedResponses.length ? completedResponses.reduce(function (sum, response) { return sum + (response.firstScore || 0); }, 0) / completedResponses.length * 100 : 0;
     var supported = completedResponses.filter(function (response) { return response.supported && response.finalScore === 1; }).length;
-    var masteredTotal = progress.filter(function (entry) { return entry.mastered; }).length;
+    var masteredTotal = progress.filter(function (entry) { return E.isLearned(entry); }).length;
     var dueTotal = cardStates.filter(function (entry) {
       var card = state.bankById[entry.questionId || entry.id];
-      return card && entry.dueAt && new Date(entry.dueAt) <= new Date() && !(sourceProgress[card.sourceId] || {}).excluded;
+      return card && entry.dueAt && new Date(entry.dueAt) <= new Date() && !E.skipsReview(sourceProgress[card.sourceId]);
     }).length;
     var trend = attempts.slice(-12);
     var topicMap = {};
@@ -1389,7 +1389,7 @@
       '<p class="muted tiny" role="status">' + cards.length + ' sonuç · ' + shown.length + ' kart gösteriliyor</p><section class="question-grid">' + shown.map(function (card) {
         var progress = progressMap[card.sourceId] || {};
         var cardState = cardStateMap[card.id] || {};
-        return '<article class="card explorer-card"><div class="badge-row"><span class="badge primary">' + E.escapeHtml(card.id) + '</span>' + difficultyBadge(card.difficulty) + '<span class="badge">' + E.escapeHtml(typeLabel(card.type)) + '</span>' + (progress.mastered ? '<span class="badge success">Öğrenildi</span>' : '') + '</div>' +
+        return '<article class="card explorer-card"><div class="badge-row"><span class="badge primary">' + E.escapeHtml(card.id) + '</span>' + difficultyBadge(card.difficulty) + '<span class="badge">' + E.escapeHtml(typeLabel(card.type)) + '</span>' + (E.isLearned(progress) ? '<span class="badge success">Öğrenildi</span>' : '') + '</div>' +
           '<h3>' + E.escapeHtml(card.prompt) + '</h3><p>' + E.escapeHtml(card.topic) + ' · Kaynak ' + E.escapeHtml(card.sourceId) + '</p><div class="explorer-actions"><button class="button small primary" data-action="practice-card" data-id="' + E.escapeHtml(card.id) + '">Çalış</button>' +
           '<button class="button small ' + (cardState.favorite ? 'soft' : 'ghost') + '" data-action="explorer-favorite" data-id="' + E.escapeHtml(card.id) + '" aria-label="Favori olarak işaretle" aria-pressed="' + (cardState.favorite ? 'true' : 'false') + '">' + (cardState.favorite ? '★' : '☆') + ' Favori</button>' +
           '<button class="button small ' + (progress.known ? 'soft' : 'ghost') + '" data-action="toggle-known" data-source="' + E.escapeHtml(card.sourceId) + '" data-card-id="' + E.escapeHtml(card.id) + '" aria-label="' + (progress.known ? 'Biliniyor: zaten biliyorum durumu' : 'Zaten biliyorum olarak işaretle') + '" aria-pressed="' + (progress.known ? 'true' : 'false') + '">' + (progress.known ? 'Biliniyor' : 'Zaten biliyorum') + '</button>' +
@@ -2103,7 +2103,7 @@
     record[field] = !record[field];
     record.updatedAt = new Date().toISOString();
     await DB.put('progress', record);
-    toast(field === 'known' ? (record[field] ? 'Kaynak "zaten biliyorum" olarak işaretlendi.' : 'Biliniyor işareti kaldırıldı.') : (record[field] ? 'Kaynak otomatik testlerden hariç tutuldu.' : 'Kaynak yeniden testlere dahil edildi.'), 'success');
+    toast(field === 'known' ? (record[field] ? 'Kaynak öğrenildi sayıldı; tekrar kuyruğuna girmez ve testlerde en sona bırakılır.' : 'Biliniyor işareti kaldırıldı.') : (record[field] ? 'Kaynak otomatik testlerden hariç tutuldu.' : 'Kaynak yeniden testlere dahil edildi.'), 'success');
   }
 
   async function resetAllData() {

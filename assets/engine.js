@@ -248,6 +248,14 @@
     return 7000 + (SECTION_ORDER[prefix === 'J' ? 'Java' : prefix === 'O' ? 'OOP' : 'Algoritma'] * 100) + number;
   }
 
+  function isLearned(progress) {
+    return !!(progress && (progress.mastered || progress.known));
+  }
+
+  function skipsReview(progress) {
+    return !!(progress && (progress.excluded || progress.known));
+  }
+
   function filterBank(bank, filters, progressMap, cardStateMap) {
     var now = Date.now();
     return bank.filter(function (card) {
@@ -258,11 +266,11 @@
       if (filters.types && filters.types.length && filters.types.indexOf(card.type) === -1) return false;
       if (filters.topic && filters.topic !== 'all' && card.topic !== filters.topic) return false;
       if (progress.excluded && filters.status !== 'excluded') return false;
-      if (filters.status === 'new' && state.timesSeen) return false;
+      if (filters.status === 'new' && (state.timesSeen || progress.known)) return false;
       if (filters.status === 'wrong' && state.lastResult !== 'wrong' && state.lastResult !== 'blank') return false;
       if (filters.status === 'favorite' && !state.favorite) return false;
-      if (filters.status === 'due' && (!state.dueAt || new Date(state.dueAt).getTime() > now)) return false;
-      if (filters.status === 'mastered' && !progress.mastered) return false;
+      if (filters.status === 'due' && (!state.dueAt || new Date(state.dueAt).getTime() > now || progress.known)) return false;
+      if (filters.status === 'mastered' && !isLearned(progress)) return false;
       if (filters.status === 'excluded' && !progress.excluded) return false;
       return true;
     });
@@ -282,6 +290,9 @@
     var sourceIds = Object.keys(groups);
     if (mode === 'learning') sourceIds.sort(function (a, b) { return learningRank(a) - learningRank(b); });
     else sourceIds = shuffled(sourceIds, seed);
+    // Sources marked "Zaten biliyorum" are only used once every other source in the pool is in.
+    var isKnown = function (sourceId) { return !!((progressMap || {})[sourceId] || {}).known; };
+    sourceIds = sourceIds.filter(function (sourceId) { return !isKnown(sourceId); }).concat(sourceIds.filter(isKnown));
 
     var selected = [];
     sourceIds.forEach(function (sourceId, sourceIndex) {
@@ -304,6 +315,7 @@
       remainder = mode === 'learning'
         ? remainder.sort(function (a, b) { return learningRank(a.sourceId) - learningRank(b.sourceId) || a.id.localeCompare(b.id); })
         : shuffled(remainder, seed + ':remainder');
+      remainder = remainder.filter(function (card) { return !isKnown(card.sourceId); }).concat(remainder.filter(function (card) { return isKnown(card.sourceId); }));
       selected = selected.concat(remainder.slice(0, count - selected.length));
     }
     return selected;
@@ -675,6 +687,8 @@
     shuffled: shuffled,
     getBank: getBank,
     validateBank: validateBank,
+    isLearned: isLearned,
+    skipsReview: skipsReview,
     normalizeText: normalizeText,
     normalizeOutput: normalizeOutput,
     grade: grade,
