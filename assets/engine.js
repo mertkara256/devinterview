@@ -221,8 +221,13 @@
     } else if (card.type === 'match') {
       var expectedMap = card.answer || {};
       var keys = Object.keys(expectedMap);
+      // Two right-hand options with the same text look identical, so either one counts.
+      var rightText = {};
+      ((card.pairs && card.pairs.right) || []).forEach(function (item) { rightText[item.id] = normalizeText(item.text, false); });
       var correctPairs = keys.reduce(function (sum, key) {
-        return sum + (answer && answer[key] === expectedMap[key] ? 1 : 0);
+        var chosen = answer && answer[key];
+        var same = chosen === expectedMap[key] || (!!chosen && rightText[chosen] !== undefined && rightText[chosen] === rightText[expectedMap[key]]);
+        return sum + (same ? 1 : 0);
       }, 0);
       score = keys.length ? correctPairs / keys.length : 0;
       correct = score === 1;

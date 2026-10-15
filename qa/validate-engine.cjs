@@ -34,6 +34,10 @@ check(Math.abs(E.grade(match, { a: '1', b: '9', c: '3' }).score - 2 / 3) < 0.000
 const fill = { type: 'fill', answer: 'O(n²)', acceptedAnswers: ['O(n^2)'], caseSensitive: false };
 check(E.grade(fill, ' o(N^2) ').score === 1, 'Kabul edilen boşluk alternatifi puanlanmadı.');
 
+const twinMatch = E.getBank().find((card) => card.id === 'J33-01');
+check(E.grade(twinMatch, Object.assign({}, twinMatch.answer, { state: 'aclass', single: 'abstract' })).score === 1, 'Aynı metni taşıyan eşleştirme seçenekleri birbirinin yerine kabul edilmeli.');
+check(E.grade(twinMatch, Object.assign({}, twinMatch.answer, { state: 'decoy' })).score === 0.75, 'Yanıltıcı seçenek yine yanlış sayılmalı.');
+
 const spacedFill = { type: 'fill', answer: 'Θ(n), Θ(1)', acceptedAnswers: [], caseSensitive: false };
 check(E.grade(spacedFill, 'Θ(n),Θ(1)').correct && E.grade(spacedFill, 'Θ (n) , Θ (1)').correct, 'Noktalama çevresindeki boşluk farkı boşluk doldurmada yanlış sayılmamalı.');
 check(!E.grade({ type: 'fill', answer: 'OrderRepository repository', acceptedAnswers: [], caseSensitive: true }, 'OrderRepositoryrepository').correct, 'Kelimeler arasındaki boşluk boşluk doldurmada yine gerekli olmalı.');
