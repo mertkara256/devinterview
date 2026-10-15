@@ -725,7 +725,7 @@ kbd { display: inline-flex; justify-content: center; min-width: 52px; padding: .
   .question-actions .button { flex: 1; }
   .matching-row { grid-template-columns: 1fr; }
   .answer-comparison { grid-template-columns: 1fr; }
-  .matching-row > span { display: none; }
+  .matching-row > span[aria-hidden="true"] { display: none; }
   .progress-row,
   .chart-row { grid-template-columns: minmax(0, 1fr) auto; }
   .progress-row > strong,
