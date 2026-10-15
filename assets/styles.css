@@ -330,6 +330,7 @@ main { flex: 1; width: 100%; }
 .stat-meta { color: var(--text-faint); font-size: .75rem; }
 
 .content-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(260px, .7fr); gap: 1rem; align-items: start; }
+.content-grid > * { min-width: 0; }
 .stack { display: grid; gap: 1rem; }
 .section-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; }
 .section-tile { padding: 1rem; border-radius: var(--radius-sm); background: var(--surface-soft); border: 1px solid var(--line); }
@@ -587,7 +588,8 @@ tr:last-child td { border-bottom: 0; }
 .explorer-actions { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .8rem; }
 
 .chart-list { display: grid; gap: .9rem; }
-.chart-row { display: grid; grid-template-columns: minmax(95px, .7fr) minmax(130px, 2fr) 55px; gap: .75rem; align-items: center; }
+.chart-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(60px, 1.6fr) auto; gap: .75rem; align-items: center; }
+.chart-row > span { overflow-wrap: anywhere; }
 .trend-bars { display: flex; align-items: flex-end; gap: .45rem; min-height: 150px; padding-top: 1rem; }
 .trend-bar { flex: 1; min-width: 16px; max-width: 46px; height: calc(var(--value) * 1%); min-height: 4px; border-radius: 7px 7px 2px 2px; background: linear-gradient(var(--teal), var(--primary)); position: relative; }
 .trend-bar:hover::after { content: attr(data-label); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); padding: .25rem .4rem; border-radius: 6px; background: var(--text); color: var(--surface); font-size: .65rem; white-space: nowrap; }
