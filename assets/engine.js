@@ -158,7 +158,9 @@
     var text = String(value == null ? '' : value)
       .replace(/\r\n?/g, '\n')
       .trim()
-      .replace(/[ \t]+/g, ' ');
+      .replace(/[ \t]+/g, ' ')
+      // Spacing next to punctuation carries no meaning in a short answer: "Θ(n),Θ(1)" equals "Θ(n), Θ(1)".
+      .replace(/\s*([()[\]{}<>,;:.=+\-*\/%!&|^?"'])\s*/g, '$1');
     return caseSensitive ? text : text.toLocaleLowerCase('tr-TR');
   }
 
@@ -167,7 +169,7 @@
       .replace(/\r\n?/g, '\n')
       .trim()
       .split('\n')
-      .map(function (line) { return line.trim(); })
+      .map(function (line) { return line.trim().replace(/[ \t]+/g, ' '); })
       .join('\n');
     return caseSensitive ? text : text.toLocaleLowerCase('tr-TR');
   }

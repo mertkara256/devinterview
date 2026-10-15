@@ -34,6 +34,13 @@ check(Math.abs(E.grade(match, { a: '1', b: '9', c: '3' }).score - 2 / 3) < 0.000
 const fill = { type: 'fill', answer: 'O(n²)', acceptedAnswers: ['O(n^2)'], caseSensitive: false };
 check(E.grade(fill, ' o(N^2) ').score === 1, 'Kabul edilen boşluk alternatifi puanlanmadı.');
 
+const spacedFill = { type: 'fill', answer: 'Θ(n), Θ(1)', acceptedAnswers: [], caseSensitive: false };
+check(E.grade(spacedFill, 'Θ(n),Θ(1)').correct && E.grade(spacedFill, 'Θ (n) , Θ (1)').correct, 'Noktalama çevresindeki boşluk farkı boşluk doldurmada yanlış sayılmamalı.');
+check(!E.grade({ type: 'fill', answer: 'OrderRepository repository', acceptedAnswers: [], caseSensitive: true }, 'OrderRepositoryrepository').correct, 'Kelimeler arasındaki boşluk boşluk doldurmada yine gerekli olmalı.');
+const spacedOutput = { type: 'output', answer: 'Salı Çarşamba\n[1, 2, 3]', acceptedAnswers: [], caseSensitive: true };
+check(E.grade(spacedOutput, 'Salı  Çarşamba\n[1, 2, 3]').correct, 'Kod çıktısında kelimeler arasındaki fazladan boşluk yanlış sayılmamalı.');
+check(!E.grade(spacedOutput, 'Salı Çarşamba\n[1,2,3]').correct, 'Kod çıktısında biçim farkı yine önemli olmalı.');
+
 const booleanFalse = { type: 'boolean', answer: false };
 check(E.grade(booleanFalse, 'false').score === 1, 'İngilizce false boolean cevabı puanlanmadı.');
 check(E.grade(booleanFalse, 'yanlış').score === 1, 'Türkçe yanlış boolean cevabı puanlanmadı.');
