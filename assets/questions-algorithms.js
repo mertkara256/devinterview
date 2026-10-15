@@ -29,7 +29,7 @@
       optionExplanations: spec.optionExplanations || {},
       assumptions: spec.assumptions,
       tags: spec.tags || [],
-      version: "1.0.0"
+      version: spec.version || "1.0.0"
     };
   }
 
@@ -46,11 +46,11 @@
       tags: ["big-o", "asimptotik-analiz"]
     }),
     card({
-      id: "A01-02", sourceId: "A01", topic: "Karmaşıklık analizi", difficulty: "Kolay", type: "match",
+      id: "A01-02", version: "1.1.0", sourceId: "A01", topic: "Karmaşıklık analizi", difficulty: "Kolay", type: "match",
       prompt: "Analiz türlerini tanımlarıyla eşleştirin.",
       pairs: {
         left: [{ id: "best", text: "En iyi durum" }, { id: "average", text: "Ortalama durum" }, { id: "worst", text: "En kötü durum" }],
-        right: [{ id: "min", text: "Boyutu n olan girdilerde en az maliyet" }, { id: "expected", text: "Belirtilen girdi dağılımı altındaki beklenen maliyet" }, { id: "max", text: "Boyutu n olan girdilerde en fazla maliyet" }]
+        right: [{ id: "min", text: "Boyutu n olan girdilerde en az maliyet" }, { id: "expected", text: "Belirtilen girdi dağılımı altındaki beklenen maliyet" }, { id: "max", text: "Boyutu n olan girdilerde en fazla maliyet" }, { id: "decoy", text: "Girdiden bağımsız, her zaman aynı kalan maliyet" }]
       },
       answer: { best: "min", average: "expected", worst: "max" },
       hint: "Minimum, beklenen ve maksimum maliyet ayrımını kullanın.",
@@ -117,11 +117,11 @@
       tags: ["ic-ice-dongu", "theta"]
     }),
     card({
-      id: "A05-01", sourceId: "A05", topic: "Zaman ve alan", difficulty: "Kolay", type: "match",
+      id: "A05-01", version: "1.1.0", sourceId: "A05", topic: "Zaman ve alan", difficulty: "Kolay", type: "match",
       prompt: "n elemanlı bir diziyi kopyalama ile aynı diziyi yerinde ters çevirme özelliklerini eşleştirin.",
       pairs: {
         left: [{ id: "copy", text: "Yeni diziye kopyalama" }, { id: "inplace", text: "İki uçtan yerinde ters çevirme" }],
-        right: [{ id: "copy-cost", text: "Θ(n) zaman, Θ(n) yardımcı alan" }, { id: "inplace-cost", text: "Θ(n) zaman, Θ(1) yardımcı alan" }]
+        right: [{ id: "copy-cost", text: "Θ(n) zaman, Θ(n) yardımcı alan" }, { id: "inplace-cost", text: "Θ(n) zaman, Θ(1) yardımcı alan" }, { id: "decoy", text: "Θ(n²) zaman, Θ(1) yardımcı alan" }]
       },
       answer: { copy: "copy-cost", inplace: "inplace-cost" },
       hint: "Her iki yöntem de elemanları işler; fark yeni depolamadadır.",
@@ -131,13 +131,13 @@
       tags: ["alan-karmasikligi", "yerinde-algoritma"]
     }),
     card({
-      id: "A06-01", sourceId: "A06", topic: "Diziler", difficulty: "Kolay", type: "single",
+      id: "A06-01", version: "1.1.0", sourceId: "A06", topic: "Diziler", difficulty: "Kolay", type: "single",
       prompt: "Bir int[] dizisinde geçerli arr[i] erişiminin sıkı zaman maliyeti neden Θ(1)'dir?",
-      options: choices(["Adres, başlangıç adresi + i × sabit eleman boyutuyla doğrudan hesaplanır", "JVM önce i elemanı dolaşır", "Dizi her erişimde sıralanır", "Hash tablosunda bucket aranır"]), answer: "a",
+      options: choices(["Adres doğrudan hesaplanır.", "JVM her erişimde baştan başlayıp i. elemana kadar ilerler, ama bu adımlar sabit sayıldığı için toplam Θ(1)'dir", "Dizi her erişimde sıralanır", "Hash tablosunda bucket aranır"]), answer: "a",
       hint: "Bitişik bellek ve sabit eleman boyutunu düşünün.",
       explanationShort: "Dizi elemanları indekslenebilir düzende tutulduğu için adres doğrudan hesaplanır.",
       explanationLong: "Java sınır kontrolü yapar ancak bu da sabit zamanlıdır. Geçerli bir indeks için önceki elemanları dolaşmak gerekmez; dolayısıyla erişim sıkı olarak Θ(1) zaman ve Θ(1) yardımcı alandır.",
-      optionExplanations: { b: "Dolaşma linked list erişiminde gerekir.", c: "Erişim sıralama yapmaz.", d: "Dizi indekslemesi hash kullanmaz." },
+      optionExplanations: { b: "Baştan dolaşmak i ile büyür ve linked list erişimine özgüdür; dizi erişimi doğrudan adres hesabıdır.", c: "Erişim sıralama yapmaz.", d: "Dizi indekslemesi hash kullanmaz." },
       assumptions: "arr null değildir ve 0 <= i < arr.length; boş dizide geçerli indeks yoktur. Adres hesabında model düzeyinde taşma yoktur. Zaman Θ(1), yardımcı alan Θ(1)'dir.",
       tags: ["dizi", "rastgele-erisim"]
     }),
@@ -252,13 +252,13 @@
       tags: ["string", "reverse", "two-pointer"]
     }),
     card({
-      id: "A11-02", sourceId: "A11", topic: "String işlemleri", difficulty: "Kolay", type: "single",
+      id: "A11-02", version: "1.1.0", sourceId: "A11", topic: "String işlemleri", difficulty: "Kolay", type: "single",
       prompt: "BMP dışındaki Unicode karakterlerini de bozmadan String ters çevirmek için en güvenli yaklaşım hangisidir?",
-      options: choices(["UTF-16 char değerlerini tek tek ters çevirmek", "codePoints() ile Unicode kod noktalarını alıp sıralarını ters çevirmek", "String.hashCode() değerini ters çevirmek", "Yalnız toLowerCase() çağırmak"]), answer: "b",
+      options: choices(["UTF-16 char değerlerini tek tek ters çevirmek; Java'da her Unicode karakteri tam olarak bir char ile temsil edilir", "codePoints() ile Unicode kod noktalarını alıp sıralarını ters çevirmek", "String.hashCode() değerini ters çevirmek", "Yalnız toLowerCase() çağırmak"]), answer: "b",
       hint: "Bir görünen karakter bazı durumlarda iki char ile temsil edilir.",
       explanationShort: "Kod noktaları üzerinden ilerlemek surrogate çiftlerini parçalamaz.",
       explanationLong: "String.codePoints() int kod noktaları üretir; bunlar ters sırada StringBuilder.appendCodePoint ile eklenebilir. Bu yaklaşım kod noktalarını korur. Birleşik grapheme kümelerini tam kullanıcı algısına göre ters çevirmek ise daha ileri bir segmentasyon problemi olabilir.",
-      optionExplanations: { a: "Tek char tersleme surrogate çiftlerini bölebilir.", c: "Hash kodu metni geri üretmez.", d: "Harf dönüşümü sıralamayı değiştirmez." },
+      optionExplanations: { a: "BMP dışındaki karakterler iki char'lık surrogate çiftidir; tek char tersleme çifti bozar.", c: "Hash kodu metni geri üretmez.", d: "Harf dönüşümü sıralamayı değiştirmez." },
       assumptions: "s null değildir; boş metin geçerlidir. Ters çevirme birimi Unicode kod noktasıdır, grapheme kümesi değildir; boyut taşmaz. Zaman Θ(n) UTF-16 birimi, yardımcı alan Θ(n)'dir.",
       tags: ["unicode", "code-point", "string"]
     }),
@@ -296,11 +296,11 @@
       tags: ["frekans", "dizi", "karakter"]
     }),
     card({
-      id: "A13-02", sourceId: "A13", topic: "Frekans tablosu", difficulty: "Kolay", type: "match",
+      id: "A13-02", version: "1.1.0", sourceId: "A13", topic: "Frekans tablosu", difficulty: "Kolay", type: "match",
       prompt: "Karakter kümesi varsayımını uygun frekans yapısıyla eşleştirin.",
       pairs: {
         left: [{ id: "lower", text: "Yalnız 26 küçük İngilizce harfi" }, { id: "unicode", text: "Önceden sınırlandırılmamış Unicode kod noktaları" }],
-        right: [{ id: "array", text: "int[26] ve c - 'a' indeksi" }, { id: "map", text: "Map<Integer, Integer> ve codePoints()" }]
+        right: [{ id: "array", text: "int[26] ve c - 'a' indeksi" }, { id: "map", text: "Map<Integer, Integer> ve codePoints()" }, { id: "decoy", text: "Sıralanmış char[] dizisi" }]
       },
       answer: { lower: "array", unicode: "map" },
       hint: "Sabit ve küçük alfabe doğrudan indekslenebilir; geniş alfabe seyrek olabilir.",
@@ -310,13 +310,13 @@
       tags: ["unicode", "hashmap", "frekans"]
     }),
     card({
-      id: "A14-01", sourceId: "A14", topic: "Set", difficulty: "Kolay", type: "boolean",
-      prompt: "Bir HashSet'e sırayla 2, 1, 2 eklenirken add metodunun üçüncü çağrıda false dönmesi, tekrar eden eleman bulunduğunu gösterir.",
-      options: choices(["Doğru", "Yanlış"]), answer: true,
+      id: "A14-01", version: "1.1.0", sourceId: "A14", topic: "Set", difficulty: "Kolay", type: "boolean",
+      prompt: "Bir HashSet'e sırayla 2, 1, 2 eklenirken add metodu üçüncü çağrıda da true döner; tekrarı ancak size() ile anlamak mümkündür.",
+      options: choices(["Doğru", "Yanlış"]), answer: false,
       hint: "Set.add, küme değişmediyse ne döndürür?",
-      explanationShort: "Doğru. İkinci 2 zaten bulunduğu için add false döner.",
+      explanationShort: "Yanlış. İkinci 2 zaten bulunduğu için add false döner; tekrar doğrudan bu dönüşten anlaşılır.",
       explanationLong: "Her elemanda if (!seen.add(value)) return true kalıbı kullanılabilir. HashSet'in iyi dağılımlı ortalama işlemleri sabit zamanlı olduğundan beklenen toplam zaman Θ(n)'dir.",
-      optionExplanations: { a: "Doğru seçimdir; üçüncü ekleme kümenin içeriğini değiştirmez ve false döner.", b: "Yanlış seçimdir; HashSet.add yinelenen eşit elemanda false döndürür." },
+      optionExplanations: { a: "Yanlış seçimdir; HashSet.add yinelenen eşit elemanda false döndürür.", b: "Doğru seçimdir; üçüncü ekleme kümeyi değiştirmez ve add false döner." },
       assumptions: "Dizi null değildir; boş/tek eleman için sonuç false'tur. Integer hash/eşitliği kullanılır ve sayaç taşması yoktur. Beklenen zaman Θ(n), kötü durum üst sınırı O(n²), yardımcı alan en kötü Θ(n)'dir.",
       tags: ["set", "duplicate", "hashing"]
     }),
@@ -397,11 +397,11 @@
       tags: ["fibonacci", "iterasyon", "kod-ciktisi"]
     }),
     card({
-      id: "A18-02", sourceId: "A18", topic: "Fibonacci", difficulty: "Kolay", type: "match",
+      id: "A18-02", version: "1.1.0", sourceId: "A18", topic: "Fibonacci", difficulty: "Kolay", type: "match",
       prompt: "Döngülü Fibonacci metodunun özelliklerini eşleştirin.",
       pairs: {
         left: [{ id: "time", text: "0 <= n <= 46 için zaman" }, { id: "space", text: "Yardımcı alan" }, { id: "largest", text: "int içinde doğru kalan en büyük n" }],
-        right: [{ id: "theta-n", text: "Θ(n)" }, { id: "theta-1", text: "Θ(1)" }, { id: "forty-six", text: "46" }]
+        right: [{ id: "theta-n", text: "Θ(n)" }, { id: "theta-1", text: "Θ(1)" }, { id: "forty-six", text: "46" }, { id: "decoy", text: "47" }]
       },
       answer: { time: "theta-n", space: "theta-1", largest: "forty-six" },
       hint: "Döngü n kez çalışır ve yalnız üç sayı tutulur; F47 int sınırını aşar.",
@@ -422,13 +422,13 @@
       tags: ["asal-sayi", "sqrt", "kod-ciktisi"]
     }),
     card({
-      id: "A19-02", sourceId: "A19", topic: "Asal sayı", difficulty: "Kolay", type: "single",
+      id: "A19-02", version: "1.1.0", sourceId: "A19", topic: "Asal sayı", difficulty: "Kolay", type: "single",
       prompt: "Asallık testinde bölenleri √n sınırına kadar denemek neden yeterlidir?",
-      options: choices(["Her bileşik n=a×b için en az bir çarpan √n'den büyük değildir", "√n her zaman n'nin tam bölenidir", "Java yalnız √n kez mod işlemi yapabilir", "√n'den büyük tüm sayılar asaldır"]), answer: "a",
+      options: choices(["Küçük çarpan daima ≤ √n olur", "√n her zaman n'nin tam bölenidir", "Java yalnız √n kez mod işlemi yapabilir", "√n'den büyük bir bölen varsa onun eşi de √n'den büyük olmak zorundadır"]), answer: "a",
       hint: "İki çarpanın ikisi de √n'den büyük olsaydı çarpımları ne olurdu?",
       explanationShort: "Bileşik sayının çarpan çiftinden en az biri √n'yi aşamaz.",
       explanationLong: "a>√n ve b>√n aynı anda olsaydı a×b>n olurdu. Bu yüzden küçük çarpan bulunmadıysa daha büyük eşinin de bulunması mümkün değildir. Asal n için tüm adaylar denenir ve sıkı maliyet Θ(√n)'dir.",
-      optionExplanations: { b: "Örneğin √10 tam sayı veya bölen değildir.", c: "Bu matematiksel bir sınırdır, Java kısıtı değildir.", d: "√n'den büyük bileşik sayılar vardır." },
+      optionExplanations: { b: "Örneğin √10 tam sayı veya bölen değildir.", c: "Bu matematiksel bir sınırdır, Java kısıtı değildir.", d: "a×b=n ve a>√n ise b<√n olur; eş çarpan küçük taraftadır ve zaten denenmiştir." },
       assumptions: "n int ve n>=2 analiz edilir; negatif/0/1 false'tur. d<=n/d kullanılarak overflow önlenir. En kötü sıkı zaman Θ(√n), yardımcı alan Θ(1)'dir.",
       tags: ["asal-sayi", "carpan-cifti", "karmasiklik"]
     }),
@@ -455,11 +455,11 @@
       tags: ["xor", "toplam-formulu", "overflow"]
     }),
     card({
-      id: "A21-01", sourceId: "A21", topic: "Set ve Map", difficulty: "Kolay", type: "match",
+      id: "A21-01", version: "1.1.0", sourceId: "A21", topic: "Set ve Map", difficulty: "Kolay", type: "match",
       prompt: "İhtiyacı uygun veri yapısıyla eşleştirin.",
       pairs: {
         left: [{ id: "seen", text: "Bir değer daha önce görüldü mü?" }, { id: "count", text: "Her değer kaç kez görüldü?" }],
-        right: [{ id: "set", text: "Set<T>" }, { id: "map", text: "Map<T, Integer>" }]
+        right: [{ id: "set", text: "Set<T>" }, { id: "map", text: "Map<T, Integer>" }, { id: "decoy", text: "Queue<T>" }]
       },
       answer: { seen: "set", count: "map" },
       hint: "İlk ihtiyaç üyelik, ikincisi anahtar yanında sayaç ister.",
@@ -469,11 +469,11 @@
       tags: ["set", "map", "veri-yapisi-secimi"]
     }),
     card({
-      id: "A22-01", sourceId: "A22", topic: "Hash table", difficulty: "Kolay", type: "match",
+      id: "A22-01", version: "1.1.0", sourceId: "A22", topic: "Hash table", difficulty: "Kolay", type: "match",
       prompt: "Hash table terimlerini tanımlarıyla eşleştirin.",
       pairs: {
         left: [{ id: "hash", text: "Hash değeri" }, { id: "bucket", text: "Bucket" }, { id: "collision", text: "Collision" }],
-        right: [{ id: "derived", text: "Anahtardan hesaplanan sayısal özet" }, { id: "slot", text: "Tabloda kayıtların yönlendirildiği bölüm" }, { id: "same", text: "Farklı anahtarların aynı bölüme yönlenmesi" }]
+        right: [{ id: "derived", text: "Anahtardan hesaplanan sayısal özet" }, { id: "slot", text: "Tabloda kayıtların yönlendirildiği bölüm" }, { id: "same", text: "Farklı anahtarların aynı bölüme yönlenmesi" }, { id: "decoy", text: "Eleman sayısının bucket sayısına oranı" }]
       },
       answer: { hash: "derived", bucket: "slot", collision: "same" },
       hint: "Hash yönlendirme bilgisidir; bucket hedeftir; collision hedef çakışmasıdır.",
@@ -516,13 +516,13 @@
       tags: ["hashmap", "karmasiklik", "frekans"]
     }),
     card({
-      id: "A24-01", sourceId: "A24", topic: "Binary search", difficulty: "Kolay", type: "boolean",
-      prompt: "Standart binary search'ün doğru sonuç vermesi için dizi, kullanılan karşılaştırıcıya göre monoton sıralı olmalıdır.",
-      options: choices(["Doğru", "Yanlış"]), answer: true,
+      id: "A24-01", version: "1.1.0", sourceId: "A24", topic: "Binary search", difficulty: "Kolay", type: "boolean",
+      prompt: "Standart binary search, dizi sıralı olmasa da hedef dizide bulunuyorsa onu her zaman bulur.",
+      options: choices(["Doğru", "Yanlış"]), answer: false,
       hint: "Orta elemanın hedefe göre yön göstermesi hangi özelliğe dayanır?",
-      explanationShort: "Doğru. Sıralılık, hedefin hangi yarıda olabileceğini güvenle belirler.",
+      explanationShort: "Yanlış. Sıralılık olmadan orta eleman arama yönünü güvenle belirleyemez.",
       explanationLong: "Sıralı değilse arr[mid] < target bilgisi sol yarının elenmesini haklı çıkarmaz. Artan veya azalan sıra kullanılabilir, fakat karşılaştırma ve sınır güncellemeleri aynı düzene uygun olmalıdır.",
-      optionExplanations: { a: "Doğru seçimdir; orta eleman ancak sıralılık sayesinde arama yönünü belirler.", b: "Yanlış seçimdir; sırasız girdide yarıyı elemek geçerli bir çıkarım değildir." },
+      optionExplanations: { a: "Yanlış seçimdir; sırasız girdide yarıyı elemek geçerli bir çıkarım değildir.", b: "Doğru seçimdir; binary search'ün doğruluğu monoton sıralılığa dayanır." },
       assumptions: "arr null değildir ve artan sıradadır; boş dizi -1 verir, tekrar varsa herhangi bir eşleşme kabul edilir. mid hesabı taşma güvenlidir. Zaman en kötü Θ(log n), alan iteratifte Θ(1)'dir.",
       tags: ["binary-search", "sirali-dizi", "on-kosul"]
     }),
@@ -571,11 +571,11 @@
       tags: ["queue", "fifo", "arraydeque"]
     }),
     card({
-      id: "A26-02", sourceId: "A26", topic: "Queue", difficulty: "Kolay", type: "match",
+      id: "A26-02", version: "1.1.0", sourceId: "A26", topic: "Queue", difficulty: "Kolay", type: "match",
       prompt: "Davranış veya kullanım örneğini uygun yapıyla eşleştirin.",
       pairs: {
         left: [{ id: "stack", text: "Stack" }, { id: "queue", text: "Queue" }],
-        right: [{ id: "lifo", text: "LIFO; undo veya çağrı yığını" }, { id: "fifo", text: "FIFO; görev kuyruğu veya BFS" }]
+        right: [{ id: "lifo", text: "LIFO; undo veya çağrı yığını" }, { id: "fifo", text: "FIFO; görev kuyruğu veya BFS" }, { id: "decoy", text: "Öncelik sırası; en küçük eleman önce çıkar" }]
       },
       answer: { stack: "lifo", queue: "fifo" },
       hint: "Stack son ekleneni, queue ilk ekleneni önce işler.",
@@ -585,11 +585,11 @@
       tags: ["queue", "stack", "fifo", "lifo"]
     }),
     card({
-      id: "A27-01", sourceId: "A27", topic: "Linked list", difficulty: "Kolay", type: "match",
+      id: "A27-01", version: "1.1.0", sourceId: "A27", topic: "Linked list", difficulty: "Kolay", type: "match",
       prompt: "n elemanlı dizi ile tek yönlü linked list özelliklerini eşleştirin.",
       pairs: {
         left: [{ id: "array-access", text: "Dizide i indeksine erişim" }, { id: "list-access", text: "Linked listte i. düğüme erişim" }, { id: "list-head", text: "Linked list başına ekleme" }, { id: "memory", text: "Linked list düğümünün ek maliyeti" }],
-        right: [{ id: "constant", text: "Θ(1)" }, { id: "linear", text: "Θ(n) en kötü" }, { id: "head-constant", text: "Yeni head bağlantısıyla Θ(1)" }, { id: "pointer", text: "Her düğümde next referansı ve nesne yükü" }]
+        right: [{ id: "constant", text: "Θ(1)" }, { id: "linear", text: "Θ(n) en kötü" }, { id: "head-constant", text: "Yeni head bağlantısıyla Θ(1)" }, { id: "pointer", text: "Her düğümde next referansı ve nesne yükü" }, { id: "decoy", text: "Θ(log n)" }]
       },
       answer: { "array-access": "constant", "list-access": "linear", "list-head": "head-constant", memory: "pointer" },
       hint: "Dizi adres hesaplar; linked list bağlantıları izler.",
@@ -610,13 +610,13 @@
       tags: ["binary-search", "off-by-one", "sonsuz-dongu", "overflow"]
     }),
     card({
-      id: "A28-02", sourceId: "A28", topic: "Binary search", difficulty: "Orta", type: "single",
+      id: "A28-02", version: "1.1.0", sourceId: "A28", topic: "Binary search", difficulty: "Orta", type: "single",
       prompt: "Kapsayıcı [left,right] aralığı kullanan doğru ve overflow-güvenli binary search parçası hangisidir?",
-      options: choices(["right=arr.length-1; mid=left+(right-left)/2; küçükse left=mid+1; büyükse right=mid-1", "right=arr.length; mid=(left+right)/2; küçükse left=mid; büyükse right=mid", "right=arr.length-1; mid=right-left/2; küçükse right=mid-1; büyükse left=mid+1", "right=arr.length; mid=left; iki durumda da left++"]), answer: "a",
+      options: choices(["right=arr.length-1; mid=left+(right-left)/2; küçükse left=mid+1; büyükse right=mid-1", "right=arr.length; mid=(left+right)/2; küçükse left=mid; büyükse right=mid", "right=arr.length-1; mid=(left+right)/2; küçükse left=mid+1; büyükse right=mid-1", "right=arr.length; mid=left; iki durumda da left++"]), answer: "a",
       hint: "Geçerli son indeks length-1 ve elenen orta nokta bir sonraki aralıkta bulunmamalıdır.",
       explanationShort: "Doğru parça son geçerli sınırı kullanır, mid'i dışlar ve toplam taşmasını önler.",
       explanationLong: "left+(right-left)/2, left ve right geçerliyken güvenli fark üzerinden hesaplanır. Her başarısız karşılaştırma aralığı kesin küçültür; algoritma sonlanır ve logaritmik çalışır.",
-      optionExplanations: { b: "length geçersiz indeks ve mid'i koruyan güncellemeler ilerlememe üretir.", c: "Orta formülü parantezsiz yanlış ve yönler ters.", d: "Doğrusal ilerler, right geçersizdir ve binary search mantığını kullanmaz." },
+      optionExplanations: { b: "length geçersiz indeks ve mid'i koruyan güncellemeler ilerlememe üretir.", c: "Arama mantığı doğru olsa da left+right büyük indekslerde int taşmasına uğrayabilir; overflow-güvenli değildir.", d: "Doğrusal ilerler, right geçersizdir ve binary search mantığını kullanmaz." },
       assumptions: "arr null değildir, artan sıralı ve int ile indekslenebilir; boş dizi right=-1 ile doğal olarak -1 döner. Güvenli mid hesabı overflow'u önler. Zaman Θ(log n), alan Θ(1)'dir.",
       tags: ["binary-search", "guvenli-mid", "sinir"]
     }),
@@ -676,11 +676,11 @@
       tags: ["queue", "offer", "poll", "peek"]
     }),
     card({
-      id: "A31-02", sourceId: "A31", topic: "Queue", difficulty: "Orta", type: "match",
+      id: "A31-02", version: "1.1.0", sourceId: "A31", topic: "Queue", difficulty: "Orta", type: "match",
       prompt: "Queue metotlarını davranışlarıyla eşleştirin.",
       pairs: {
         left: [{ id: "offer", text: "offer(e)" }, { id: "poll", text: "poll()" }, { id: "peek", text: "peek()" }],
-        right: [{ id: "append", text: "Elemanı sona eklemeyi dener ve boolean döndürür" }, { id: "remove", text: "Baştakini çıkarır; boşsa null döndürür" }, { id: "inspect", text: "Baştakini çıkarmadan verir; boşsa null döndürür" }]
+        right: [{ id: "append", text: "Elemanı sona eklemeyi dener ve boolean döndürür" }, { id: "remove", text: "Baştakini çıkarır; boşsa null döndürür" }, { id: "inspect", text: "Baştakini çıkarmadan verir; boşsa null döndürür" }, { id: "decoy", text: "Baştakini çıkarır; boşsa NoSuchElementException fırlatır" }]
       },
       answer: { offer: "append", poll: "remove", peek: "inspect" },
       hint: "poll değiştirir, peek yalnız bakar.",
@@ -832,22 +832,22 @@
       tags: ["insertion-sort", "trace", "sorted-prefix"]
     }),
     card({
-      id: "A39-02", sourceId: "A39", topic: "Insertion sort", difficulty: "Orta", type: "single",
+      id: "A39-02", version: "1.1.0", sourceId: "A39", topic: "Insertion sort", difficulty: "Orta", type: "single",
       prompt: "Insertion sort neredeyse sıralı dizilerde neden avantajlı olabilir?",
-      options: choices(["Çalışması Θ(n + k) olabilir; k ters çift sayısı azsa doğrusal sınıra yaklaşır", "Her zaman tam n² swap yapmak zorundadır", "Ek olarak Θ(n) boyutlu hash table kurar", "Yalnızca tüm elemanlar farklıysa çalışır"]), answer: "a",
+      options: choices(["Ters çift azsa süresi Θ(n)'e yaklaşır.", "Her zaman tam n² swap yapmak zorundadır", "Sıralı kısmı ikili aramayla taradığı için her eleman Θ(log n) kaydırmayla yerine yerleşir", "Yalnızca tüm elemanlar farklıysa çalışır"]), answer: "a",
       hint: "İç döngü yalnız key'den büyük önceki elemanları kaydırır.",
       explanationShort: "Maliyet terslik sayısıyla ilişkilidir; az terslik az kaydırma demektir.",
       explanationLong: "Dış döngünün Θ(n) taban maliyetine ek olarak her inversion yaklaşık bir kaydırma doğurur. Bu nedenle ince analiz Θ(n+k)'dır; k=0 iken Θ(n), k=Θ(n²) iken Θ(n²) olur.",
-      optionExplanations: { b: "Sıralı girdide iç döngü hemen durur.", c: "Standart insertion sort yerindedir.", d: "Eşit değerlerle de çalışır ve uygun karşılaştırmayla kararlı kalır." },
+      optionExplanations: { b: "Sıralı girdide iç döngü hemen durur.", c: "Standart insertion sort doğrusal tarar; avantajı ters çift az olduğunda kaydırmanın az olmasıdır.", d: "Eşit değerlerle de çalışır ve uygun karşılaştırmayla kararlı kalır." },
       assumptions: "arr null değildir; eşit elemanlara izin verilir, karşılaştırma tutarlıdır. Boş/tek eleman geçerlidir, indis taşması yoktur. Zaman sıkı Θ(n+k), yardımcı alan Θ(1)'dir.",
       tags: ["insertion-sort", "nearly-sorted", "inversion"]
     }),
     card({
-      id: "A40-01", sourceId: "A40", topic: "Sıralama karşılaştırması", difficulty: "Orta", type: "match",
+      id: "A40-01", version: "1.1.0", sourceId: "A40", topic: "Sıralama karşılaştırması", difficulty: "Orta", type: "match",
       prompt: "Standart yerinde uygulamaları özellik kümeleriyle eşleştirin.",
       pairs: {
         left: [{ id: "bubble", text: "Erken çıkışlı bubble sort" }, { id: "selection", text: "Selection sort" }, { id: "insertion", text: "Insertion sort" }],
-        right: [{ id: "b-props", text: "Kararlı; en iyi Θ(n), kötü Θ(n²); kötü durumda Θ(n²) swap" }, { id: "s-props", text: "Genelde kararsız; her durumda Θ(n²) karşılaştırma; en fazla n-1 swap" }, { id: "i-props", text: "Kararlı; en iyi Θ(n), kötü Θ(n²); terslik kadar kaydırma" }]
+        right: [{ id: "b-props", text: "Kararlı; en iyi Θ(n), kötü Θ(n²); kötü durumda Θ(n²) swap" }, { id: "s-props", text: "Genelde kararsız; her durumda Θ(n²) karşılaştırma; en fazla n-1 swap" }, { id: "i-props", text: "Kararlı; en iyi Θ(n), kötü Θ(n²); terslik kadar kaydırma" }, { id: "decoy", text: "Kararlı; her durumda Θ(n log n); Θ(n) ek alan" }]
       },
       answer: { bubble: "b-props", selection: "s-props", insertion: "i-props" },
       hint: "Selection minimumu uzağa swap eder; insertion sıralı öneğe ekler.",
@@ -867,13 +867,13 @@
       tags: ["recursion", "base-case", "termination"]
     }),
     card({
-      id: "A41-02", sourceId: "A41", topic: "Recursion", difficulty: "Orta", type: "single",
+      id: "A41-02", version: "1.1.0", sourceId: "A41", topic: "Recursion", difficulty: "Orta", type: "single",
       prompt: "Çok derin veya sonlanmayan recursive çağrılar Java'da neden StackOverflowError üretebilir?",
-      options: choices(["Her çağrı yerel durum ve dönüş adresi için bir stack frame tüketir", "Heap her çağrıda zorunlu olarak sıfırlanır", "JVM recursive metotları hiç desteklemez", "Base case sonucu int türüne sığmaz"]), answer: "a",
+      options: choices(["Her çağrı stack frame tüketir.", "Her recursive çağrı heap'e yeni nesne koyduğu için heap dolar ve JVM bunu StackOverflowError olarak bildirir", "JVM recursive metotları hiç desteklemez", "Base case sonucu int türüne sığmaz"]), answer: "a",
       hint: "Henüz dönmemiş her çağrının bilgisinin nerede tutulduğunu düşünün.",
       explanationShort: "Her aktif çağrı call stackte bir frame tutar; sınırlı stack tükenebilir.",
       explanationLong: "Çağrılar base case'e ulaşana kadar frame'ler birikir ve dönüşlerde LIFO sırasıyla çözülür. Derinlik stack sınırını aşarsa, matematiksel sonuç doğru olsa bile StackOverflowError oluşur. Java genel olarak tail-call optimizasyonu garantilemez.",
-      optionExplanations: { b: "Heap sıfırlanması çağrı mekanizması değildir.", c: "Java recursion'ı destekler.", d: "Sayısal taşma farklı bir hata sınıfıdır." },
+      optionExplanations: { b: "Heap'in dolması OutOfMemoryError üretir; StackOverflowError çağrı yığınının tükenmesidir.", c: "Java recursion'ı destekler.", d: "Sayısal taşma farklı bir hata sınıfıdır." },
       assumptions: "Girdi null/boş durumu sözleşmeyle base case'e bağlanır; sayısal taşma bu kartın konusu değildir. Çağrı derinliği d için sıkı stack alanı Θ(d); zaman, çağrı sayısı c için Θ(c)'dir.",
       tags: ["recursion", "call-stack", "stack-overflow"]
     }),
@@ -957,13 +957,13 @@
       tags: ["two-pointer", "two-sum", "sorted-array"]
     }),
     card({
-      id: "A45-02", sourceId: "A45", topic: "Two pointer", difficulty: "Orta", type: "single",
+      id: "A45-02", version: "1.1.0", sourceId: "A45", topic: "Two pointer", difficulty: "Orta", type: "single",
       prompt: "Artan sıralı dizide toplam hedeften küçükse neden left artırılır?",
-      options: choices(["Mevcut left ile daha küçük/eşit bir sağ değer toplamı büyütemez; daha büyük sol aday gerekir", "right artırılırsa dizi uzar", "left her zaman hedefin indeksidir", "Bu hareket yalnız tüm sayılar pozitifse doğrudur"]), answer: "a",
+      options: choices(["left artınca toplam büyür.", "right artırılırsa dizi uzar", "left her zaman hedefin indeksidir", "Bu hareket yalnız tüm sayılar pozitifse doğrudur; dizide negatif sayı varsa onun yerine right azaltılmalıdır"]), answer: "a",
       hint: "Sıralılık altında sabit sol değerle sağ işaretçiyi sola çekmenin etkisini düşünün.",
       explanationShort: "Mevcut en büyük sağ adayla toplam bile küçükse mevcut sol hiçbir çözümde kullanılamaz.",
       explanationLong: "right o anda kalan en büyük değerdir. a[left]+a[right]<target ise aynı left ile daha soldaki tüm sağ değerler daha küçük toplam verir; left güvenle elenir. Argüman negatif sayılarda da sıralılık sayesinde geçerlidir.",
-      optionExplanations: { b: "İşaretçi hareketi dizinin boyutunu değiştirmez.", c: "left yalnız aday sınırdır.", d: "Monotonluk pozitiflikten değil sıralı değerlerden gelir." },
+      optionExplanations: { b: "İşaretçi hareketi dizinin boyutunu değiştirmez.", c: "left yalnız aday sınırdır.", d: "Monotonluk pozitiflikten değil sıralı olmaktan gelir; negatif sayılarda da left artırılır." },
       assumptions: "Dizi null değildir ve artan sıralıdır; boş/tek elemanda çift yoktur. Toplam long ile overflow-güvenlidir. Her indeks en fazla bir kez geçildiği için sıkı zaman Θ(n), alan Θ(1)'dir.",
       tags: ["two-pointer", "monotonicity", "proof"]
     }),
@@ -1022,11 +1022,11 @@
       tags: ["sliding-window", "fixed-window", "max-sum"]
     }),
     card({
-      id: "A48-02", sourceId: "A48", topic: "Sliding window", difficulty: "Zorlayıcı", type: "match",
+      id: "A48-02", version: "1.1.0", sourceId: "A48", topic: "Sliding window", difficulty: "Zorlayıcı", type: "match",
       prompt: "Uzunluğu k olan maksimum alt dizi toplamı yaklaşımlarını maliyetleriyle eşleştirin.",
       pairs: {
         left: [{ id: "brute", text: "Her başlangıçta k elemanı yeniden topla" }, { id: "window", text: "Çıkanı çıkarıp gireni ekleyen sliding window" }],
-        right: [{ id: "nk", text: "Θ((n-k+1)k) zaman, Θ(1) alan" }, { id: "n", text: "Θ(n) zaman, Θ(1) alan" }]
+        right: [{ id: "nk", text: "Θ((n-k+1)k) zaman, Θ(1) alan" }, { id: "n", text: "Θ(n) zaman, Θ(1) alan" }, { id: "decoy", text: "Θ(n log n) zaman, Θ(n) alan" }]
       },
       answer: { brute: "nk", window: "n" },
       hint: "Pencere toplamını baştan kurmakla yalnız iki değerle güncellemeyi karşılaştırın.",
@@ -1069,11 +1069,11 @@
       tags: ["cycle-detection", "floyd", "slow-fast"]
     }),
     card({
-      id: "A50-02", sourceId: "A50", topic: "Linked list döngüsü", difficulty: "Zorlayıcı", type: "match",
+      id: "A50-02", version: "1.1.0", sourceId: "A50", topic: "Linked list döngüsü", difficulty: "Zorlayıcı", type: "match",
       prompt: "Linked list döngüsü algılama yaklaşımlarını maliyetleriyle eşleştirin.",
       pairs: {
         left: [{ id: "set", text: "Ziyaret edilen Node referanslarını Set'te tutma" }, { id: "floyd", text: "Slow/fast Floyd yaklaşımı" }],
-        right: [{ id: "set-cost", text: "Beklenen Θ(n) zaman, Θ(n) yardımcı alan" }, { id: "floyd-cost", text: "Θ(n) zaman, Θ(1) yardımcı alan" }]
+        right: [{ id: "set-cost", text: "Beklenen Θ(n) zaman, Θ(n) yardımcı alan" }, { id: "floyd-cost", text: "Θ(n) zaman, Θ(1) yardımcı alan" }, { id: "decoy", text: "Θ(n²) zaman, Θ(1) yardımcı alan" }]
       },
       answer: { set: "set-cost", floyd: "floyd-cost" },
       hint: "İki yöntem de düğümleri izler; yalnız biri geçmişin tamamını saklar.",

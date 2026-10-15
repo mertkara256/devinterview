@@ -122,17 +122,18 @@
     }),
 
     makeCard("O03", 2, {
+      version: "1.1.0",
       topic: "Nesne Referansları",
       difficulty: "easy",
       type: "boolean",
-      prompt: "Counter b = a; ifadesi çalıştıktan sonra b.value değişikliği a.value üzerinden gözlenir.",
-      answer: true,
+      prompt: "Counter b = a; ifadesi b için a'nın bağımsız bir kopyasını oluşturur; bu yüzden b.value değişikliği a.value üzerinden gözlenmez.",
+      answer: false,
       hint: "Atama bir nesne kopyası mı, referans kopyası mı üretir?",
-      explanationShort: "Doğru. a ve b aynı nesneye ait referansı taşır.",
+      explanationShort: "Yanlış. Atama referansı kopyalar; a ve b aynı nesneyi gösterir ve değişiklik ikisinden de görülür.",
       explanationLong: "Java'da reference type değişken ataması nesnenin alanlarını kopyalamaz; referans değerini kopyalar. Bu nedenle iki değişken üzerinden de aynı mutable nesnenin state'i görülür.",
       optionExplanations: {
-        true: "Doğru: iki referans aynı nesneyi gösterir.",
-        false: "Yanlış: b için ayrı bir Counter nesnesi oluşturulmamıştır."
+        true: "Yanlış: b için ayrı bir Counter nesnesi oluşturulmaz.",
+        false: "Doğru: iki referans aynı nesneyi gösterir."
       },
       tags: ["reference", "aliasing", "mutation"]
     }),
@@ -162,31 +163,33 @@
     }),
 
     makeCard("O04", 2, {
+      version: "1.1.0",
       topic: "Constructor",
       difficulty: "easy",
       type: "boolean",
-      prompt: "Bir sınıfta hiçbir constructor bildirilmezse derleyici, erişimi sınıfın erişimine bağlı olan parametresiz bir default constructor sağlar.",
-      answer: true,
-      hint: "Bu destek yalnızca geliştirici hiç constructor yazmadığında oluşur.",
-      explanationShort: "Doğru. Hiç constructor yoksa derleyici parametresiz default constructor ekler.",
-      explanationLong: "Sınıfta herhangi bir constructor açıkça bildirilirse derleyici artık parametresiz constructor üretmez. Default constructor'ın erişim düzeyi sınıfın erişim düzeyiyle aynıdır.",
+      prompt: "Bir sınıfta hiçbir constructor bildirilmezse derleyici constructor eklemez; bu yüzden o sınıftan new ile nesne oluşturulamaz.",
+      answer: false,
+      hint: "Sınıfta hiç constructor yazılmadığında derleyici ne yapar?",
+      explanationShort: "Yanlış. Hiç constructor yoksa derleyici parametresiz bir default constructor ekler.",
+      explanationLong: "Sınıfta hiç constructor bildirilmemişse derleyici parametresiz bir default constructor ekler; bu yüzden new ile nesne oluşturulabilir. Herhangi bir constructor açıkça bildirilirse derleyici artık parametresiz constructor üretmez. Default constructor'ın erişim düzeyi sınıfın erişim düzeyiyle aynıdır.",
       optionExplanations: {
-        true: "Doğru: koşul, sınıfta hiçbir constructor bildirilmemiş olmasıdır.",
-        false: "Yanlış: Java bu koşulda default constructor sağlar."
+        true: "Yanlış: Java bu koşulda default constructor sağlar.",
+        false: "Doğru: default constructor eklendiği için new ile nesne oluşturulabilir."
       },
       tags: ["constructor", "default-constructor"]
     }),
 
     makeCard("O05", 1, {
+      version: "1.1.0",
       topic: "Constructor",
       difficulty: "easy",
       type: "single",
       prompt: "Gösterilen sınıfta new User() ifadesinin derlenmemesinin nedeni nedir?",
       code: "class User {\n    User(String name) {\n        System.out.println(name);\n    }\n}\n\nUser user = new User();",
       options: [
-        { id: "a", text: "String parametreli constructor bildirildiği için derleyici parametresiz constructor eklemez." },
+        { id: "a", text: "Derleyici bu durumda User() eklemez." },
         { id: "b", text: "Constructor içinde System.out.println kullanılamaz." },
-        { id: "c", text: "User sınıfı public olmadığı için aynı kapsamda oluşturulamaz." },
+        { id: "c", text: "User sınıfı public olarak bildirilmediği için new User() ifadesi aynı paketten bile çağrılamaz." },
         { id: "d", text: "Java'da constructor overloading yasaktır." }
       ],
       answer: "a",
@@ -196,7 +199,7 @@
       optionExplanations: {
         a: "Doğru: new User() için uygun imza yoktur.",
         b: "println constructor içinde kullanılabilir.",
-        c: "Paket erişimli sınıf aynı erişim kapsamından oluşturulabilir; sorun bu değildir.",
+        c: "Paket erişimli sınıf aynı paketten oluşturulabilir; sorun eksik parametresiz constructor'dır.",
         d: "Constructor overloading geçerlidir."
       },
       tags: ["constructor", "compile-error", "default-constructor"]
@@ -446,15 +449,16 @@
     }),
 
     makeCard("O12", 1, {
+      version: "1.1.0",
       topic: "Abstraction ve Encapsulation",
       difficulty: "easy",
       type: "single",
       prompt: "Bir ödeme sistemi için abstraction ile encapsulation ayrımını doğru kuran seçenek hangisidir?",
       options: [
-        { id: "a", text: "PaymentMethod.pay ortak 'ne yapılır' sözleşmesini soyutlar; CardPayment kart numarası ve doğrulama kurallarını kendi içinde korur." },
+        { id: "a", text: "pay ortak sözleşmeyi soyutlar; kart verisi CardPayment içinde korunur." },
         { id: "b", text: "Abstraction tüm alanları public yapar; encapsulation her sınıfı abstract yapar." },
         { id: "c", text: "İki kavram tamamen aynıdır ve her zaman aynı Java anahtar sözcüğüyle uygulanır." },
-        { id: "d", text: "Encapsulation yalnızca interface'lerde, abstraction yalnızca private alanlarda kullanılabilir." }
+        { id: "d", text: "Encapsulation yalnızca interface'lerde, abstraction ise yalnızca private alanlarda kullanılabildiği için ikisi aynı sınıfta birlikte bulunamaz." }
       ],
       answer: "a",
       hint: "Bir kavram gereksiz ayrıntıyı gizleyen sözleşmeye, diğeri state ve kuralların sınırına odaklanır.",
@@ -464,7 +468,7 @@
         a: "Doğru: sözleşme ve iç durum koruması ayrılmıştır.",
         b: "Kavramların anlamları ters ve hatalı verilmiştir.",
         c: "Abstraction ile encapsulation farklı tasarım amaçlarıdır.",
-        d: "Her ikisi de farklı Java yapılarıyla gerçekleştirilebilir."
+        d: "Her iki kavram da farklı Java yapılarıyla ve aynı sınıfta birlikte uygulanabilir."
       },
       tags: ["abstraction", "encapsulation", "payment"]
     }),
@@ -518,6 +522,7 @@
     }),
 
     makeCard("O14", 1, {
+      version: "1.1.0",
       topic: "Nesne Modelleme",
       difficulty: "medium",
       type: "match",
@@ -533,7 +538,8 @@
           { id: "Student", text: "Student" },
           { id: "Course", text: "Course" },
           { id: "Enrollment", text: "Enrollment association entity" },
-          { id: "EnrollmentLinks", text: "Student ve Course'u referanslayan Enrollment kayıtları" }
+          { id: "EnrollmentLinks", text: "Student ve Course'u referanslayan Enrollment kayıtları" },
+          { id: "decoy", text: "Course sınıfından kalıtan Student" }
         ]
       },
       answer: {
@@ -549,14 +555,15 @@
     }),
 
     makeCard("O14", 2, {
+      version: "1.1.0",
       topic: "Nesne Modelleme",
       difficulty: "medium",
       type: "single",
       prompt: "Student–Course çoktan çoğa ilişkisinde kayıt tarihi ve not da saklanacaksa en uygun model hangisidir?",
       options: [
-        { id: "a", text: "Student ve Course referanslarını, kayıt tarihini ve notu taşıyan Enrollment sınıfı" },
+        { id: "a", text: "Tarih ve notu taşıyan Enrollment ilişki sınıfı" },
         { id: "b", text: "Tüm öğrencileri Course adının içine metin olarak yazmak" },
-        { id: "c", text: "Student sınıfını Course sınıfından kalıtmak" },
+        { id: "c", text: "Student sınıfını Course'tan kalıtıp kayıt tarihini ve notu Student alanı olarak saklamak" },
         { id: "d", text: "Tek bir global String listesinde tüm verileri tutmak" }
       ],
       answer: "a",
@@ -566,7 +573,7 @@
       optionExplanations: {
         a: "Doğru: ilişki ve ilişkiye ait veri birlikte modellenir.",
         b: "Metin içine gömmek kimlik ve kural yönetimini kaybettirir.",
-        c: "Student ile Course arasında is-a ilişkisi yoktur.",
+        c: "Student ile Course arasında is-a ilişkisi yoktur; ilişkiye ait veri öğrenciye gömülmemelidir.",
         d: "Global metin listesi tür güvenliği ve kapsülleme sağlamaz."
       },
       tags: ["modeling", "many-to-many", "enrollment"]
@@ -589,14 +596,15 @@
     }),
 
     makeCard("O16", 1, {
+      version: "1.1.0",
       topic: "Constructor Zinciri",
       difficulty: "medium",
       type: "single",
       prompt: "Employee constructor'ının derlenmemesinin doğrudan nedeni nedir?",
       code: "class Person {\n    Person(String name) { }\n}\nclass Employee extends Person {\n    Employee(int id) { }\n}",
       options: [
-        { id: "a", text: "Employee(int) başında örtük super() çağrılır, fakat Person() yoktur." },
-        { id: "b", text: "Alt sınıf constructor'ı parametre alamaz." },
+        { id: "a", text: "Örtük super() için Person() yok." },
+        { id: "b", text: "Alt sınıf constructor'ı, üst sınıf constructor'ıyla aynı parametre tipini almak zorundadır." },
         { id: "c", text: "Person constructor'ı String alamaz." },
         { id: "d", text: "Constructor'lar yalnızca public olabilir." }
       ],
@@ -606,7 +614,7 @@
       explanationLong: "Person yalnız Person(String) bildirmiştir. Employee(int) ilk ifade olarak super(\"bir ad\") çağırmalı ya da Person'a uygun parametresiz constructor eklenmelidir.",
       optionExplanations: {
         a: "Doğru: derleme hatasının nedeni eşleşen üst constructor olmamasıdır.",
-        b: "Alt sınıf constructor'ları parametre alabilir.",
+        b: "Alt sınıf constructor'ı farklı parametreler alabilir; sorun uygun bir super(...) çağrısının olmamasıdır.",
         c: "Gösterilen Person(String) geçerlidir.",
         d: "Constructor erişimi public olmak zorunda değildir."
       },
@@ -630,16 +638,17 @@
     }),
 
     makeCard("O17", 1, {
+      version: "1.1.0",
       topic: "Constructor Zinciri",
       difficulty: "medium",
       type: "single",
       prompt: "Product constructor'larının derlenmeme nedeni nedir?",
       code: "class Product {\n    Product() {\n        this(\"Unknown\");\n    }\n    Product(String name) {\n        this();\n    }\n}",
       options: [
-        { id: "a", text: "Product() ile Product(String) birbirini çağırarak recursive constructor invocation oluşturur." },
+        { id: "a", text: "İki this() çağrısı döngü oluşturur." },
         { id: "b", text: "this(...) yalnız static metotlarda kullanılabilir." },
         { id: "c", text: "String constructor parametresi olamaz." },
-        { id: "d", text: "Bir sınıfta yalnızca tek constructor olabilir." }
+        { id: "d", text: "this(...) çağrısı constructor'ın ilk satırında yer aldığı için ikinci constructor'daki this() çağrısı geçersiz sayılır." }
       ],
       answer: "a",
       hint: "Çağrı oklarını Product() → Product(String) → ... şeklinde izleyin.",
@@ -649,7 +658,7 @@
         a: "Doğru: doğrudan bir çağrı döngüsü oluşur.",
         b: "this(...) yalnız constructor içinde kullanılabilir ve burada bağlam doğrudur.",
         c: "Constructor String parametresi alabilir.",
-        d: "Constructor overloading desteklenir."
+        d: "this(...) ilk ifade olarak yazılabilir; buradaki hata iki constructor'ın birbirini sonsuza kadar çağırmasıdır."
       },
       tags: ["constructor", "this", "recursive-invocation", "compile-error"]
     }),
@@ -763,14 +772,15 @@
     }),
 
     makeCard("O20", 2, {
+      version: "1.1.0",
       topic: "Method Overloading",
       difficulty: "medium",
       type: "single",
       prompt: "Object object = (String) null; sonrasında printer.print(object) çağrısında print(Object) seçilmesinin nedeni nedir?",
       options: [
-        { id: "a", text: "Overload seçimi derleme zamanında argüman ifadesinin bildirilen tipi Object kullanılarak yapılır." },
+        { id: "a", text: "Derleyici bildirilen Object tipine bakar." },
         { id: "b", text: "null yalnız Object parametresine aktarılabilir." },
-        { id: "c", text: "String overload'u çalışma zamanında rastgele devre dışı kalır." },
+        { id: "c", text: "Overload seçimi çalışma zamanında yapılır; null değerinin gerçek tipi bilinmediği için JVM print(Object) metoduna düşer." },
         { id: "d", text: "Java her zaman kaynakta ilk yazılan overload'u seçer." }
       ],
       answer: "a",
@@ -780,7 +790,7 @@
       optionExplanations: {
         a: "Doğru: overload çözümlemesi statik tip üzerinden yapılır.",
         b: "null her reference type'a aktarılabilir.",
-        c: "Seçim rastgele veya çalışma zamanında değildir.",
+        c: "Overload seçimi derleme zamanında yapılır; çalışma zamanındaki değer seçimi etkilemez.",
         d: "Kaynak sırası overload seçme kuralı değildir."
       },
       tags: ["overloading", "compile-time", "declared-type"]
@@ -830,6 +840,7 @@
     }),
 
     makeCard("O22", 1, {
+      version: "1.1.0",
       topic: "Interface ve Abstract Class",
       difficulty: "medium",
       type: "match",
@@ -845,7 +856,8 @@
           { id: "abstractPrimary", text: "Abstract class öncelikli" },
           { id: "interfacePrimary", text: "Interface öncelikli" },
           { id: "abstractHierarchy", text: "Abstract class hiyerarşisi" },
-          { id: "multipleInterfaces", text: "Birden fazla interface" }
+          { id: "multipleInterfaces", text: "Birden fazla interface" },
+          { id: "decoy", text: "Static yardımcı (utility) sınıf" }
         ]
       },
       answer: {
@@ -958,6 +970,7 @@
     }),
 
     makeCard("O25", 1, {
+      version: "1.1.0",
       topic: "Composition ile Modelleme",
       difficulty: "medium",
       type: "match",
@@ -973,7 +986,8 @@
           { id: "Product", text: "Product" },
           { id: "OrderItemQuantity", text: "OrderItem.quantity" },
           { id: "OrderItemTotal", text: "OrderItem.getTotal()" },
-          { id: "OrderTotal", text: "Order.getTotal()" }
+          { id: "OrderTotal", text: "Order.getTotal()" },
+          { id: "decoy", text: "Product.quantity" }
         ]
       },
       answer: {
@@ -1104,6 +1118,7 @@
     }),
 
     makeCard("O28", 2, {
+      version: "1.1.0",
       topic: "SOLID · Single Responsibility",
       difficulty: "medium",
       type: "match",
@@ -1119,7 +1134,8 @@
           { id: "RegistrationService", text: "RegistrationService" },
           { id: "UserRepository", text: "UserRepository" },
           { id: "WelcomeNotifier", text: "WelcomeNotifier" },
-          { id: "UserReportGenerator", text: "UserReportGenerator" }
+          { id: "UserReportGenerator", text: "UserReportGenerator" },
+          { id: "decoy", text: "UserManager (tüm işler tek sınıfta)" }
         ]
       },
       answer: {
@@ -1175,6 +1191,7 @@
     }),
 
     makeCard("O30", 1, {
+      version: "1.1.0",
       topic: "DRY, KISS ve YAGNI",
       difficulty: "medium",
       type: "match",
@@ -1188,7 +1205,8 @@
         right: [
           { id: "DRY", text: "DRY" },
           { id: "KISS", text: "KISS" },
-          { id: "YAGNI", text: "YAGNI" }
+          { id: "YAGNI", text: "YAGNI" },
+          { id: "decoy", text: "Open/Closed Principle" }
         ]
       },
       answer: {
@@ -1203,15 +1221,16 @@
     }),
 
     makeCard("O31", 1, {
+      version: "1.1.0",
       topic: "SOLID · Liskov Substitution",
       difficulty: "hard",
       type: "single",
       prompt: "Penguin.fly() metodunun UnsupportedOperationException fırlatması neden Liskov Substitution Principle ihlalidir?",
       code: "class Bird {\n    void fly() { }\n}\nclass Penguin extends Bird {\n    @Override\n    void fly() {\n        throw new UnsupportedOperationException();\n    }\n}",
       options: [
-        { id: "a", text: "Bird sözleşmesine göre uçabilmeyi bekleyen istemci, Penguin verildiğinde doğru çalışamaz." },
+        { id: "a", text: "Penguin, Bird'ün sözleşmesini bozar." },
         { id: "b", text: "Alt sınıflar hiçbir metodu override edemez." },
-        { id: "c", text: "Exception kullanmak Java'da tamamen yasaktır." },
+        { id: "c", text: "Override edilen metotta unchecked exception fırlatmak Java derleyicisi tarafından her zaman engellenir." },
         { id: "d", text: "Penguin sınıfında constructor bulunmadığı için." }
       ],
       answer: "a",
@@ -1221,7 +1240,7 @@
       optionExplanations: {
         a: "Doğru: alt tür üst türün davranış sözleşmesini karşılamaz.",
         b: "Override yasak değildir; sözleşmeyle uyumlu olmalıdır.",
-        c: "Exception geçerlidir; sorun beklenen operasyonu alt türün reddetmesidir.",
+        c: "Override eden metot unchecked exception fırlatabilir; sorun derleme değil, beklenen davranışın reddedilmesidir.",
         d: "Derleyici parametresiz constructor sağlayabilir; LSP ile ilgisi yoktur."
       },
       tags: ["solid", "lsp", "substitutability", "bird-penguin"]
@@ -1252,6 +1271,7 @@
     }),
 
     makeCard("O32", 1, {
+      version: "1.1.0",
       topic: "SOLID · Interface Segregation",
       difficulty: "hard",
       type: "match",
@@ -1267,7 +1287,8 @@
           { id: "Workable", text: "Workable" },
           { id: "Eatable", text: "Eatable" },
           { id: "Sleepable", text: "Sleepable" },
-          { id: "Rechargeable", text: "Rechargeable" }
+          { id: "Rechargeable", text: "Rechargeable" },
+          { id: "decoy", text: "Worker (tüm operasyonları içeren geniş interface)" }
         ]
       },
       answer: {
@@ -1349,13 +1370,14 @@
     }),
 
     makeCard("O34", 1, {
+      version: "1.1.0",
       topic: "SOLID · Liskov Substitution",
       difficulty: "hard",
       type: "single",
       prompt: "Üst sınıf withdraw(1..balance) aralığındaki tüm tutarları kabul ederken alt sınıfın minimum 100 koşulu ekleyip daha küçük tutarlarda exception fırlatması hangi sözleşme sorununu oluşturur?",
       options: [
-        { id: "a", text: "Alt sınıf önkoşulu güçlendirir; üst tür için geçerli çağrıları reddederek substitutability'yi bozar." },
-        { id: "b", text: "Alt sınıf postcondition'ı güçlendirdiği için her zaman güvenlidir." },
+        { id: "a", text: "Alt sınıf önkoşulu güçlendirip LSP'yi bozar." },
+        { id: "b", text: "Alt sınıf yalnızca postcondition'ı güçlendirdiği için üst türün yerine her durumda güvenle kullanılabilir; sözleşme sorunu yoktur." },
         { id: "c", text: "Yalnız performans sorunudur; davranış sözleşmesi etkilenmez." },
         { id: "d", text: "Overloading sorunudur çünkü parametre adı değişmiştir." }
       ],
@@ -1365,7 +1387,7 @@
       explanationLong: "Alt tür üst türden daha güçlü bir önkoşul dayatamaz; aksi hâlde BaseAccount ile çalışan istemci SpecialAccount verildiğinde bozulur. Parametre adının overload ile ilgisi yoktur.",
       optionExplanations: {
         a: "Doğru: geçerli üst tür çağrısı alt türde reddedilir.",
-        b: "Bu postcondition değil, güçlendirilmiş precondition'dır.",
+        b: "Burada güçlenen postcondition değil precondition'dır; küçük tutarlar artık reddedilir.",
         c: "İstemci davranışı exception ile değişir.",
         d: "Parametre adı metot imzasının parçası değildir."
       },
@@ -1438,6 +1460,7 @@
     }),
 
     makeCard("O36", 1, {
+      version: "1.1.0",
       topic: "Bildirim Sistemi Modelleme",
       difficulty: "hard",
       type: "match",
@@ -1453,7 +1476,8 @@
           { id: "Message", text: "Message value object" },
           { id: "EmailChannel", text: "EmailChannel" },
           { id: "SmsChannel", text: "SmsChannel" },
-          { id: "PushChannel", text: "PushChannel" }
+          { id: "PushChannel", text: "PushChannel" },
+          { id: "decoy", text: "NotificationService içinde tek büyük switch" }
         ]
       },
       answer: {
@@ -1518,6 +1542,7 @@
     }),
 
     makeCard("O37", 2, {
+      version: "1.1.0",
       topic: "Kütüphane Sistemi Modelleme",
       difficulty: "hard",
       type: "match",
@@ -1533,7 +1558,8 @@
           { id: "Book", text: "Book" },
           { id: "BookCopy", text: "BookCopy" },
           { id: "Loan", text: "Loan" },
-          { id: "LateFeePolicy", text: "LateFeePolicy" }
+          { id: "LateFeePolicy", text: "LateFeePolicy" },
+          { id: "decoy", text: "Member" }
         ]
       },
       answer: {
@@ -1588,6 +1614,7 @@
     }),
 
     makeCard("O39", 1, {
+      version: "1.1.0",
       topic: "Otopark Sistemi Modelleme",
       difficulty: "hard",
       type: "match",
@@ -1603,7 +1630,8 @@
           { id: "Vehicle", text: "Vehicle" },
           { id: "ParkingSpot", text: "ParkingSpot.canFit(vehicle)" },
           { id: "ParkingLotService", text: "ParkingLotService" },
-          { id: "FeePolicy", text: "FeePolicy" }
+          { id: "FeePolicy", text: "FeePolicy" },
+          { id: "decoy", text: "Vehicle.parkSelf()" }
         ]
       },
       answer: {
@@ -1660,6 +1688,7 @@
     }),
 
     makeCard("O40", 2, {
+      version: "1.1.0",
       topic: "Bordro Sistemi Modelleme",
       difficulty: "hard",
       type: "match",
@@ -1677,7 +1706,8 @@
           { id: "SalariedEmployee", text: "SalariedEmployee.grossPay()" },
           { id: "CommissionEmployee", text: "CommissionEmployee.grossPay()" },
           { id: "TaxPolicy", text: "TaxPolicy composition" },
-          { id: "BonusPolicy", text: "BonusPolicy composition" }
+          { id: "BonusPolicy", text: "BonusPolicy composition" },
+          { id: "decoy", text: "Employee.calculateTax() override'ı" }
         ]
       },
       answer: {

@@ -49,11 +49,11 @@
       assumptions: ["Java dilindeki yerleşik primitive tipler sorulmaktadır; void bir veri tipi olarak sayılmaz."], tags: ["primitive", "tipler"]
     }),
     q({
-      id: "J01-02", sourceId: "J01", topic: "Primitive tipler", difficulty: "Kolay", type: "match",
+      id: "J01-02", version: "1.1.0", sourceId: "J01", topic: "Primitive tipler", difficulty: "Kolay", type: "match",
       prompt: "Primitive tip gruplarını temsil ettikleri değerlerle eşleştirin.",
       pairs: {
         left: [{ id: "ints", text: "byte / short / int / long" }, { id: "fp", text: "float / double" }, { id: "ch", text: "char" }, { id: "bool", text: "boolean" }],
-        right: [{ id: "r1", text: "İşaretli tamsayılar" }, { id: "r2", text: "IEEE 754 kayan noktalı sayılar" }, { id: "r3", text: "Tek bir UTF-16 kod birimi" }, { id: "r4", text: "true veya false" }]
+        right: [{ id: "r1", text: "İşaretli tamsayılar" }, { id: "r2", text: "IEEE 754 kayan noktalı sayılar" }, { id: "r3", text: "Tek bir UTF-16 kod birimi" }, { id: "r4", text: "true veya false" }, { id: "decoy", text: "Değiştirilemez Unicode metin nesnesi" }]
       },
       answer: { ints: "r1", fp: "r2", ch: "r3", bool: "r4" }, acceptedAnswers: [], caseSensitive: false,
       hint: "char, kullanıcıya görünen her Unicode karakteri değil, 16 bitlik bir kod birimini tutar.",
@@ -63,15 +63,15 @@
     }),
 
     q({
-      id: "J02-01", sourceId: "J02", topic: "Değişken başlangıç değerleri", difficulty: "Kolay", type: "single",
+      id: "J02-01", version: "1.1.0", sourceId: "J02", topic: "Değişken başlangıç değerleri", difficulty: "Kolay", type: "single",
       prompt: "Bu sınıf olduğu gibi derlenmeye çalışıldığında ne olur?",
       code: "class Demo {\n    int field;\n\n    void printValues() {\n        int local;\n        System.out.println(field);\n        System.out.println(local);\n    }\n}",
-      options: [{ id: "a", text: "0 ve 0 yazdırır" }, { id: "b", text: "field satırında derleme hatası verir" }, { id: "c", text: "local değişkeni başlatılmadığı için derleme hatası verir" }, { id: "d", text: "Çalışma zamanında NullPointerException oluşur" }],
+      options: [{ id: "a", text: "field ve local varsayılan değer aldığı için 0 ve 0 yazdırır" }, { id: "b", text: "field satırında derleme hatası verir" }, { id: "c", text: "local değişkeni başlatılmadığı için derleme hatası verir" }, { id: "d", text: "Kod derlenir, fakat local okunduğu anda çalışma zamanında NullPointerException oluşur" }],
       answer: "c", acceptedAnswers: [], caseSensitive: false,
       hint: "Alanlar ile yerel değişkenler için definite assignment kuralları aynı değildir.",
       explanationShort: "Instance alanı 0 alır; başlatılmamış yerel değişken okunamadığı için kod derlenmez.",
       explanationLong: "int türündeki instance field, nesne oluşturulurken varsayılan olarak 0 yapılır. Yerel değişkenlere otomatik varsayılan değer verilmez; derleyici local'ın okunmadan önce kesin olarak atanmış olmasını ister.",
-      optionExplanations: { a: "Yerel local otomatik 0 olmaz.", b: "field bir instance alanıdır ve varsayılanı 0'dır.", c: "Doğru; definite assignment kontrolü derleme aşamasındadır.", d: "Sorun reference dereference değil, derleme zamanı atama kontrolüdür." },
+      optionExplanations: { a: "Yalnız alanlar varsayılan değer alır; yerel local otomatik 0 olmaz.", b: "field bir instance alanıdır ve varsayılanı 0'dır.", c: "Doğru; definite assignment kontrolü derleme aşamasındadır.", d: "Sorun derleme zamanındaki atama kontrolüdür; int primitive olduğu için NPE de söz konusu değildir." },
       assumptions: ["Kodun tamamı javac ile derlenmektedir; printValues çağrılmasa bile metot gövdesi kontrol edilir."], tags: ["local", "field", "derleme"]
     }),
     q({
@@ -96,14 +96,14 @@
       optionExplanations: {}, assumptions: ["Çıktı karşılaştırmasında satır sonu biçimi LF veya CRLF olabilir; satırların sırası değişmez."], tags: ["primitive", "reference", "array", "output"]
     }),
     q({
-      id: "J03-02", sourceId: "J03", topic: "Değer ve referans ataması", difficulty: "Kolay", type: "single",
+      id: "J03-02", version: "1.1.0", sourceId: "J03", topic: "Değer ve referans ataması", difficulty: "Kolay", type: "single",
       prompt: "`int[] second = first;` ifadesinin en doğru açıklaması hangisidir?",
-      options: [{ id: "a", text: "Dizinin elemanları yeni bir diziye derin kopyalanır" }, { id: "b", text: "Referans değeri kopyalanır; iki değişken aynı dizi nesnesini gösterebilir" }, { id: "c", text: "first null yapılır ve sahiplik second'a taşınır" }, { id: "d", text: "Dizi yalnızca okunabilir hâle gelir" }],
+      options: [{ id: "a", text: "Dizinin elemanları yeni bir diziye derin kopyalanır; iki değişken bağımsız dizileri gösterir" }, { id: "b", text: "Referans değeri kopyalanır; iki değişken aynı dizi nesnesini gösterebilir" }, { id: "c", text: "first null yapılır ve sahiplik second'a taşınır" }, { id: "d", text: "Dizi salt okunur hâle gelir; second üzerinden eleman değiştirmek derleme hatası verir" }],
       answer: "b", acceptedAnswers: [], caseSensitive: false,
       hint: "Java ataması nesnenin sahipliğini taşımaz ve otomatik deep copy yapmaz.",
       explanationShort: "Kopyalanan şey referans değeridir; dizi nesnesi kopyalanmaz.",
       explanationLong: "Her iki değişken de ayrı değişkenlerdir fakat içlerinde aynı heap nesnesine erişen referans değerleri bulunabilir. Bir değişken yeniden atanırsa diğeri değişmez; ortak nesne mutasyona uğrarsa değişiklik ikisinden de gözlenebilir.",
-      optionExplanations: { a: "Java dizi atamasında otomatik kopya üretmez.", b: "Doğru; aliasing oluşur.", c: "Java'da move semantics uygulanmaz.", d: "Atama mutability'yi değiştirmez." }, assumptions: ["first başlangıçta null olmayan bir int[] referansı tutar."], tags: ["reference", "aliasing", "array"]
+      optionExplanations: { a: "Java dizi atamasında otomatik kopya üretmez; iki değişken aynı diziyi gösterir.", b: "Doğru; aliasing oluşur.", c: "Java'da move semantics uygulanmaz.", d: "Atama mutability'yi değiştirmez; second[0] = 99 geçerlidir." }, assumptions: ["first başlangıçta null olmayan bir int[] referansı tutar."], tags: ["reference", "aliasing", "array"]
     }),
 
     q({
@@ -117,9 +117,9 @@
       optionExplanations: { a: "Doğru primitive değer semantiğidir.", b: "Doğru; null bir reference değeridir.", c: "Doğru; autoboxing ayrı bir dönüşüm bağlamıdır.", d: "Yanlış; == nesne kimliğini karşılaştırır.", e: "Yanlış; yalnız referans değeri kopyalanır." }, assumptions: ["Wrapper autoboxing mekanizması, primitive üzerinde doğrudan örnek metodu çağrıldığı anlamına gelmez."], tags: ["primitive", "reference", "null", "equals"]
     }),
     q({
-      id: "J04-02", sourceId: "J04", topic: "Primitive ve reference tipler", difficulty: "Kolay", type: "match",
+      id: "J04-02", version: "1.1.0", sourceId: "J04", topic: "Primitive ve reference tipler", difficulty: "Kolay", type: "match",
       prompt: "İşlemleri tip kategorisindeki temel anlamlarıyla eşleştirin.",
-      pairs: { left: [{ id: "passign", text: "Primitive ataması" }, { id: "rassign", text: "Reference ataması" }, { id: "peq", text: "int değerlerinde ==" }, { id: "req", text: "Nesne referanslarında ==" }], right: [{ id: "r1", text: "Primitive değeri kopyalar" }, { id: "r2", text: "Referans değerini kopyalar" }, { id: "r3", text: "Sayısal değer eşitliğini sınar" }, { id: "r4", text: "Aynı nesne/null kimliğini sınar" }] },
+      pairs: { left: [{ id: "passign", text: "Primitive ataması" }, { id: "rassign", text: "Reference ataması" }, { id: "peq", text: "int değerlerinde ==" }, { id: "req", text: "Nesne referanslarında ==" }], right: [{ id: "r1", text: "Primitive değeri kopyalar" }, { id: "r2", text: "Referans değerini kopyalar" }, { id: "r3", text: "Sayısal değer eşitliğini sınar" }, { id: "r4", text: "Aynı nesne/null kimliğini sınar" }, { id: "decoy", text: "Nesnelerin alan değerlerini karşılaştırır" }] },
       answer: { passign: "r1", rassign: "r2", peq: "r3", req: "r4" }, acceptedAnswers: [], caseSensitive: false,
       hint: "Atama her iki durumda da değişkendeki değeri kopyalar; değerin türü farklıdır.",
       explanationShort: "Primitive ataması primitive değeri, reference ataması referans değerini kopyalar.",
@@ -171,14 +171,14 @@
     }),
 
     q({
-      id: "J07-01", sourceId: "J07", topic: "Kısa devreli mantıksal işleçler", difficulty: "Kolay", type: "boolean",
-      prompt: "username null iken bu koşul, ikinci operandı değerlendirmediği için NullPointerException üretmez.",
+      id: "J07-01", version: "1.1.0", sourceId: "J07", topic: "Kısa devreli mantıksal işleçler", difficulty: "Kolay", type: "boolean",
+      prompt: "username null iken bu koşul, `&&` iki operandı da değerlendirdiği için NullPointerException üretir.",
       code: "String username = null;\nif (username != null && username.length() >= 3) {\n    System.out.println(\"Geçerli\");\n}",
-      answer: true, acceptedAnswers: [], caseSensitive: false,
+      answer: false, acceptedAnswers: [], caseSensitive: false,
       hint: "&& sol operand false olduğunda ne yapar?",
-      explanationShort: "Doğru. && kısa devre yapar.",
+      explanationShort: "Yanlış. && kısa devre yapar; sol taraf false olunca sağ operand değerlendirilmez ve NPE oluşmaz.",
       explanationLong: "Sol operand `username != null` false olunca && sonucunun false olduğu kesinleşir ve sağ operand çalıştırılmaz. Böylece null üzerinde length çağrılmaz.",
-      optionExplanations: { true: "Kısa devre null guard'ı güvenli kılar.", false: "Sağ taraf yalnız sol taraf true ise değerlendirilir." }, assumptions: ["username gerçekten null'dır ve arada başka bir thread tarafından değiştirilen ortak alan değildir; verilen yerel değişken kullanılır."], tags: ["short-circuit", "null", "and"]
+      optionExplanations: { true: "Sağ taraf yalnız sol taraf true ise değerlendirilir; NPE oluşmaz.", false: "Doğru; && kısa devre yaptığı için null guard güvenlidir." }, assumptions: ["username gerçekten null'dır ve arada başka bir thread tarafından değiştirilen ortak alan değildir; verilen yerel değişken kullanılır."], tags: ["short-circuit", "null", "and"]
     }),
     q({
       id: "J07-02", sourceId: "J07", topic: "Kısa devreli mantıksal işleçler", difficulty: "Kolay", type: "single",
@@ -192,9 +192,9 @@
     }),
 
     q({
-      id: "J08-01", sourceId: "J08", topic: "Koşullu sınıflandırma", difficulty: "Kolay", type: "match",
+      id: "J08-01", version: "1.1.0", sourceId: "J08", topic: "Koşullu sınıflandırma", difficulty: "Kolay", type: "match",
       prompt: "Not aralıklarını metodun döndürmesi gereken sonuçla eşleştirin. Sonuç etiketleri bu kartta tanımlandığı gibidir.",
-      pairs: { left: [{ id: "invalid", text: "not < 0 veya not > 100" }, { id: "fail", text: "0–49" }, { id: "pass", text: "50–69" }, { id: "good", text: "70–84" }, { id: "excellent", text: "85–100" }], right: [{ id: "r0", text: "Geçersiz" }, { id: "r1", text: "Başarısız" }, { id: "r2", text: "Geçer" }, { id: "r3", text: "İyi" }, { id: "r4", text: "Pekiyi" }] },
+      pairs: { left: [{ id: "invalid", text: "not < 0 veya not > 100" }, { id: "fail", text: "0–49" }, { id: "pass", text: "50–69" }, { id: "good", text: "70–84" }, { id: "excellent", text: "85–100" }], right: [{ id: "r0", text: "Geçersiz" }, { id: "r1", text: "Başarısız" }, { id: "r2", text: "Geçer" }, { id: "r3", text: "İyi" }, { id: "r4", text: "Pekiyi" }, { id: "decoy", text: "Orta" }] },
       answer: { invalid: "r0", fail: "r1", pass: "r2", good: "r3", excellent: "r4" }, acceptedAnswers: [], caseSensitive: false,
       hint: "Sınırlar kapsayıcıdır; önce geçersiz aralığı ayırın.",
       explanationShort: "Her geçerli not tam bir aralığa, dışarıdaki değerler Geçersiz'e gider.",
@@ -245,9 +245,9 @@
       optionExplanations: {}, assumptions: ["Çıktı kenarındaki boşluk yok sayılır; sayılar ve sıraları birebir korunur."], tags: ["for", "continue", "break", "output"]
     }),
     q({
-      id: "J10-02", sourceId: "J10", topic: "Döngü kontrolü", difficulty: "Kolay", type: "match",
+      id: "J10-02", version: "1.1.0", sourceId: "J10", topic: "Döngü kontrolü", difficulty: "Kolay", type: "match",
       prompt: "Döngü anahtar sözcüklerini etkileriyle eşleştirin.",
-      pairs: { left: [{ id: "continue", text: "continue" }, { id: "break", text: "break" }], right: [{ id: "r1", text: "Geçerli iterasyonun kalanını atlayıp sonraki iterasyona geçer" }, { id: "r2", text: "En yakın döngüyü tamamen sonlandırır" }] },
+      pairs: { left: [{ id: "continue", text: "continue" }, { id: "break", text: "break" }], right: [{ id: "r1", text: "Geçerli iterasyonun kalanını atlayıp sonraki iterasyona geçer" }, { id: "r2", text: "En yakın döngüyü tamamen sonlandırır" }, { id: "decoy", text: "Metottan çıkıp çağırana değer döndürür" }] },
       answer: { continue: "r1", break: "r2" }, acceptedAnswers: [], caseSensitive: false,
       hint: "Biri yalnız mevcut turu, diğeri tüm döngüyü bırakır.",
       explanationShort: "continue iterasyonu; break döngüyü terk eder.",
@@ -256,15 +256,15 @@
     }),
 
     q({
-      id: "J11-01", sourceId: "J11", topic: "Dizi sınırları", difficulty: "Kolay", type: "single",
+      id: "J11-01", version: "1.1.0", sourceId: "J11", topic: "Dizi sınırları", difficulty: "Kolay", type: "single",
       prompt: "Tüm elemanları hata vermeden yazdırmak için döngü koşulundaki en küçük doğru düzeltme hangisidir?",
       code: "int[] numbers = {10, 20, 30};\nfor (int i = 0; i <= numbers.length; i++) {\n    System.out.println(numbers[i]);\n}",
-      options: [{ id: "a", text: "i <= numbers.length - 1 yerine i < numbers.length kullanmak" }, { id: "b", text: "i <= numbers.length koşulunu değiştirmemek" }, { id: "c", text: "i < numbers.length + 1 kullanmak" }, { id: "d", text: "i başlangıcını -1 yapmak" }],
+      options: [{ id: "a", text: "Koşulu i <= numbers.length yerine i < numbers.length yapmak" }, { id: "b", text: "Koşulu koruyup döngüyü try-catch ile sarmak ve oluşan hatayı yutmak" }, { id: "c", text: "Koşulu i < numbers.length + 1 yaparak son elemanı da kapsamak" }, { id: "d", text: "i başlangıcını -1 yapmak" }],
       answer: "a", acceptedAnswers: [], caseSensitive: false,
       hint: "Son geçerli indeks length - 1'dir.",
       explanationShort: "Koşul `i < numbers.length` olmalıdır.",
       explanationLong: "Üç elemanlı dizinin geçerli indeksleri 0,1,2'dir. i=3 olduğunda `i <= length` hâlâ true olur fakat numbers[3] erişimi sınır dışıdır. `i < length` standart üst sınırdır.",
-      optionExplanations: { a: "Doğru; 0'dan length-1'e kadar çalışır.", b: "i=length erişimine izin verir.", c: "Daha da fazla geçersiz indeks içerir.", d: "İlk erişimi numbers[-1] yapar." }, assumptions: ["Dizi null değildir; amaç ileri yönde tüm elemanları bir kez dolaşmaktır."], tags: ["array", "index", "off-by-one"]
+      optionExplanations: { a: "Doğru; 0'dan length-1'e kadar çalışır.", b: "Hata gizlenir ama numbers[3] erişimi yine yapılır; bu bir düzeltme değildir.", c: "i < length + 1, i <= length ile aynıdır; numbers[3] erişimi sürer.", d: "İlk erişimi numbers[-1] yapar." }, assumptions: ["Dizi null değildir; amaç ileri yönde tüm elemanları bir kez dolaşmaktır."], tags: ["array", "index", "off-by-one"]
     }),
     q({
       id: "J11-02", sourceId: "J11", topic: "Dizi sınırları", difficulty: "Kolay", type: "fill",
@@ -288,10 +288,10 @@
       optionExplanations: { a: "Doğru ve tüm int değerlerinde taşmasız karşılaştırır.", b: "void metot değer döndüremez.", c: "int dönüşü eksiktir.", d: "Parametre ayırıcı sözdizimi yanlış, gövde de maksimumu bulmuyor." }, assumptions: ["Math.max kullanma zorunluluğu yoktur; int karşılaştırmasında taşma oluşmaz."], tags: ["method", "return", "max"]
     }),
     q({
-      id: "J12-02", sourceId: "J12", topic: "Metot tanımlama", difficulty: "Kolay", type: "match",
+      id: "J12-02", version: "1.1.0", sourceId: "J12", topic: "Metot tanımlama", difficulty: "Kolay", type: "match",
       prompt: "Metot bildirimindeki parçaları görevleriyle eşleştirin.",
       code: "public static int max(int a, int b) { return a >= b ? a : b; }",
-      pairs: { left: [{ id: "public", text: "public" }, { id: "static", text: "static" }, { id: "intret", text: "max önündeki int" }, { id: "max", text: "max" }, { id: "params", text: "(int a, int b)" }], right: [{ id: "r1", text: "Erişim belirleyici" }, { id: "r2", text: "Sınıf üyesi olduğunu belirten modifier" }, { id: "r3", text: "Dönüş tipi" }, { id: "r4", text: "Metot adı" }, { id: "r5", text: "Parametre listesi" }] },
+      pairs: { left: [{ id: "public", text: "public" }, { id: "static", text: "static" }, { id: "intret", text: "max önündeki int" }, { id: "max", text: "max" }, { id: "params", text: "(int a, int b)" }], right: [{ id: "r1", text: "Erişim belirleyici" }, { id: "r2", text: "Sınıf üyesi olduğunu belirten modifier" }, { id: "r3", text: "Dönüş tipi" }, { id: "r4", text: "Metot adı" }, { id: "r5", text: "Parametre listesi" }, { id: "decoy", text: "Fırlatılabilecek checked exception listesi" }] },
       answer: { public: "r1", static: "r2", intret: "r3", max: "r4", params: "r5" }, acceptedAnswers: [], caseSensitive: false,
       hint: "Bildirim; modifier'lar, dönüş tipi, ad ve parametrelerden oluşur.",
       explanationShort: "Her sözdizim parçası erişim, bağlanma, dönüş veya çağrı sözleşmesine katkı verir.",
@@ -374,20 +374,20 @@
     }),
 
     q({
-      id: "J16-01", sourceId: "J16", topic: "StringBuilder", difficulty: "Kolay", type: "single",
+      id: "J16-01", version: "1.1.0", sourceId: "J16", topic: "StringBuilder", difficulty: "Kolay", type: "single",
       prompt: "Diziyi tam olarak `Java,OOP,Algoritma` metnine dönüştüren, sonda fazladan virgül bırakmayan çözüm hangisidir?",
       code: "String[] topics = {\"Java\", \"OOP\", \"Algoritma\"};",
       options: [
         { id: "a", text: "StringBuilder sb = new StringBuilder(); for (String s : topics) sb.append(s).append(','); return sb.toString();" },
         { id: "b", text: "StringBuilder sb = new StringBuilder(); for (int i=0; i<topics.length; i++) { if (i>0) sb.append(','); sb.append(topics[i]); } return sb.toString();" },
         { id: "c", text: "StringBuilder sb = null; for (String s : topics) sb.append(s); return sb.toString();" },
-        { id: "d", text: "return topics.toString();" }
+        { id: "d", text: "StringBuilder sb = new StringBuilder(); for (int i=0; i<topics.length; i++) { sb.append(topics[i]); if (i>0) sb.append(','); } return sb.toString();" }
       ],
       answer: "b", acceptedAnswers: [], caseSensitive: false,
       hint: "Ayırıcıyı ilk elemandan önce değil, sonraki elemanlardan önce ekleyin.",
       explanationShort: "B seçeneği elemanlar arasına virgül koyar ve sonda ayırıcı bırakmaz.",
       explanationLong: "Tek bir StringBuilder oluşturulur. i>0 koşulu yalnız ikinci ve sonraki elemanlardan önce virgül ekler. Boş dizi için de güvenle boş String üretir. A sonda virgül bırakır, C null dereference eder, d dizi içeriğini birleştirmez.",
-      optionExplanations: { a: "Sonuçta fazladan son virgül vardır.", b: "Doğru ve boş diziyi de ele alır.", c: "İlk append NullPointerException üretir.", d: "Dizilerin toString'i eleman listesini vermez." }, assumptions: ["topics null değildir; elemanların null olması hâlinde StringBuilder `null` metnini ekler, ancak verilen dizi null eleman içermez."], tags: ["stringbuilder", "array", "join"]
+      optionExplanations: { a: "Sonuçta fazladan son virgül vardır.", b: "Doğru ve boş diziyi de ele alır.", c: "İlk append NullPointerException üretir.", d: "Virgül elemandan sonra eklendiği için ilk ayraç kaybolur ve sonda fazladan virgül kalır." }, assumptions: ["topics null değildir; elemanların null olması hâlinde StringBuilder `null` metnini ekler, ancak verilen dizi null eleman içermez."], tags: ["stringbuilder", "array", "join"]
     }),
     q({
       id: "J16-02", sourceId: "J16", topic: "StringBuilder", difficulty: "Kolay", type: "boolean",
@@ -410,21 +410,21 @@
       optionExplanations: {}, assumptions: ["java.util.Arrays import edilmiştir; int taşması bu küçük değerlerde yoktur."], tags: ["enhanced-for", "array", "primitive", "output"]
     }),
     q({
-      id: "J17-02", sourceId: "J17", topic: "Enhanced for", difficulty: "Kolay", type: "single",
+      id: "J17-02", version: "1.1.0", sourceId: "J17", topic: "Enhanced for", difficulty: "Kolay", type: "single",
       prompt: "Dizinin her elemanını gerçekten ikiyle çarpan çözüm hangisidir?",
       code: "int[] numbers = {1, 2, 3};",
-      options: [{ id: "a", text: "for (int n : numbers) n *= 2;" }, { id: "b", text: "for (int i=0; i<numbers.length; i++) numbers[i] *= 2;" }, { id: "c", text: "for (int n : numbers) numbers = new int[]{n * 2};" }, { id: "d", text: "numbers.length *= 2;" }],
+      options: [{ id: "a", text: "for (int n : numbers) n *= 2;" }, { id: "b", text: "for (int i=0; i<numbers.length; i++) numbers[i] *= 2;" }, { id: "c", text: "for (int n : numbers) numbers = new int[]{n * 2};" }, { id: "d", text: "for (int i=0; i<numbers.length; i++) { int n = numbers[i]; n *= 2; }" }],
       answer: "b", acceptedAnswers: [], caseSensitive: false,
       hint: "Dizi hücresine yazmak için indeks gerekir.",
       explanationShort: "B seçeneği her `numbers[i]` yuvasını günceller.",
       explanationLong: "Primitive enhanced-for değişkeni elemanın kopyasıdır. İndeks tabanlı döngü doğrudan dizi elemanına atama yapar. length sabittir ve atanamaz.",
-      optionExplanations: { a: "Yalnız yerel kopyayı değiştirir.", b: "Doğru; her dizi hücresine geri yazar.", c: "Her turda tüm dizi referansını tek elemanlı başka diziye atar.", d: "Dizi length alanı değiştirilemez." }, assumptions: ["Her çarpım int aralığında kalır; taşma beklenmez."], tags: ["array", "loop", "mutation"]
+      optionExplanations: { a: "Yalnız yerel kopyayı değiştirir.", b: "Doğru; her dizi hücresine geri yazar.", c: "Her turda tüm dizi referansını tek elemanlı başka diziye atar.", d: "Yalnız yerel n değişir; değer dizi elemanına geri yazılmaz." }, assumptions: ["Her çarpım int aralığında kalır; taşma beklenmez."], tags: ["array", "loop", "mutation"]
     }),
 
     q({
-      id: "J18-01", sourceId: "J18", topic: "Erişim belirleyiciler", difficulty: "Kolay", type: "match",
+      id: "J18-01", version: "1.1.0", sourceId: "J18", topic: "Erişim belirleyiciler", difficulty: "Kolay", type: "match",
       prompt: "Üye erişim seviyelerini en geniş genel erişim tanımlarıyla eşleştirin.",
-      pairs: { left: [{ id: "pub", text: "public" }, { id: "pro", text: "protected" }, { id: "pkg", text: "package-private (modifier yok)" }, { id: "pri", text: "private" }], right: [{ id: "r1", text: "Her pakette erişilebilir" }, { id: "r2", text: "Aynı paket ve ayrıca farklı pakette uygun alt sınıf erişimi" }, { id: "r3", text: "Yalnız aynı paket" }, { id: "r4", text: "Yalnız bildiren top-level sınıfın gövdesi kapsamındaki erişimler" }] },
+      pairs: { left: [{ id: "pub", text: "public" }, { id: "pro", text: "protected" }, { id: "pkg", text: "package-private (modifier yok)" }, { id: "pri", text: "private" }], right: [{ id: "r1", text: "Her pakette erişilebilir" }, { id: "r2", text: "Aynı paket ve ayrıca farklı pakette uygun alt sınıf erişimi" }, { id: "r3", text: "Yalnız aynı paket" }, { id: "r4", text: "Yalnız bildiren top-level sınıfın gövdesi kapsamındaki erişimler" }, { id: "decoy", text: "Yalnız alt sınıflar; aynı paketteki diğer sınıflar erişemez" }] },
       answer: { pub: "r1", pro: "r2", pkg: "r3", pri: "r4" }, acceptedAnswers: [], caseSensitive: false,
       hint: "protected, package erişimine ek olarak kalıtım bağlamı sağlar.",
       explanationShort: "public en geniş, private en dar; package-private paketle, protected paket ve alt sınıf bağlamıyla sınırlıdır.",
@@ -454,20 +454,20 @@
       optionExplanations: { a: "Doğru; bir instance seçilmemiştir.", b: "Doğru; static context'te this yoktur.", c: "println çağrısı System.out nesnesi üzerinden geçerlidir.", d: "Instance int alanı initializer ile 10 olabilir." }, assumptions: ["Kod tam olarak verildiği gibi javac ile derlenir."], tags: ["static", "instance", "this", "compile-error"]
     }),
     q({
-      id: "J19-02", sourceId: "J19", topic: "static ve instance üyeleri", difficulty: "Orta", type: "single",
+      id: "J19-02", version: "1.1.0", sourceId: "J19", topic: "static ve instance üyeleri", difficulty: "Orta", type: "single",
       prompt: "Her Counter nesnesinin kendi `value` değerini yazdırmasını sağlayan en uygun düzeltme hangisidir?",
-      options: [{ id: "a", text: "`printValue` metodundan static'i kaldırıp `System.out.println(this.value);` kullanmak" }, { id: "b", text: "`value` alanını local yapmak ve metodu silmek" }, { id: "c", text: "Static metotta yalnız `this.value` kullanmak" }, { id: "d", text: "`value` alanını final yapmak" }],
+      options: [{ id: "a", text: "`printValue` metodundan static'i kaldırıp `System.out.println(this.value);` kullanmak" }, { id: "b", text: "`value` alanını static yapıp tüm nesnelerin değerini tek ortak alanda tutmak ve metodu static bırakmak" }, { id: "c", text: "Metodu static bırakıp içinde `System.out.println(this.value);` yazmak" }, { id: "d", text: "`value` alanını final yapmak" }],
       answer: "a", acceptedAnswers: [], caseSensitive: false,
       hint: "Davranış nesne başına ise metot da bir instance alıcısıyla çalışabilir.",
       explanationShort: "Instance metot örtük this üzerinden o nesnenin alanına erişir.",
       explanationLong: "static kaldırıldığında `counter.printValue()` çağrısı belirli bir nesne seçer ve this o nesneyi gösterir. final yapmak bağlanma sorununu çözmez; static bağlamda this yine yoktur.",
-      optionExplanations: { a: "Doğru nesne başına davranıştır.", b: "Alan durumunu ortadan kaldırır ve gereksinimi karşılamaz.", c: "Static bağlamda this yasaktır.", d: "final erişim bağlamını değiştirmez." }, assumptions: ["value nesne başına farklı olmalıdır; tüm Counter'lar arasında ortak sayaç istenmemektedir."], tags: ["static", "instance-method", "this"]
+      optionExplanations: { a: "Doğru nesne başına davranıştır.", b: "Static alan tüm Counter'larda ortaktır; her nesnenin kendi değeri kaybolur.", c: "Static bağlamda this kullanılamaz; kod derlenmez.", d: "final erişim bağlamını değiştirmez." }, assumptions: ["value nesne başına farklı olmalıdır; tüm Counter'lar arasında ortak sayaç istenmemektedir."], tags: ["static", "instance-method", "this"]
     }),
 
     q({
-      id: "J20-01", sourceId: "J20", topic: "final", difficulty: "Orta", type: "match",
+      id: "J20-01", version: "1.1.0", sourceId: "J20", topic: "final", difficulty: "Orta", type: "match",
       prompt: "final kullanım yerlerini temel etkileriyle eşleştirin.",
-      pairs: { left: [{ id: "var", text: "final değişken" }, { id: "method", text: "final instance metot" }, { id: "class", text: "final sınıf" }], right: [{ id: "r1", text: "Bir kez atandıktan sonra yeniden atanamaz" }, { id: "r2", text: "Alt sınıfta override edilemez" }, { id: "r3", text: "Extend edilemez" }] },
+      pairs: { left: [{ id: "var", text: "final değişken" }, { id: "method", text: "final instance metot" }, { id: "class", text: "final sınıf" }], right: [{ id: "r1", text: "Bir kez atandıktan sonra yeniden atanamaz" }, { id: "r2", text: "Alt sınıfta override edilemez" }, { id: "r3", text: "Extend edilemez" }, { id: "decoy", text: "Gösterilen nesnenin alanları da değiştirilemez hâle gelir" }] },
       answer: { var: "r1", method: "r2", class: "r3" }, acceptedAnswers: [], caseSensitive: false,
       hint: "final, uygulandığı bildirimin yeniden bağlanma/genişletme noktasını kapatır.",
       explanationShort: "final değişken yeniden atanmaz, metot override edilmez, sınıf extend edilmez.",
@@ -475,13 +475,13 @@
       optionExplanations: {}, assumptions: ["Instance metot sorulmaktadır; static metotlarda override yerine hiding kavramı vardır."], tags: ["final", "variable", "method", "class"]
     }),
     q({
-      id: "J20-02", sourceId: "J20", topic: "final", difficulty: "Orta", type: "boolean",
-      prompt: "`final List<String> names = new ArrayList<>();` bildirimi `names.add(\"Ada\")` çağrısını tek başına yasaklamaz.",
-      answer: true, acceptedAnswers: [], caseSensitive: false,
+      id: "J20-02", version: "1.1.0", sourceId: "J20", topic: "final", difficulty: "Orta", type: "boolean",
+      prompt: "`final List<String> names = new ArrayList<>();` bildirimi listeyi salt okunur yapar; bu yüzden `names.add(\"Ada\")` derleme hatası verir.",
+      answer: false, acceptedAnswers: [], caseSensitive: false,
       hint: "final referansın kendisini mi, gösterdiği nesnenin içeriğini mi sabitler?",
-      explanationShort: "Doğru. Referans yeniden atanamaz; liste mutable kalabilir.",
+      explanationShort: "Yanlış. final yalnız referansın yeniden atanmasını engeller; liste mutable kalır ve add çalışır.",
       explanationLong: "final, names değişkeninin başka bir List referansına veya null'a yeniden atanmasını önler. ArrayList nesnesinin add/remove gibi mutasyonlarını önlemez. Gerçek immutability için kopyalama ve değiştirilemez görünüm/tasarım gerekir.",
-      optionExplanations: { true: "Referans sabitliği nesne sabitliği değildir.", false: "final nesnenin bütün metotlarını salt-okunur yapmaz." }, assumptions: ["Liste normal mutable java.util.ArrayList'tir."], tags: ["final", "reference", "mutability", "list"]
+      optionExplanations: { true: "final referans sabitliğidir; gösterilen nesnenin metotlarını salt okunur yapmaz.", false: "Doğru; add çağrısı derlenir ve listeye eleman ekler." }, assumptions: ["Liste normal mutable java.util.ArrayList'tir."], tags: ["final", "reference", "mutability", "list"]
     }),
 
     q({
@@ -537,9 +537,9 @@
       optionExplanations: {}, assumptions: ["speak instance metodudur; static, private veya final değildir."], tags: ["override", "polymorphism", "dynamic-dispatch", "output"]
     }),
     q({
-      id: "J23-02", sourceId: "J23", topic: "Overriding ve polymorphism", difficulty: "Orta", type: "match",
+      id: "J23-02", version: "1.1.0", sourceId: "J23", topic: "Overriding ve polymorphism", difficulty: "Orta", type: "match",
       prompt: "`Animal animal = new Dog(); animal.speak();` çağrısındaki rolleri eşleştirin.",
-      pairs: { left: [{ id: "ref", text: "Referansın derleme zamanı tipi Animal" }, { id: "obj", text: "Çalışma zamanı nesnesinin tipi Dog" }, { id: "override", text: "Dog.speak override'ı" }], right: [{ id: "r1", text: "Çağrının derleme zamanında erişilebilir olup olmadığını sınırlar" }, { id: "r2", text: "Dinamik dispatch için gerçek alıcı tipini belirler" }, { id: "r3", text: "Çalıştırılan metot gövdesidir" }] },
+      pairs: { left: [{ id: "ref", text: "Referansın derleme zamanı tipi Animal" }, { id: "obj", text: "Çalışma zamanı nesnesinin tipi Dog" }, { id: "override", text: "Dog.speak override'ı" }], right: [{ id: "r1", text: "Çağrının derleme zamanında erişilebilir olup olmadığını sınırlar" }, { id: "r2", text: "Dinamik dispatch için gerçek alıcı tipini belirler" }, { id: "r3", text: "Çalıştırılan metot gövdesidir" }, { id: "decoy", text: "Hangi overload'un çağrılacağını çalışma zamanında belirler" }] },
       answer: { ref: "r1", obj: "r2", override: "r3" }, acceptedAnswers: [], caseSensitive: false,
       hint: "Derleyici çağrının varlığını, JVM ise override hedefini çözer.",
       explanationShort: "Referans tipi görünür API'yi; nesne tipi override gövdesini belirler.",
@@ -548,9 +548,9 @@
     }),
 
     q({
-      id: "J24-01", sourceId: "J24", topic: "Collections Framework", difficulty: "Orta", type: "match",
+      id: "J24-01", version: "1.1.0", sourceId: "J24", topic: "Collections Framework", difficulty: "Orta", type: "match",
       prompt: "Collections Framework kavramlarını rolleriyle eşleştirin.",
-      pairs: { left: [{ id: "collection", text: "java.util.Collection" }, { id: "collections", text: "java.util.Collections" }, { id: "map", text: "java.util.Map" }], right: [{ id: "r1", text: "Tekil eleman grupları için kök arayüz" }, { id: "r2", text: "Koleksiyonlar üzerinde sort/reverse gibi static yardımcılar içeren sınıf" }, { id: "r3", text: "Anahtar-değer eşlemeleri için ayrı kök arayüz" }] },
+      pairs: { left: [{ id: "collection", text: "java.util.Collection" }, { id: "collections", text: "java.util.Collections" }, { id: "map", text: "java.util.Map" }], right: [{ id: "r1", text: "Tekil eleman grupları için kök arayüz" }, { id: "r2", text: "Koleksiyonlar üzerinde sort/reverse gibi static yardımcılar içeren sınıf" }, { id: "r3", text: "Anahtar-değer eşlemeleri için ayrı kök arayüz" }, { id: "decoy", text: "Elemanları sıralı ve tekrarsız tutan somut sınıf" }] },
       answer: { collection: "r1", collections: "r2", map: "r3" }, acceptedAnswers: [], caseSensitive: false,
       hint: "Tekil ve çoğul yazım iki farklı türdür.",
       explanationShort: "Collection arayüz, Collections yardımcı sınıf, Map ayrı anahtar-değer arayüzüdür.",
@@ -569,9 +569,9 @@
     }),
 
     q({
-      id: "J25-01", sourceId: "J25", topic: "List Set Map seçimi", difficulty: "Orta", type: "match",
+      id: "J25-01", version: "1.1.0", sourceId: "J25", topic: "List Set Map seçimi", difficulty: "Orta", type: "match",
       prompt: "İhtiyaçları en doğrudan temel koleksiyon soyutlamasıyla eşleştirin.",
-      pairs: { left: [{ id: "tasks", text: "Görevleri eklenme sırasıyla ve tekrarları koruyarak saklama" }, { id: "emails", text: "Benzersiz e-posta adresleri tutma" }, { id: "users", text: "Kullanıcı kimliğinden kullanıcı bilgisine erişme" }], right: [{ id: "list", text: "List" }, { id: "set", text: "Set" }, { id: "map", text: "Map" }] },
+      pairs: { left: [{ id: "tasks", text: "Görevleri eklenme sırasıyla ve tekrarları koruyarak saklama" }, { id: "emails", text: "Benzersiz e-posta adresleri tutma" }, { id: "users", text: "Kullanıcı kimliğinden kullanıcı bilgisine erişme" }], right: [{ id: "list", text: "List" }, { id: "set", text: "Set" }, { id: "map", text: "Map" }, { id: "decoy", text: "Iterator" }] },
       answer: { tasks: "list", emails: "set", users: "map" }, acceptedAnswers: [], caseSensitive: false,
       hint: "Sıra/tekrar, benzersizlik ve anahtar üzerinden erişim gereksinimlerini ayırın.",
       explanationShort: "Sıralı tekrarlar List, benzersizlik Set, anahtar-değer erişimi Map ister.",
@@ -580,9 +580,9 @@
     }),
 
     q({
-      id: "J26-01", sourceId: "J26", topic: "ArrayList ve LinkedList", difficulty: "Orta", type: "match",
+      id: "J26-01", version: "1.1.0", sourceId: "J26", topic: "ArrayList ve LinkedList", difficulty: "Orta", type: "match",
       prompt: "İşlemleri tipik tercih veya karmaşıklıkla eşleştirin.",
-      pairs: { left: [{ id: "random", text: "get(i) ile rastgele indeks erişimi" }, { id: "append", text: "Listenin sonuna ekleme" }, { id: "knownnode", text: "Iterator'ın bulunduğu konumda silme" }, { id: "memory", text: "Eleman başına daha düşük yapısal bellek yükü" }], right: [{ id: "r1", text: "ArrayList: O(1)" }, { id: "r2", text: "İkisi de tipik olarak O(1) amortize/bağlantı güncellemesi" }, { id: "r3", text: "LinkedList: konum zaten biliniyorsa bağlantı güncellemesi O(1)" }, { id: "r4", text: "Genellikle ArrayList" }] },
+      pairs: { left: [{ id: "random", text: "get(i) ile rastgele indeks erişimi" }, { id: "append", text: "Listenin sonuna ekleme" }, { id: "knownnode", text: "Iterator'ın bulunduğu konumda silme" }, { id: "memory", text: "Eleman başına daha düşük yapısal bellek yükü" }], right: [{ id: "r1", text: "ArrayList: O(1)" }, { id: "r2", text: "İkisi de tipik olarak O(1) amortize/bağlantı güncellemesi" }, { id: "r3", text: "LinkedList: konum zaten biliniyorsa bağlantı güncellemesi O(1)" }, { id: "r4", text: "Genellikle ArrayList" }, { id: "decoy", text: "LinkedList: indeksle erişim O(1)" }] },
       answer: { random: "r1", append: "r2", knownnode: "r3", memory: "r4" }, acceptedAnswers: [], caseSensitive: false,
       hint: "LinkedList'te indeks bulma süresini, bulduktan sonraki bağlantı değişiminden ayırın.",
       explanationShort: "ArrayList indeks erişiminde ve bellek yerelliğinde güçlü; LinkedList bilinen düğüm konumundaki bağlantı değişiminde avantajlıdır.",
@@ -611,22 +611,22 @@
       optionExplanations: {}, assumptions: ["Employee, Object.equals ve Object.hashCode'u override etmez; Set standart HashSet'tir."], tags: ["hashset", "equals", "hashcode", "output"]
     }),
     q({
-      id: "J27-02", sourceId: "J27", topic: "HashSet eşitliği", difficulty: "Orta", type: "single",
+      id: "J27-02", version: "1.1.0", sourceId: "J27", topic: "HashSet eşitliği", difficulty: "Orta", type: "single",
       prompt: "Yalnız id alanı eşit Employee nesnelerinin HashSet'te tek öğe sayılması için ne yapılmalıdır?",
-      options: [{ id: "a", text: "Yalnız equals id'ye göre override edilmeli" }, { id: "b", text: "Yalnız hashCode id'ye göre override edilmeli" }, { id: "c", text: "equals ve hashCode birlikte, aynı id eşitlik ölçütüne göre override edilmeli" }, { id: "d", text: "HashSet yerine ArrayList kullanılmalı" }],
+      options: [{ id: "a", text: "Yalnız equals id'ye göre override edilmeli" }, { id: "b", text: "Yalnız hashCode id'ye göre override edilmeli; HashSet eşitliği yalnız hash değerine bakarak belirler" }, { id: "c", text: "equals ve hashCode birlikte, aynı id eşitlik ölçütüne göre override edilmeli" }, { id: "d", text: "HashSet yerine ArrayList kullanılmalı" }],
       answer: "c", acceptedAnswers: [], caseSensitive: false,
       hint: "Eşit nesneler aynı hash code'u üretmek zorundadır.",
       explanationShort: "equals ve hashCode aynı alanlara dayalı birlikte uygulanmalıdır.",
       explanationLong: "HashSet önce hash ile bucket adaylarını daraltır, sonra equals ile eşitliği doğrular. equals id'yi kullanıyorsa hashCode da id'den türetilmelidir. Yalnız birini override etmek sözleşmeyi veya beklenen aramayı bozar.",
-      optionExplanations: { a: "Hash sözleşmesini bozabilir.", b: "Aynı hash eşitlik anlamına gelmez; Object.equals ayrı nesneleri reddeder.", c: "Doğru sözleşmedir.", d: "Benzersizlik gereksinimini otomatik sağlamaz." }, assumptions: ["id nesne Set içindeyken değişmez veya Employee immutable tasarlanır."], tags: ["equals", "hashcode", "hashset", "contract"]
+      optionExplanations: { a: "Hash sözleşmesini bozabilir.", b: "HashSet hash'i yalnız kovayı bulmak için kullanır; eşitliği equals belirler ve Object.equals ayrı nesneleri reddeder.", c: "Doğru sözleşmedir.", d: "Benzersizlik gereksinimini otomatik sağlamaz." }, assumptions: ["id nesne Set içindeyken değişmez veya Employee immutable tasarlanır."], tags: ["equals", "hashcode", "hashset", "contract"]
     }),
 
     q({
-      id: "J28-01", sourceId: "J28", topic: "Map ile gruplama", difficulty: "Orta", type: "single",
+      id: "J28-01", version: "1.1.0", sourceId: "J28", topic: "Map ile gruplama", difficulty: "Orta", type: "single",
       prompt: "Siparişleri customerId'ye göre `Map<Integer,List<Order>>` içinde doğru biçimde gruplayan gövde hangisidir? `Order#getCustomerId()` int döndürür.",
       options: [
         { id: "a", text: "for (Order o : orders) result.computeIfAbsent(o.getCustomerId(), k -> new ArrayList<>()).add(o);" },
-        { id: "b", text: "for (Order o : orders) result.put(o.getCustomerId(), new ArrayList<>());" },
+        { id: "b", text: "for (Order o : orders) { List<Order> list = new ArrayList<>(); list.add(o); result.put(o.getCustomerId(), list); }" },
         { id: "c", text: "for (Order o : orders) result.get(o.getCustomerId()).add(o);" },
         { id: "d", text: "for (Order o : orders) result.put(null, Arrays.asList(o));" }
       ],
@@ -634,7 +634,7 @@
       hint: "Anahtar ilk kez görülürse liste oluşturun; her durumda siparişi o listeye ekleyin.",
       explanationShort: "computeIfAbsent her müşteri için listeyi bir kez oluşturup siparişi ekler.",
       explanationLong: "A seçeneğinde mapping function yalnız anahtar için mevcut non-null değer yoksa ArrayList üretir; dönen listeye sipariş eklenir. B her siparişte boş listeyle önceki grubu ezer. C ilk anahtarda null.get/add nedeniyle NPE üretir.",
-      optionExplanations: { a: "Doğru Java 8 gruplama kalıbıdır.", b: "Siparişleri eklemez ve önceki listeyi ezer.", c: "Liste önceden yoksa NPE verir.", d: "Müşteri kimliğini kullanmaz ve gruplamaz." }, assumptions: ["orders ve içindeki Order öğeleri null değildir; getCustomerId int döndürür; result başlangıçta boş mutable HashMap'tir."], tags: ["map", "grouping", "computeifabsent"]
+      optionExplanations: { a: "Doğru Java 8 gruplama kalıbıdır.", b: "Her siparişte yeni liste açılır; aynı müşterinin önceki siparişleri ezilir.", c: "Liste önceden yoksa NPE verir.", d: "Müşteri kimliğini kullanmaz ve gruplamaz." }, assumptions: ["orders ve içindeki Order öğeleri null değildir; getCustomerId int döndürür; result başlangıçta boş mutable HashMap'tir."], tags: ["map", "grouping", "computeifabsent"]
     }),
     q({
       id: "J28-02", sourceId: "J28", topic: "Map ile gruplama", difficulty: "Orta", type: "order",
@@ -710,9 +710,9 @@
       optionExplanations: { a: "Doğru, çağırana checked sözleşmesi verir ve kaynağı kapatabilir.", b: "Doğru, yerel kurtarma/çevirme politikası olabilir.", c: "Yanlış; IOException checked'dır.", d: "Referansı null yapmak işletim sistemi kaynağını deterministik kapatmaz.", e: "İlgili checked exception'ı bildirmez." }, assumptions: ["java.io sınıfları import edilmiştir; metot dosya I/O hatasını yutmamalıdır."], tags: ["checked-exception", "ioexception", "try-with-resources"]
     }),
     q({
-      id: "J31-02", sourceId: "J31", topic: "Checked ve unchecked exception", difficulty: "Orta", type: "match",
+      id: "J31-02", version: "1.1.0", sourceId: "J31", topic: "Checked ve unchecked exception", difficulty: "Orta", type: "match",
       prompt: "Exception türlerini derleyici bildirimi gereksinimleriyle eşleştirin.",
-      pairs: { left: [{ id: "io", text: "IOException" }, { id: "runtime", text: "RuntimeException" }, { id: "error", text: "Error" }], right: [{ id: "r1", text: "Checked: catch edilmeli veya throws ile bildirilmelidir" }, { id: "r2", text: "Unchecked: catch/throws zorunlu değildir" }, { id: "r3", text: "Unchecked ciddi JVM/sistem problemi ailesi; normalde uygulama kurtarma sözleşmesi değildir" }] },
+      pairs: { left: [{ id: "io", text: "IOException" }, { id: "runtime", text: "RuntimeException" }, { id: "error", text: "Error" }], right: [{ id: "r1", text: "Checked: catch edilmeli veya throws ile bildirilmelidir" }, { id: "r2", text: "Unchecked: catch/throws zorunlu değildir" }, { id: "r3", text: "Unchecked ciddi JVM/sistem problemi ailesi; normalde uygulama kurtarma sözleşmesi değildir" }, { id: "decoy", text: "Checked: yalnız main metodunda yakalanabilir" }] },
       answer: { io: "r1", runtime: "r2", error: "r3" }, acceptedAnswers: [], caseSensitive: false,
       hint: "RuntimeException ve Error, checked exception analizinin dışında tutulur.",
       explanationShort: "IOException checked; RuntimeException ve Error unchecked'dır.",
@@ -721,24 +721,24 @@
     }),
 
     q({
-      id: "J32-01", sourceId: "J32", topic: "Özel exception tasarımı", difficulty: "Orta", type: "single",
+      id: "J32-01", version: "1.1.0", sourceId: "J32", topic: "Özel exception tasarımı", difficulty: "Orta", type: "single",
       prompt: "Geçersiz yaşın çağıranın işlemi düzeltip yeniden deneyebileceği iş kuralı ihlali olarak checked exception ile bildirilmesi isteniyor. Doğru tasarım hangisidir?",
       options: [
         { id: "a", text: "class InvalidAgeException extends Exception { InvalidAgeException(String m) { super(m); } } ve `void register(int age) throws InvalidAgeException { if (age < 0) throw new InvalidAgeException(\"age\"); }`" },
         { id: "b", text: "class InvalidAgeException extends Error {} ve yalnız `return`" },
-        { id: "c", text: "class InvalidAgeException extends Exception {} ve `throws new InvalidAgeException()`" },
+        { id: "c", text: "class InvalidAgeException extends RuntimeException { InvalidAgeException(String m) { super(m); } } ve `void register(int age) throws InvalidAgeException { if (age < 0) throw new InvalidAgeException(\"age\"); }`" },
         { id: "d", text: "class InvalidAgeException {} ve `throw InvalidAgeException;`" }
       ],
       answer: "a", acceptedAnswers: [], caseSensitive: false,
       hint: "Checked tür Exception'dan türemeli; tür bildiriminde throws, nesne üretiminde throw kullanılır.",
       explanationShort: "A seçeneği checked türü, throws sözleşmesini ve throw ifadesini doğru kurar.",
       explanationLong: "Exception alt sınıfı RuntimeException dışında kaldığı için checked'dır. Constructor mesajı üst sınıfa iletir. register metodunun bildirimi olası türü `throws InvalidAgeException` ile açıklar; koşul oluşunca `throw new InvalidAgeException(...)` bir nesneyi fırlatır.",
-      optionExplanations: { a: "Doğru checked exception tasarımıdır.", b: "Error iş kuralı doğrulaması için uygun değildir ve exception fırlatmıyor.", c: "throws'tan sonra nesne değil tür listesi gelir.", d: "Throwable alt tipi değildir ve throw bir nesne ifadesi ister." }, assumptions: ["Geçerli yaş aralığının alt sınırı bu kartta 0'dır; üst sınır gereksinimi verilmemiştir.", "Checked/unchecked seçimi bağlama bağlıdır; kart açıkça checked politika istemektedir."], tags: ["custom-exception", "throw", "throws", "checked"]
+      optionExplanations: { a: "Doğru checked exception tasarımıdır.", b: "Error iş kuralı doğrulaması için uygun değildir ve exception fırlatmıyor.", c: "RuntimeException unchecked'tır; throws ile bildirilse bile derleyici çağıranı hatayı ele almaya zorlamaz.", d: "Throwable alt tipi değildir ve throw bir nesne ifadesi ister." }, assumptions: ["Geçerli yaş aralığının alt sınırı bu kartta 0'dır; üst sınır gereksinimi verilmemiştir.", "Checked/unchecked seçimi bağlama bağlıdır; kart açıkça checked politika istemektedir."], tags: ["custom-exception", "throw", "throws", "checked"]
     }),
     q({
-      id: "J32-02", sourceId: "J32", topic: "throw ve throws", difficulty: "Orta", type: "match",
+      id: "J32-02", version: "1.1.0", sourceId: "J32", topic: "throw ve throws", difficulty: "Orta", type: "match",
       prompt: "Exception ile ilgili öğeleri işlevleriyle eşleştirin.",
-      pairs: { left: [{ id: "throw", text: "throw" }, { id: "throws", text: "throws" }, { id: "checked", text: "extends Exception (RuntimeException değil)" }, { id: "unchecked", text: "extends RuntimeException" }], right: [{ id: "r1", text: "Bir Throwable nesnesini o noktada fırlatır" }, { id: "r2", text: "Metot/constructor bildiriminde kaçabilecek türleri listeler" }, { id: "r3", text: "Derleyici catch-or-declare kuralına tabidir" }, { id: "r4", text: "Catch-or-declare zorunluluğu yoktur" }] },
+      pairs: { left: [{ id: "throw", text: "throw" }, { id: "throws", text: "throws" }, { id: "checked", text: "extends Exception (RuntimeException değil)" }, { id: "unchecked", text: "extends RuntimeException" }], right: [{ id: "r1", text: "Bir Throwable nesnesini o noktada fırlatır" }, { id: "r2", text: "Metot/constructor bildiriminde kaçabilecek türleri listeler" }, { id: "r3", text: "Derleyici catch-or-declare kuralına tabidir" }, { id: "r4", text: "Catch-or-declare zorunluluğu yoktur" }, { id: "decoy", text: "Fırlatılan exception'ı yakalayıp işleyen blok" }] },
       answer: { throw: "r1", throws: "r2", checked: "r3", unchecked: "r4" }, acceptedAnswers: [], caseSensitive: false,
       hint: "Tekil eylem ile metot sözleşmesini ayırın.",
       explanationShort: "throw eylemdir, throws bildirimdir; kalıtım checked niteliğini belirler.",
@@ -747,9 +747,9 @@
     }),
 
     q({
-      id: "J33-01", sourceId: "J33", topic: "Interface ve abstract class", difficulty: "Orta", type: "match",
+      id: "J33-01", version: "1.1.0", sourceId: "J33", topic: "Interface ve abstract class", difficulty: "Orta", type: "match",
       prompt: "Tasarım ihtiyaçlarını en uygun temel araçla eşleştirin.",
-      pairs: { left: [{ id: "contract", text: "İlişkisiz sınıflara ortak davranış sözleşmesi ve çoklu tip kalıtımı" }, { id: "state", text: "Alt sınıflarla protected ortak mutable durum ve constructor zinciri paylaşma" }, { id: "default", text: "Java 8'de sözleşmeye geriye uyumlu varsayılan davranış ekleme" }, { id: "single", text: "Tek bir sınıf implementasyon hiyerarşisinde ortak kod/şablon" }], right: [{ id: "interface", text: "Interface" }, { id: "abstract", text: "Abstract class" }, { id: "idefault", text: "Interface default method" }, { id: "aclass", text: "Abstract class" }] },
+      pairs: { left: [{ id: "contract", text: "İlişkisiz sınıflara ortak davranış sözleşmesi ve çoklu tip kalıtımı" }, { id: "state", text: "Alt sınıflarla protected ortak mutable durum ve constructor zinciri paylaşma" }, { id: "default", text: "Java 8'de sözleşmeye geriye uyumlu varsayılan davranış ekleme" }, { id: "single", text: "Tek bir sınıf implementasyon hiyerarşisinde ortak kod/şablon" }], right: [{ id: "interface", text: "Interface" }, { id: "abstract", text: "Abstract class" }, { id: "idefault", text: "Interface default method" }, { id: "aclass", text: "Abstract class" }, { id: "decoy", text: "Final class" }] },
       answer: { contract: "interface", state: "abstract", default: "idefault", single: "aclass" }, acceptedAnswers: [], caseSensitive: false,
       hint: "Sözleşme/çoklu implementasyon ile ortak instance state/constructor ihtiyacını ayırın.",
       explanationShort: "Interface çoklu sözleşme; abstract class ortak durum, constructor ve güçlü ortak implementasyon içindir.",
@@ -799,26 +799,26 @@
       optionExplanations: { a: "Cast biçim dönüştürme değildir.", b: "Doğru runtime hatasıdır.", c: "Cast otomatik toString çağırmaz.", d: "İki eleman olduğundan indeks 1 geçerlidir." }, assumptions: ["Unchecked/raw type derleme uyarıları hata olarak yapılandırılmamıştır; kod çalıştırılır."], tags: ["raw-type", "classcastexception", "generics"]
     }),
     q({
-      id: "J35-02", sourceId: "J35", topic: "Raw type ve tip güvenliği", difficulty: "Orta", type: "single",
+      id: "J35-02", version: "1.1.0", sourceId: "J35", topic: "Raw type ve tip güvenliği", difficulty: "Orta", type: "single",
       prompt: "Liste yalnız String saklamalıysa en tip güvenli düzeltme hangisidir?",
-      options: [{ id: "a", text: "`List<String> values = new ArrayList<>();` kullanıp 42 eklemesini kaldırmak veya metne çevirmek" }, { id: "b", text: "Raw List'i koruyup her get sonucunu String'e cast etmek" }, { id: "c", text: "`List<Object>` kullanıp cast hatasını çalışma zamanına bırakmak" }, { id: "d", text: "`List<int>` kullanmak" }],
+      options: [{ id: "a", text: "`List<String> values = new ArrayList<>();` kullanıp 42 eklemesini kaldırmak veya metne çevirmek" }, { id: "b", text: "Raw List'i koruyup her get sonucunu String'e cast etmek" }, { id: "c", text: "`List<Object>` kullanıp her get sonucunu `(String)` ile cast etmek; 42 eklenirse hata çalışma zamanında yakalanır" }, { id: "d", text: "`List<int>` kullanmak" }],
       answer: "a", acceptedAnswers: [], caseSensitive: false,
       hint: "Yanlış türün eklenmesini derleme zamanında engelleyin.",
       explanationShort: "List<String> generic bildirimi yalnız String eklenmesini sağlar.",
       explanationLong: "Generic tür bilgisi add çağrısında Integer'ı reddeder ve get sonucunu String olarak verir. Raw/Object çözümleri gereksiz cast ve runtime riskini korur. Generics primitive type argument kabul etmez.",
-      optionExplanations: { a: "Doğru compile-time güvenliktir.", b: "Raw type riskini sürdürür.", c: "Gereksinimi ve tip güvenliğini zayıflatır.", d: "Primitive generic type argument geçersizdir." }, assumptions: ["Gereksinim listenin heterojen değil yalnız String olmasıdır."], tags: ["generics", "list", "type-safety"]
+      optionExplanations: { a: "Doğru compile-time güvenliktir.", b: "Raw type riskini sürdürür.", c: "Tip güvenliği derleme zamanından çalışma zamanına kayar; gereksinim karşılanmaz.", d: "Primitive generic type argument geçersizdir." }, assumptions: ["Gereksinim listenin heterojen değil yalnız String olmasıdır."], tags: ["generics", "list", "type-safety"]
     }),
 
     q({
-      id: "J36-01", sourceId: "J36", topic: "Koleksiyon dolaşırken silme", difficulty: "Orta", type: "single",
+      id: "J36-01", version: "1.1.0", sourceId: "J36", topic: "Koleksiyon dolaşırken silme", difficulty: "Orta", type: "single",
       prompt: "Kod standart ArrayList ile çalıştırıldığında tipik olarak ne olur?",
       code: "List<String> names = new ArrayList<>(Arrays.asList(\"Ali\", \"Ayşe\", \"Ahmet\"));\nfor (String name : names) {\n    if (name.startsWith(\"A\")) {\n        names.remove(name);\n    }\n}",
-      options: [{ id: "a", text: "Tüm öğeler güvenle silinir" }, { id: "b", text: "Iterator dışından yapısal değişiklik nedeniyle ConcurrentModificationException oluşur" }, { id: "c", text: "Kod yalnız çok thread varsa hata verir" }, { id: "d", text: "String immutable olduğu için derlenmez" }],
+      options: [{ id: "a", text: "Tüm öğeler güvenle silinir" }, { id: "b", text: "Iterator dışından yapısal değişiklik nedeniyle ConcurrentModificationException oluşur" }, { id: "c", text: "Kod yalnız birden fazla thread listeyi aynı anda değiştirirse hata verir; tek thread'de güvenlidir" }, { id: "d", text: "String immutable olduğu için derlenmez" }],
       answer: "b", acceptedAnswers: [], caseSensitive: false,
       hint: "Enhanced for, arka planda Iterator kullanır.",
       explanationShort: "List.remove, aktif iterator'ın beklediği modCount'u bozar ve fail-fast hata doğurur.",
       explanationLong: "Enhanced for ArrayList iterator'ıyla yürür. Iterator'ın kendi remove'u dışında listede yapısal değişiklik yapılınca sonraki iterator işlemi modCount uyuşmazlığını görür ve best-effort ConcurrentModificationException atar. Adı concurrency olsa da tek thread'de de olur.",
-      optionExplanations: { a: "Iterator protokolü ihlal edilir.", b: "Doğru standart fail-fast davranıştır.", c: "Tek thread'de de tetiklenebilir.", d: "Liste yapısı mutable'dır; sorun String mutability değildir." }, assumptions: ["Standart java.util.ArrayList iterator'ı ve verilen üç öğe kullanılır; fail-fast mekanizması program doğruluğu için garanti edilen senkronizasyon değildir."], tags: ["concurrentmodificationexception", "iterator", "remove"]
+      optionExplanations: { a: "Iterator protokolü ihlal edilir.", b: "Doğru standart fail-fast davranıştır.", c: "Tek thread'de de for-each sırasında yapılan yapısal değişiklik ConcurrentModificationException tetikler.", d: "Liste yapısı mutable'dır; sorun String mutability değildir." }, assumptions: ["Standart java.util.ArrayList iterator'ı ve verilen üç öğe kullanılır; fail-fast mekanizması program doğruluğu için garanti edilen senkronizasyon değildir."], tags: ["concurrentmodificationexception", "iterator", "remove"]
     }),
     q({
       id: "J36-02", sourceId: "J36", topic: "Koleksiyon dolaşırken silme", difficulty: "Orta", type: "multi",
@@ -832,9 +832,9 @@
     }),
 
     q({
-      id: "J37-01", sourceId: "J37", topic: "Generic wildcard PECS", difficulty: "Zorlayıcı", type: "match",
+      id: "J37-01", version: "1.1.0", sourceId: "J37", topic: "Generic wildcard PECS", difficulty: "Zorlayıcı", type: "match",
       prompt: "Wildcard listelerini güvenli okuma/ekleme özellikleriyle eşleştirin. null ekleme özel durumu dışarıda bırakılmıştır.",
-      pairs: { left: [{ id: "extread", text: "List<? extends Number> içinden okuma" }, { id: "extwrite", text: "List<? extends Number> içine non-null sayı ekleme" }, { id: "superread", text: "List<? super Integer> içinden okuma" }, { id: "superwrite", text: "List<? super Integer> içine ekleme" }], right: [{ id: "r1", text: "Güvenle Number olarak okunur" }, { id: "r2", text: "Somut alt tip bilinmediği için güvenli değildir" }, { id: "r3", text: "Güvenle yalnız Object olarak okunur" }, { id: "r4", text: "Integer güvenle eklenir" }] },
+      pairs: { left: [{ id: "extread", text: "List<? extends Number> içinden okuma" }, { id: "extwrite", text: "List<? extends Number> içine non-null sayı ekleme" }, { id: "superread", text: "List<? super Integer> içinden okuma" }, { id: "superwrite", text: "List<? super Integer> içine ekleme" }], right: [{ id: "r1", text: "Güvenle Number olarak okunur" }, { id: "r2", text: "Somut alt tip bilinmediği için güvenli değildir" }, { id: "r3", text: "Güvenle yalnız Object olarak okunur" }, { id: "r4", text: "Integer güvenle eklenir" }, { id: "decoy", text: "Herhangi bir Number alt tipi güvenle eklenir" }] },
       answer: { extread: "r1", extwrite: "r2", superread: "r3", superwrite: "r4" }, acceptedAnswers: [], caseSensitive: false,
       hint: "Producer extends, consumer super (PECS).",
       explanationShort: "extends Number üreticidir; super Integer tüketicidir.",
@@ -854,10 +854,10 @@
     }),
 
     q({
-      id: "J38-01", sourceId: "J38", topic: "Stack ve heap", difficulty: "Zorlayıcı", type: "match",
+      id: "J38-01", version: "1.1.0", sourceId: "J38", topic: "Stack ve heap", difficulty: "Zorlayıcı", type: "match",
       prompt: "Yaygın JVM'in kavramsal bellek modelinde öğeleri ilişkileriyle eşleştirin.",
       code: "class User { String name; }\nstatic void createUser() {\n    int age = 22;\n    User user = new User();\n    user.name = \"Deniz\";\n}",
-      pairs: { left: [{ id: "age", text: "Yerel primitive `age`" }, { id: "userref", text: "Yerel `user` referans değişkeni" }, { id: "userobj", text: "`new User()` nesnesi" }, { id: "namefield", text: "User içindeki `name` alanı" }], right: [{ id: "r1", text: "Metot çağrı çerçevesindeki yerel değer" }, { id: "r2", text: "Çağrı çerçevesindeki, nesneye erişen referans değeri" }, { id: "r3", text: "Heap'te erişilebilir nesne" }, { id: "r4", text: "User nesnesinin parçası olan ve String'e referans tutan alan" }] },
+      pairs: { left: [{ id: "age", text: "Yerel primitive `age`" }, { id: "userref", text: "Yerel `user` referans değişkeni" }, { id: "userobj", text: "`new User()` nesnesi" }, { id: "namefield", text: "User içindeki `name` alanı" }], right: [{ id: "r1", text: "Metot çağrı çerçevesindeki yerel değer" }, { id: "r2", text: "Çağrı çerçevesindeki, nesneye erişen referans değeri" }, { id: "r3", text: "Heap'te erişilebilir nesne" }, { id: "r4", text: "User nesnesinin parçası olan ve String'e referans tutan alan" }, { id: "decoy", text: "Metot alanında tutulan sınıf meta verisi" }] },
       answer: { age: "r1", userref: "r2", userobj: "r3", namefield: "r4" }, acceptedAnswers: [], caseSensitive: false,
       hint: "Referans değişkeni ile gösterdiği nesneyi ayrı düşünün.",
       explanationShort: "Yerel değerler frame ile, nesne ve alanları heap nesnesiyle ilişkilidir.",
@@ -896,11 +896,11 @@
     }),
 
     q({
-      id: "J40-01", sourceId: "J40", topic: "equals ve hashCode sözleşmesi", difficulty: "Zorlayıcı", type: "single",
+      id: "J40-01", version: "1.1.0", sourceId: "J40", topic: "equals ve hashCode sözleşmesi", difficulty: "Zorlayıcı", type: "single",
       prompt: "Candidate nesneleri yalnız id alanına göre eşit olacaksa en doğru Java 8 uygulaması hangisidir? id constructor'da atanmış final int'tir.",
       options: [
         { id: "a", text: "`public boolean equals(Object o) { if (this == o) return true; if (!(o instanceof Candidate)) return false; Candidate c=(Candidate)o; return id==c.id; } public int hashCode() { return Integer.hashCode(id); }`" },
-        { id: "b", text: "`public boolean equals(Object o) { return id == ((Candidate)o).id; }` ve hashCode override edilmez" },
+        { id: "b", text: "`public boolean equals(Object o) { if (this == o) return true; if (!(o instanceof Candidate)) return false; Candidate c=(Candidate)o; return id==c.id; } public int hashCode() { return Objects.hash(id, System.identityHashCode(this)); }`" },
         { id: "c", text: "equals override edilmez; `public int hashCode() { return id; }`" },
         { id: "d", text: "`public boolean equals(Candidate c) { return id==c.id; }` ve `public int hashCode(){ return 1; }`" }
       ],
@@ -908,7 +908,7 @@
       hint: "Object imzasını override edin; null/tür kontrolü yapın ve aynı alanı hashCode'da kullanın.",
       explanationShort: "A, Object.equals'i güvenle override eder ve hashCode'u id ile tutarlı kurar.",
       explanationLong: "Kimlik kısa yolu refleksiviteyi hızlı karşılar. instanceof null için false döner ve güvenli cast sağlar. id eşitliği değer ölçütüdür. Eşit id'ler aynı Integer.hashCode üretir. equals(Candidate) overload olur, Object.equals override'ı olmaz.",
-      optionExplanations: { a: "Doğru ve sözleşmeyle uyumludur.", b: "Yanlış tür/null için hata verir ve hash sözleşmesini bozar.", c: "Eşitliği id bazlı yapmaz.", d: "Object.equals'i override etmez; yalnız overload eder." }, assumptions: ["Candidate final sınıftır veya alt sınıf eşitliği ayrıca kısıtlanmıştır; id immutable'dır.", "Integer.hashCode(int) Java 8'de mevcuttur."], tags: ["equals", "hashcode", "candidate", "immutable-key"]
+      optionExplanations: { a: "Doğru ve sözleşmeyle uyumludur.", b: "hashCode nesne kimliğini kattığı için eşit iki Candidate farklı hash üretebilir; hash sözleşmesi bozulur.", c: "Eşitliği id bazlı yapmaz.", d: "Object.equals'i override etmez; yalnız overload eder." }, assumptions: ["Candidate final sınıftır veya alt sınıf eşitliği ayrıca kısıtlanmıştır; id immutable'dır.", "Integer.hashCode(int) Java 8'de mevcuttur."], tags: ["equals", "hashcode", "candidate", "immutable-key"]
     }),
     q({
       id: "J40-02", sourceId: "J40", topic: "equals ve hashCode sözleşmesi", difficulty: "Zorlayıcı", type: "multi",
@@ -943,11 +943,11 @@
     }),
 
     q({
-      id: "J42-01", sourceId: "J42", topic: "Immutable sınıf tasarımı", difficulty: "Zorlayıcı", type: "single",
+      id: "J42-01", version: "1.1.0", sourceId: "J42", topic: "Immutable sınıf tasarımı", difficulty: "Zorlayıcı", type: "single",
       prompt: "Java 8'de `User(String name, List<String> roles)` sınıfını gerçekten immutable yapmaya en uygun yaklaşım hangisidir?",
       options: [
         { id: "a", text: "Sınıfı final, alanları private final yap; constructor'da `this.roles = Collections.unmodifiableList(new ArrayList<>(roles));`; getter'da bu değiştirilemez listeyi döndür" },
-        { id: "b", text: "Yalnız alanları final yap ve constructor'da `this.roles = roles;` ata" },
+        { id: "b", text: "Sınıfı final, alanları private final yap; constructor'da `this.roles = roles;` ata, getter'da her seferinde `Collections.unmodifiableList(roles)` döndürerek yalnız okunur görünüm ver" },
         { id: "c", text: "roles getter'ında doğrudan mutable internal ArrayList döndür" },
         { id: "d", text: "Sınıfı final yap ama roles alanını public bırak" }
       ],
@@ -955,7 +955,7 @@
       hint: "Hem constructor'a verilen listenin alias'ını hem getter üzerinden mutasyonu kapatın.",
       explanationShort: "Defensive copy + unmodifiable görünüm, mutable listenin iki dış erişim yolunu da kapatır.",
       explanationLong: "Constructor yalnız unmodifiableList(roles) yapsaydı çağıran orijinal listeyi değiştirerek iç durumu etkileyebilirdi. Önce new ArrayList ile snapshot alınır, sonra dış mutasyon kapatılır. final sınıf override ile state sızdırılmasını; private final alanlar yeniden atamayı engeller. String zaten immutable'dır.",
-      optionExplanations: { a: "Doğru Java 8 defensive-copy kalıbıdır.", b: "Çağıran roles listesini sonradan değiştirebilir.", c: "Getter iç durumu mutasyona açar.", d: "Public liste doğrudan değiştirilebilir." }, assumptions: ["Constructor Objects.requireNonNull ile name ve roles null durumunu reddeder; roles içinde null kabul politikası ayrıca seçilebilir.", "Role elemanları String olduğu için eleman düzeyinde deep copy gerekmez."], tags: ["immutability", "defensive-copy", "unmodifiable-list"]
+      optionExplanations: { a: "Doğru Java 8 defensive-copy kalıbıdır.", b: "Kopya alınmadığı için çağıran elindeki roles listesini değiştirerek nesnenin iç durumunu değiştirebilir.", c: "Getter iç durumu mutasyona açar.", d: "Public liste doğrudan değiştirilebilir." }, assumptions: ["Constructor Objects.requireNonNull ile name ve roles null durumunu reddeder; roles içinde null kabul politikası ayrıca seçilebilir.", "Role elemanları String olduğu için eleman düzeyinde deep copy gerekmez."], tags: ["immutability", "defensive-copy", "unmodifiable-list"]
     }),
     q({
       id: "J42-02", sourceId: "J42", topic: "Immutable sınıf tasarımı", difficulty: "Zorlayıcı", type: "multi",
@@ -979,9 +979,9 @@
       optionExplanations: {}, assumptions: ["setName izni vardır; start başarıyla gerçekleşir; InterruptedException çevreleyen main tarafından bildirilmiş/yakalanmıştır."], tags: ["thread", "run", "start", "join", "output"]
     }),
     q({
-      id: "J43-02", sourceId: "J43", topic: "Thread start ve run", difficulty: "Zorlayıcı", type: "match",
+      id: "J43-02", version: "1.1.0", sourceId: "J43", topic: "Thread start ve run", difficulty: "Zorlayıcı", type: "match",
       prompt: "Thread çağrılarını etkileriyle eşleştirin.",
-      pairs: { left: [{ id: "run", text: "worker.run()" }, { id: "start", text: "worker.start()" }, { id: "join", text: "worker.join()" }, { id: "restart", text: "Tamamlanmış aynı worker üzerinde ikinci start()" }], right: [{ id: "r1", text: "Çağıran thread'de normal metot çağrısı" }, { id: "r2", text: "Yeni thread yaşam döngüsünü başlatır ve run orada yürür" }, { id: "r3", text: "Çağıran thread worker'ın bitmesini bekler" }, { id: "r4", text: "IllegalThreadStateException" }] },
+      pairs: { left: [{ id: "run", text: "worker.run()" }, { id: "start", text: "worker.start()" }, { id: "join", text: "worker.join()" }, { id: "restart", text: "Tamamlanmış aynı worker üzerinde ikinci start()" }], right: [{ id: "r1", text: "Çağıran thread'de normal metot çağrısı" }, { id: "r2", text: "Yeni thread yaşam döngüsünü başlatır ve run orada yürür" }, { id: "r3", text: "Çağıran thread worker'ın bitmesini bekler" }, { id: "r4", text: "IllegalThreadStateException" }, { id: "decoy", text: "Thread'i hemen durdurur ve kilitlerini bırakır" }] },
       answer: { run: "r1", start: "r2", join: "r3", restart: "r4" }, acceptedAnswers: [], caseSensitive: false,
       hint: "Bir Thread nesnesi yalnız bir kez start edilebilir.",
       explanationShort: "run çağrıdır; start yeni yürütmedir; join bekler; aynı Thread yeniden başlatılamaz.",
@@ -990,15 +990,15 @@
     }),
 
     q({
-      id: "J44-01", sourceId: "J44", topic: "Race condition", difficulty: "Zorlayıcı", type: "single",
+      id: "J44-01", version: "1.1.0", sourceId: "J44", topic: "Race condition", difficulty: "Zorlayıcı", type: "single",
       prompt: "İki thread aynı Counter üzerinde `increment()` çağırdığında artışların kaybolabilmesinin temel nedeni nedir?",
       code: "class Counter {\n    int value = 0;\n    void increment() { value++; }\n}",
-      options: [{ id: "a", text: "`value++` atomik değildir; read-modify-write adımları thread'ler arasında iç içe geçebilir" }, { id: "b", text: "int yalnız tek thread'de kullanılabilen bir tiptir" }, { id: "c", text: "Garbage collector her artıştan sonra value'yu sıfırlar" }, { id: "d", text: "Metot void olduğu için artış uygulanmaz" }],
+      options: [{ id: "a", text: "`value++` atomik bir işlem değildir" }, { id: "b", text: "int yalnız tek thread'de kullanılabilen bir tiptir" }, { id: "c", text: "Her thread increment çağırırken Counter nesnesinin ayrı bir kopyasını alır; artışlar farklı kopyalara yazılır" }, { id: "d", text: "Metot void olduğu için artış uygulanmaz" }],
       answer: "a", acceptedAnswers: [], caseSensitive: false,
       hint: "Her thread aynı eski değeri okuyup aynı yeni değeri yazabilir.",
       explanationShort: "value++ birleşik ve atomik olmayan bir read-modify-write işlemidir.",
       explanationLong: "İki thread ikisi de örneğin 5 okuyabilir, 6 hesaplayabilir ve 6 yazabilir; iki çağrıdan yalnız bir net artış görünür. Ayrıca uygun synchronization olmadan visibility garantisi de yoktur. int tek okuma/yazmanın atomik olması, ++ işleminin tamamını atomik yapmaz.",
-      optionExplanations: { a: "Doğru lost-update yarışıdır.", b: "int thread'e bağlı değildir.", c: "GC primitive alanı sıfırlamaz.", d: "void yalnız dönüş değeri olmadığını belirtir." }, assumptions: ["Aynı Counter nesnesi birden çok thread tarafından paylaşılır; external synchronization yoktur."], tags: ["race-condition", "atomicity", "visibility"]
+      optionExplanations: { a: "Doğru lost-update yarışıdır.", b: "int thread'e bağlı değildir.", c: "Thread'ler aynı nesne referansını paylaşır; Java metot çağrısında nesneyi kopyalamaz.", d: "void yalnız dönüş değeri olmadığını belirtir." }, assumptions: ["Aynı Counter nesnesi birden çok thread tarafından paylaşılır; external synchronization yoktur."], tags: ["race-condition", "atomicity", "visibility"]
     }),
     q({
       id: "J44-02", sourceId: "J44", topic: "Race condition", difficulty: "Zorlayıcı", type: "multi",

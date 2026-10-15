@@ -105,6 +105,19 @@ check(snippets.every((code) => {
   return decodeHighlight(html) === code && /^(?:[^<]|<span class="tok-\w+">[^<]*<\/span>)*$/.test(html);
 }), 'Her kod parçası vurgulandıktan sonra aynı metni ve düz span yapısını korumalı.');
 
+// The answer must not be guessable from the shape of the options alone.
+const singleCards = E.getBank().filter((card) => card.type === 'single');
+const answerRanks = [0, 0, 0, 0];
+singleCards.forEach((card) => {
+  const answerLength = card.options.find((option) => option.id === card.answer).text.length;
+  answerRanks[card.options.filter((option) => option.text.length > answerLength).length] += 1;
+});
+check(answerRanks.every((count) => count / singleCards.length <= 0.35), `Doğru şıkkın uzunluk sırası tek bir konumda yığılmamalı: ${answerRanks.join('/')}.`);
+const booleanCards = E.getBank().filter((card) => card.type === 'boolean');
+const trueShare = booleanCards.filter((card) => card.answer === true).length / booleanCards.length;
+check(trueShare >= 0.35 && trueShare <= 0.65, `Doğru/Yanlış cevapları dengeli olmalı: Doğru oranı %${Math.round(trueShare * 100)}.`);
+check(E.getBank().filter((card) => card.type === 'match').every((card) => card.pairs.right.length > card.pairs.left.length), 'Her eşleştirmede son eşleşmeyi eleme ile bedava yapmayan en az bir yanıltıcı seçenek olmalı.');
+
 const interviewBank = E.buildInterviewBank(E.getBank());
 check(interviewBank.length === 135, 'Mülakat bankası her kaynak soruyu içermeli.');
 check(interviewBank.every((item) => item.keyPoints.length > 0 && item.explanations.length + item.examples.length > 0), 'Her mülakat sorusunun kontrol listesi ve açıklaması olmalı.');
