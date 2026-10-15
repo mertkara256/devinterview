@@ -255,9 +255,16 @@
     return state.currentAttempt.items[state.currentAttempt.currentIndex || 0];
   }
 
+  // A card whose content changed after the session started keeps the version the session saw,
+  // so answers already given are shown and graded against the same question.
+  function attemptCard(item) {
+    var current = state.bankById[item.questionId];
+    return current && (!item.snapshot || current.version === item.snapshot.version) ? current : item.snapshot;
+  }
+
   function currentCard() {
     var item = currentItem();
-    return item ? (state.bankById[item.questionId] || item.snapshot) : null;
+    return item ? attemptCard(item) : null;
   }
 
   function currentResponse() {
@@ -672,10 +679,16 @@
     });
   }
 
+  // A saved shuffle from an older card version keeps its order; options added since then go last.
+  function withNewIds(savedOrder, currentIds) {
+    var kept = (savedOrder || []).filter(function (id) { return currentIds.indexOf(id) !== -1; });
+    return kept.concat(currentIds.filter(function (id) { return kept.indexOf(id) === -1; }));
+  }
+
   function orderedOptions(card, item) {
     var map = {};
     (card.options || []).forEach(function (option) { map[option.id] = option; });
-    var ids = item.optionOrder && item.optionOrder.length ? item.optionOrder : Object.keys(map);
+    var ids = withNewIds(item.optionOrder, Object.keys(map));
     return ids.map(function (id) { return map[id]; }).filter(Boolean);
   }
 
@@ -732,7 +745,7 @@
       var mapping = answer && typeof answer === 'object' && !Array.isArray(answer) ? answer : {};
       var rightMap = {};
       ((card.pairs && card.pairs.right) || []).forEach(function (entry) { rightMap[entry.id] = entry; });
-      var rightOrder = item.rightOrder && item.rightOrder.length ? item.rightOrder : Object.keys(rightMap);
+      var rightOrder = withNewIds(item.rightOrder, Object.keys(rightMap));
       return '<div class="matching-list" role="group" aria-label="Eşleştirilecek öğeler">' + ((card.pairs && card.pairs.left) || []).map(function (left) {
         return '<label class="matching-row"><span class="matching-left">' + E.escapeHtml(left.text) + '</span><span aria-hidden="true">→</span><select name="match-' + E.escapeHtml(left.id) + '" ' + (locked ? 'disabled' : '') + ' aria-label="' + E.escapeHtml(left.text) + ' için eşleşme"><option value="">Seç…</option>' +
           rightOrder.map(function (rightId) { var right = rightMap[rightId]; return '<option value="' + E.escapeHtml(rightId) + '" ' + (mapping[left.id] === rightId ? 'selected' : '') + '>' + E.escapeHtml(right ? right.text : rightId) + '</option>'; }).join('') + '</select></label>';
@@ -796,7 +809,7 @@
     }
     if (attempt.status === 'completed') return navigate('result?id=' + encodeURIComponent(attempt.id));
     var item = currentItem();
-    var card = state.bankById[item.questionId] || item.snapshot;
+    var card = attemptCard(item);
     var response = await ensureResponse(item);
     var cardState = await DB.get('cardState', card.id) || {};
     var note = await DB.get('notes', card.id) || { text: '' };
@@ -807,7 +820,9 @@
     }).length;
     var flaggedCount = Object.keys(state.responseMap).filter(function (id) { return state.responseMap[id].flagged; }).length;
     var showMeta = attempt.mode === 'practice';
-    var assumptions = (card.assumptions || []).length ? '<div class="question-assumption"><strong>Varsayım:</strong> ' + E.escapeHtml(card.assumptions.join(' · ')) + '</div>' : '';
+    // Snapshots saved before assumptions were normalized may still hold a single string.
+    var assumptionList = [].concat(card.assumptions || []).filter(Boolean);
+    var assumptions = assumptionList.length ? '<div class="question-assumption"><strong>Varsayım:</strong> ' + E.escapeHtml(assumptionList.join(' · ')) + '</div>' : '';
     var progressValue = (attempt.currentIndex + 1) / attempt.items.length * 100;
 
     app.innerHTML = '<section class="session-page">' +
@@ -1031,8 +1046,9 @@
   }
 
   async function retryCurrentQuestion() {
-    var card = currentCard();
-    if (!card) return;
+    var shown = currentCard();
+    if (!shown) return;
+    var card = state.bankById[shown.id] || shown;
     await createAttemptFromCards([card], {
       count: 1,
       mode: 'practice',
@@ -1060,7 +1076,7 @@
     }
     for (var index = 0; index < attempt.items.length; index += 1) {
       var item = attempt.items[index];
-      var card = state.bankById[item.questionId] || item.snapshot;
+      var card = attemptCard(item);
       var id = responseId(attempt.id, item.questionId);
       var response = state.responseMap[id];
       // A card that was never opened says nothing about what the user knows, so it stays out of progress and review scheduling.
