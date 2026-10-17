@@ -131,6 +131,7 @@ const buildLabels = {};
 Object.keys(build.TYPES).forEach((label) => { buildLabels[build.TYPES[label]] = label; });
 check(JSON.stringify(buildLabels, Object.keys(buildLabels).sort()) === JSON.stringify(Object.assign({}, E.TYPE_LABELS), Object.keys(buildLabels).sort()), 'build.cjs tür adları engine.js TYPE_LABELS ile aynı olmalı.');
 
+check(JSON.stringify(E.SECTION_PREFIXES) === JSON.stringify(build.SECTIONS), 'build.cjs SECTIONS ile engine.js SECTION_PREFIXES aynı olmalı.');
 check(bank.length > 0, 'Soru bankası boş.');
 check(meta.sourceQuestionCount === Object.keys(sources).length && meta.cardCount === bank.length, 'Banka meta sayaçları içerikle uyuşmuyor.');
 
@@ -148,7 +149,7 @@ function unique(values) {
 }
 
 for (const card of bank) {
-  check(/^([JOA]\d+)-\d+$/.test(card.id), `${card.id}: kart kimliği biçimi geçersiz.`);
+  check(new RegExp(`^[${Object.keys(build.SECTIONS).join('')}]\\d+-\\d+$`).test(card.id), `${card.id}: kart kimliği biçimi geçersiz.`);
   check(!cardIds.has(card.id), `${card.id}: kart kimliği yineleniyor.`);
   cardIds.add(card.id);
   usedSources.add(card.sourceId);
@@ -156,7 +157,7 @@ for (const card of bank) {
   check(Object.prototype.hasOwnProperty.call(sources, card.sourceId), `${card.id}: ${card.sourceId} kaynak sorusu yok.`);
   check(card.id.startsWith(card.sourceId + '-'), `${card.id}: kart kimliği kaynak kimliğiyle başlamıyor.`);
   check(card.originalPrompt === sources[card.sourceId].prompt, `${card.id}: özgün kaynak soru anlık görüntüsü eşleşmiyor.`);
-  check(card.section === (card.sourceId[0] === 'J' ? 'Java' : card.sourceId[0] === 'O' ? 'OOP' : 'Algoritma'), `${card.id}: bölüm/kaynak öneki uyuşmuyor.`);
+  check(card.section === build.SECTIONS[card.sourceId[0]], `${card.id}: bölüm/kaynak öneki uyuşmuyor.`);
   check(allowedTypes.includes(card.type), `${card.id}: bilinmeyen soru türü ${card.type}.`);
   check(allowedDifficulties.includes(card.difficulty), `${card.id}: bilinmeyen zorluk ${card.difficulty}.`);
   check(/^[0-9a-f]{8}$/.test(card.version), `${card.id}: kart sürümü içerikten üretilen 8 haneli özet olmalı.`);

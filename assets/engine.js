@@ -10,7 +10,10 @@
     order: 'Sıralama',
     match: 'Eşleştirme'
   };
-  var SECTION_ORDER = { Java: 0, OOP: 1, Algoritma: 2 };
+  // Keep in step with SECTIONS in build.cjs; the first letter of a question id picks its section.
+  var SECTION_PREFIXES = { J: 'Java', O: 'OOP', A: 'Algoritma', S: 'Savunma' };
+  var SECTION_ORDER = {};
+  Object.keys(SECTION_PREFIXES).forEach(function (prefix, index) { SECTION_ORDER[SECTION_PREFIXES[prefix]] = index; });
   var INTERVALS = [1, 3, 7, 14, 30];
   var INTERVIEW_RATINGS = {
     again: 'Anlatamadım',
@@ -86,7 +89,7 @@
 
   function normalizeCard(card) {
     var normalized = Object.assign({
-      section: card.sourceId && card.sourceId.charAt(0) === 'J' ? 'Java' : card.sourceId && card.sourceId.charAt(0) === 'O' ? 'OOP' : 'Algoritma',
+      section: SECTION_PREFIXES[String(card.sourceId || '').charAt(0)] || 'Algoritma',
       topic: 'Genel',
       difficulty: 'Kolay',
       type: 'single',
@@ -244,7 +247,13 @@
     if (prefix === 'J' && number <= 36) return 4000 + number;
     if (prefix === 'O' && number <= 30) return 5000 + number;
     if (prefix === 'A' && number <= 47) return 6000 + number;
-    return 7000 + (SECTION_ORDER[prefix === 'J' ? 'Java' : prefix === 'O' ? 'OOP' : 'Algoritma'] * 100) + number;
+    return 7000 + ((SECTION_ORDER[SECTION_PREFIXES[prefix]] || 0) * 100) + number;
+  }
+
+  function sectionsOf(bank) {
+    return Object.keys(SECTION_ORDER).filter(function (section) {
+      return bank.some(function (card) { return card.section === section; });
+    });
   }
 
   function isLearned(progress) {
@@ -678,6 +687,7 @@
 
   window.ExamEngine = {
     TYPE_LABELS: TYPE_LABELS,
+    SECTION_PREFIXES: SECTION_PREFIXES,
     INTERVALS: INTERVALS,
     clone: clone,
     escapeHtml: escapeHtml,
@@ -696,6 +706,7 @@
     selectCards: selectCards,
     makeAttemptItem: makeAttemptItem,
     learningRank: learningRank,
+    sectionsOf: sectionsOf,
     formatDate: formatDate,
     formatDuration: formatDuration,
     formatAnswer: formatAnswer,

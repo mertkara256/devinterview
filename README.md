@@ -24,7 +24,7 @@ Sorular `sorular/` klasöründeki Markdown dosyalarında durur. Her açık uçlu
 
 ## Soru ekleme ve düzenleme
 
-Soru eklemek veya değiştirmek için yalnız `sorular/` klasöründeki dosyaları düzenleyin; mevcut dosyalar `java.md`, `oop.md` ve `algoritma.md`'dir. Klasöre yeni `.md` dosyaları da eklenebilir, derleme hepsini okuyup birleştirir. Uygulama bu dosyaları doğrudan okuyamadığı için değişiklikten sonra şu komutu çalıştırın:
+Soru eklemek veya değiştirmek için yalnız `sorular/` klasöründeki dosyaları düzenleyin; mevcut dosyalar `java.md`, `oop.md`, `algoritma.md` ve `savunma.md`'dir. Klasöre yeni `.md` dosyaları da eklenebilir, derleme hepsini okuyup birleştirir. Uygulama bu dosyaları doğrudan okuyamadığı için değişiklikten sonra şu komutu çalıştırın:
 
 ```bash
 node build.cjs
@@ -56,7 +56,7 @@ Varsayım: Soruyu netleştiren varsayım
 Etiketler: etiket1, etiket2
 ```
 
-- Soru kimliğinin harfi bölümü belirler: `J` Java, `O` OOP, `A` Algoritma. Başlıktaki zorluk `Kolay`, `Orta` veya `Zorlayıcı` olur; son kısım sorunun türüdür (Teori, Kod okuma, Kod yazma gibi).
+- Soru kimliğinin harfi bölümü belirler: `J` Java, `O` OOP, `A` Algoritma, `S` Savunma. Yeni bir bölüm için `build.cjs` içindeki `SECTIONS` ile `assets/engine.js` içindeki `SECTION_PREFIXES` birlikte güncellenir. Başlıktaki zorluk `Kolay`, `Orta` veya `Zorlayıcı` olur; son kısım sorunun türüdür (Teori, Kod okuma, Kod yazma gibi).
 - Kart kimliği soru kimliğiyle başlar: `J46-01`, `J46-02`. İlerleme kayıtları bu kimliklere bağlıdır; mevcut bir kartın kimliğini değiştirmeyin.
 - Her alan tek satırdır. Kod, `Kod:` satırının hemen altında ```` ``` ```` bloğu içinde yazılır.
 - Zorunlu alanlar: `Konu`, `Soru`, `İpucu`, `Kısa açıklama`, `Açıklama`. İsteğe bağlı alanlar: `Kod`, `Varsayım` (birden çok kez yazılabilir) ve `Etiketler` (virgülle ayrılır).

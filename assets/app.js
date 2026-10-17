@@ -47,6 +47,7 @@
     explorerLimit: 60,
     explorerFilters: { search: '', section: 'all', difficulty: 'all', type: 'all' },
     builderDefaults: null,
+    sections: [],
     interviewBank: [],
     interviewById: {},
     interview: null,
@@ -452,6 +453,7 @@
     var bankVersion = document.getElementById('bank-version');
     if (bankVersion) bankVersion.textContent = 'v' + ((window.SOURCE_BANK_META || {}).version || '?');
     state.bank.forEach(function (card) { state.bankById[card.id] = card; });
+    state.sections = E.sectionsOf(state.bank);
     state.interviewBank = E.buildInterviewBank(state.bank);
     state.interviewBank.forEach(function (item) { state.interviewById[item.sourceId] = item; });
     if (!state.validation.valid) {
@@ -508,7 +510,7 @@
     var streak = computeStreak(dailyRecords);
     var allSources = {};
     state.bank.forEach(function (card) { allSources[card.sourceId] = card.section; });
-    var sections = ['Java', 'OOP', 'Algoritma'];
+    var sections = state.sections;
     var mastery = {};
     sections.forEach(function (section) {
       var ids = Object.keys(allSources).filter(function (id) { return allSources[id] === section; });
@@ -565,7 +567,7 @@
     return {
       mode: 'practice',
       path: 'mixed',
-      sections: ['Java', 'OOP', 'Algoritma'],
+      sections: state.sections.slice(),
       difficulties: ['Kolay', 'Orta', 'Zorlayıcı'],
       types: Object.keys(E.TYPE_LABELS),
       topic: 'all',
@@ -602,7 +604,7 @@
           '<section class="form-section"><span class="eyebrow">2 · SIRA</span><h2>Çalışma akışı</h2><div class="segmented" role="radiogroup" aria-label="Çalışma akışı">' +
             '<label><input type="radio" name="path" value="mixed" ' + (defaults.path === 'mixed' ? 'checked' : '') + '><span>Karışık</span></label>' +
             '<label><input type="radio" name="path" value="learning" ' + (defaults.path === 'learning' ? 'checked' : '') + '><span>Kaynak sırası</span></label></div></section>' +
-          '<section class="form-section"><span class="eyebrow">3 · KAPSAM</span><h2>Bölümler</h2>' + chips(['Java', 'OOP', 'Algoritma'], defaults.sections, 'sections') + '</section>' +
+          '<section class="form-section"><span class="eyebrow">3 · KAPSAM</span><h2>Bölümler</h2>' + chips(state.sections, defaults.sections, 'sections') + '</section>' +
           '<section class="form-section"><h2>Zorluk</h2>' + chips(['Kolay', 'Orta', 'Zorlayıcı'], defaults.difficulties, 'difficulties') + '</section>' +
           '<section class="form-section"><h2>Soru türleri</h2>' + chips(Object.keys(E.TYPE_LABELS), defaults.types, 'types', E.TYPE_LABELS) + '</section>' +
           '<section class="form-section"><div class="check-grid"><label class="field"><span>Alt konu</span><select name="topic"><option value="all">Tüm konular</option>' + topics.map(function (topic) { return '<option value="' + E.escapeHtml(topic) + '" ' + (defaults.topic === topic ? 'selected' : '') + '>' + E.escapeHtml(topic) + '</option>'; }).join('') + '</select></label>' +
@@ -1342,7 +1344,7 @@
     var responses = await DB.all('responses');
     var allSources = {};
     state.bank.forEach(function (card) { allSources[card.sourceId] = card.section; });
-    var sections = ['Java', 'OOP', 'Algoritma'];
+    var sections = state.sections;
     var sourceProgress = {};
     progress.forEach(function (entry) { sourceProgress[entry.id] = entry; });
     var sectionData = sections.map(function (section) {
@@ -1401,7 +1403,7 @@
     var shown = cards.slice(0, state.explorerLimit);
     app.innerHTML = pageHeader('SORU GEZGİNİ', state.bank.length + ' atomik kart', 'Soruları kaynak kimliği, konu, zorluk ve türe göre bul. Cevap anahtarı çözümden önce gösterilmez.', '<a class="button primary" href="#/builder">Test oluştur</a>') +
       '<div class="filter-bar"><label class="field"><span class="sr-only">Sorularda ara</span><input type="search" id="explorer-search" placeholder="Kimlik, konu veya soru metninde ara…" value="' + E.escapeHtml(filters.search) + '"></label>' +
-      '<label class="field"><span class="sr-only">Bölüm</span><select id="explorer-section"><option value="all">Tüm bölümler</option>' + ['Java', 'OOP', 'Algoritma'].map(function (value) { return '<option ' + (filters.section === value ? 'selected' : '') + '>' + value + '</option>'; }).join('') + '</select></label>' +
+      '<label class="field"><span class="sr-only">Bölüm</span><select id="explorer-section"><option value="all">Tüm bölümler</option>' + state.sections.map(function (value) { return '<option ' + (filters.section === value ? 'selected' : '') + '>' + value + '</option>'; }).join('') + '</select></label>' +
       '<label class="field"><span class="sr-only">Zorluk</span><select id="explorer-difficulty"><option value="all">Tüm zorluklar</option>' + ['Kolay', 'Orta', 'Zorlayıcı'].map(function (value) { return '<option ' + (filters.difficulty === value ? 'selected' : '') + '>' + value + '</option>'; }).join('') + '</select></label>' +
       '<label class="field"><span class="sr-only">Soru türü</span><select id="explorer-type"><option value="all">Tüm türler</option>' + Object.keys(E.TYPE_LABELS).map(function (type) { return '<option value="' + type + '" ' + (filters.type === type ? 'selected' : '') + '>' + E.TYPE_LABELS[type] + '</option>'; }).join('') + '</select></label></div>' +
       '<p class="muted tiny" role="status">' + cards.length + ' sonuç · ' + shown.length + ' kart gösteriliyor</p><section class="question-grid">' + shown.map(function (card) {
@@ -1420,7 +1422,7 @@
   var interviewTicker = null;
 
   function interviewFormDefaults() {
-    return { sections: ['Java', 'OOP', 'Algoritma'], difficulties: ['Kolay', 'Orta', 'Zorlayıcı'], status: 'all', size: '10' };
+    return { sections: state.sections.slice(), difficulties: ['Kolay', 'Orta', 'Zorlayıcı'], status: 'all', size: '10' };
   }
 
   function readInterviewForm(form) {
@@ -1549,7 +1551,7 @@
             '<li>Cevabını sesli anlat ya da yazarak açıkla.</li>' +
             '<li>Örnek cevabı aç ve kontrol listesinde değindiğin noktaları işaretle.</li>' +
             '<li>Kendini puanla; soru buna göre 1–30 gün sonra yeniden gelir.</li></ol></section>' +
-          '<section class="form-section"><span class="eyebrow">1 · KAPSAM</span><h2>Bölümler</h2>' + chips(['Java', 'OOP', 'Algoritma'], defaults.sections, 'sections', 'Bölümler') + '</section>' +
+          '<section class="form-section"><span class="eyebrow">1 · KAPSAM</span><h2>Bölümler</h2>' + chips(state.sections, defaults.sections, 'sections', 'Bölümler') + '</section>' +
           '<section class="form-section"><h2>Zorluk</h2>' + chips(['Kolay', 'Orta', 'Zorlayıcı'], defaults.difficulties, 'difficulties', 'Zorluklar') + '</section>' +
           '<section class="form-section"><span class="eyebrow">2 · HAVUZ</span><h2>Hangi sorular?</h2>' + segmented('status', 'Soru havuzu', [['all', 'Tümü'], ['new', 'Yeni'], ['due', 'Tekrar zamanı'], ['weak', 'Zayıf']]) +
             '<p class="tiny muted" style="margin:.65rem 0 0">Zayıf: son puanı "Anlatamadım" veya "Eksik kaldı" olan sorular.</p></section>' +
