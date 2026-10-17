@@ -22,7 +22,7 @@ function sameList(actual, expected, label) {
   check(JSON.stringify(left) === JSON.stringify(right), `${label}: ${JSON.stringify(left)}; beklenen ${JSON.stringify(right)}.`);
 }
 
-const expectedRoot = ['.gitignore', 'README.md', 'assets', 'build.cjs', 'index.html', 'qa', 'sorular'];
+const expectedRoot = ['.github', '.gitignore', 'README.md', 'assets', 'build.cjs', 'index.html', 'qa', 'sorular'];
 const expectedAssets = [
   'app.js',
   'bank.js',
@@ -35,6 +35,8 @@ const expectedQa = ['validate-bank.cjs', 'validate-engine.cjs', 'validate-java.c
 sameList(sortedEntries(root).filter((name) => name !== '.git'), expectedRoot, 'Teslimat kök dosyaları değişti');
 sameList(sortedEntries(assetsDir), expectedAssets, 'Çalışma zamanı varlıkları değişti');
 sameList(sortedEntries(__dirname), expectedQa, 'QA dosyaları değişti');
+sameList(sortedEntries(path.join(root, '.github')), ['workflows'], 'GitHub klasörü değişti');
+sameList(sortedEntries(path.join(root, '.github', 'workflows')), ['qa.yml'], 'GitHub Actions iş akışları değişti');
 
 for (const relative of ['index.html', 'README.md'].concat(expectedAssets.map((name) => `assets/${name}`))) {
   const absolute = path.join(root, relative);

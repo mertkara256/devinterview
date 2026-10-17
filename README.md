@@ -123,6 +123,8 @@ node qa/validate-java.cjs
 
 Kontroller; `assets/bank.js` dosyasının `sorular/` ile güncel olduğunu, teslimat dosyalarını, klasik yerel script sırasını, ağ/CDN/telemetri ve ES module kullanılmadığını, yedi cevap türünün veri biçimini, puanlama davranışını, cevapların şık biçiminden tahmin edilemediğini, sıralama kartlarının boş-geçme durumunu ve aktif sınavda çözüm rotasının kapalı olduğunu doğrular. Java kontrolü kod içeren kartları `javac --release 8` ile derler, kasıtlı derleme hatalarını beklenen hata olarak sınar ve doğrudan çalıştırılabilen çıktı örneklerini cevap anahtarıyla karşılaştırır. Boşluk doldurma kod şablonları, eksik kısmı bilerek içerdiği için derlenmez. Bilerek derlenmeyen kod içeren yeni bir kart eklerseniz, onu `qa/validate-java.cjs` içindeki beklenen hatalar listesine de ekleyin.
 
+Aynı kontroller GitHub'a yapılan her push'ta ve pull request'te GitHub Actions ile de çalışır (`.github/workflows/qa.yml`). Bir kontrol başarısız olursa GitHub'ın Actions sekmesinde hangi adımın neden düştüğü görünür ve hesap ayarlarına göre e-posta bildirimi gelir.
+
 ## Modlar
 
 - **Pratik:** İlk yanlışta küçük ipucu, ikinci denemeden sonra çözüm. Doğru/Yanlış sorularında ikinci deneme anlamsız olduğundan çözüm ilk yanlıştan hemen sonra gösterilir.

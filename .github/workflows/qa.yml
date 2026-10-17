@@ -1,0 +1,49 @@
+name: QA
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      # Every check runs even if an earlier one fails, so one push shows all problems.
+      - name: Soru bankası sorular/ ile güncel
+        run: node build.cjs --check
+
+      - name: Statik kontroller
+        if: ${{ !cancelled() }}
+        run: node qa/validate-static.cjs
+
+      - name: Soru bankası kontrolleri
+        if: ${{ !cancelled() }}
+        run: node qa/validate-bank.cjs
+
+      - name: Puanlama motoru testleri
+        if: ${{ !cancelled() }}
+        run: node qa/validate-engine.cjs
+
+      - name: Çalışma zamanı testleri
+        if: ${{ !cancelled() }}
+        run: node qa/validate-runtime.cjs
+
+      - name: Java kod kartları
+        if: ${{ !cancelled() }}
+        run: node qa/validate-java.cjs
