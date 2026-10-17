@@ -57,6 +57,7 @@ Etiketler: etiket1, etiket2
 ```
 
 - Soru kimliğinin harfi bölümü belirler: `J` Java, `O` OOP, `A` Algoritma, `S` Savunma. Yeni bir bölüm için `build.cjs` içindeki `SECTIONS` ile `assets/engine.js` içindeki `SECTION_PREFIXES` birlikte güncellenir. Başlıktaki zorluk `Kolay`, `Orta` veya `Zorlayıcı` olur; son kısım sorunun türüdür (Teori, Kod okuma, Kod yazma gibi).
+- Başlıktan sonraki ilk satır isteğe bağlı olarak `Alan: Gömülü ve işletim sistemleri` gibi bir alan olabilir. Alan, soruyu bölümünün içinde bir gruba koyar; test oluşturucu, mülakat modu ve soru gezgini bu gruplara göre filtreler. Bir bölümde bir soruya alan verilirse o bölümdeki bütün sorulara da verilmelidir; eksik olanı derleme bildirir. Şu an yalnız Savunma bölümünde alan var.
 - Kart kimliği soru kimliğiyle başlar: `J46-01`, `J46-02`. İlerleme kayıtları bu kimliklere bağlıdır; mevcut bir kartın kimliğini değiştirmeyin.
 - Her alan tek satırdır. Kod, `Kod:` satırının hemen altında ```` ``` ```` bloğu içinde yazılır.
 - Zorunlu alanlar: `Konu`, `Soru`, `İpucu`, `Kısa açıklama`, `Açıklama`. İsteğe bağlı alanlar: `Kod`, `Varsayım` (birden çok kez yazılabilir) ve `Etiketler` (virgülle ayrılır).

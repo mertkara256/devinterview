@@ -2,6 +2,8 @@
 
 # S01 · Orta · Teori
 
+Alan: C/C++
+
 Memory leak nedir, nasıl önlenir? C ve C++ için önleme yollarını ve gömülü sistemlerdeki yaklaşımı anlatın.
 
 Nerede soruldu: ASELSAN (aday beyanı).
@@ -26,6 +28,8 @@ Açıklama: Memory leak, ayrılan heap belleğin serbest bırakılmadan erişimi
 Etiketler: c, cpp, bellek, raii
 
 # S02 · Orta · Teori
+
+Alan: C/C++
 
 `volatile` anahtar kelimesi ne işe yarar? Ne zaman gereklidir ve neyi garanti etmez?
 
@@ -62,6 +66,8 @@ Etiketler: volatile, atomiklik
 
 # S03 · Orta · Teori
 
+Alan: C/C++
+
 `const int*`, `int* const` ve `const` üye fonksiyon arasındaki farkları açıklayın.
 
 Nerede soruldu: klasik C/C++ sorusu.
@@ -83,6 +89,8 @@ Etiketler: const, işaretçi, cpp
 
 # S04 · Orta · Teori
 
+Alan: C/C++
+
 C/C++'ta `static` anahtar kelimesinin farklı kullanımlarını açıklayın.
 
 Nerede soruldu: klasik C/C++ sorusu.
@@ -102,6 +110,8 @@ Açıklama: Fonksiyon içindeki static değişken bir kez başlatılır ve progr
 Etiketler: static, c, cpp
 
 # S05 · Orta · Teori
+
+Alan: C/C++
 
 C++'ta virtual fonksiyonlar nasıl çalışır? Taban sınıfın yıkıcısı neden virtual olmalıdır?
 
@@ -138,6 +148,8 @@ Etiketler: virtual, vtable
 
 # S06 · Zorlayıcı · Teori
 
+Alan: C/C++
+
 Kopya kurucu, atama operatörü ve move semantiğini açıklayın. Rule of three ve rule of five ne söyler?
 
 Nerede soruldu: klasik C++ sorusu.
@@ -162,6 +174,8 @@ Açıklama: Varsayılan kopya üyeleri tek tek kopyalar; ham işaretçide bu iki
 Etiketler: cpp, move, kopya
 
 # S07 · Kolay · Karşılaştırma
+
+Alan: C/C++
 
 `malloc`/`free` ile `new`/`delete` arasındaki farklar nelerdir?
 
@@ -198,6 +212,8 @@ Etiketler: cpp, bellek
 
 # S08 · Orta · Kod okuma
 
+Alan: C/C++
+
 Verilen C kodunun çıktısını bulun ve koddaki hatayı gösterin. İşaretsiz taşma, pointer aritmetiği ve operatör önceliği tuzaklarını açıklayın.
 
 Nerede soruldu: Baykar kontrol sınavı (C/C++ hata bulma, aday beyanı).
@@ -233,6 +249,8 @@ Açıklama: Bir işaretçiye n eklemek onu n eleman (n * sizeof(int) bayt) ilerl
 Etiketler: c, işaretçi
 
 # S09 · Orta · Kod yazma
+
+Alan: C/C++
 
 Bir register'da n. biti set, clear ve toggle edin; sistemin endianness'ını test eden bir kod yazın.
 
@@ -271,6 +289,8 @@ Etiketler: endianness, gömülü
 
 # S10 · Orta · Teori
 
+Alan: C/C++
+
 C++ akıllı işaretçi türlerini ve aralarındaki farkları açıklayın.
 
 Nerede soruldu: klasik C++ sorusu.
@@ -303,6 +323,8 @@ Açıklama: A, B'yi ve B, A'yı shared_ptr ile tutarsa dış referanslar bitse d
 Etiketler: cpp, shared-ptr
 
 # S11 · Orta · Kod yazma
+
+Alan: Tasarım ve modelleme
 
 Singleton nasıl yazılır? Çok thread'li ortamda nasıl güvenli hâle getirilir ve dezavantajları nelerdir?
 
@@ -341,6 +363,8 @@ Etiketler: singleton, tasarım
 
 # S12 · Orta · Tasarım
 
+Alan: Tasarım ve modelleme
+
 Observer, Factory, Strategy ve State desenleri hangi problemleri çözer? Her biri için bir örnek verin.
 
 Nerede soruldu: klasik tasarım sorusu.
@@ -361,6 +385,8 @@ Açıklama: Örnekler: radar verisini birçok ekrana dağıtmak (Observer), mesa
 Etiketler: tasarım-desenleri
 
 # S13 · Orta · Teori
+
+Alan: Tasarım ve modelleme
 
 Dependency Injection nedir? .NET'te `AddTransient`, `AddScoped` ve `AddSingleton` ömürleri arasındaki fark nedir?
 
@@ -394,6 +420,8 @@ Açıklama: Bu hataya captive dependency denir; örneğin bir DbContext'in uygul
 Etiketler: dotnet, di
 
 # S14 · Kolay · Teori
+
+Alan: Tasarım ve modelleme
 
 Sınıf ve sekans diyagramı çizin. Model tabanlı bir araç (ör. IBM Rational Rhapsody) kullandınız mı?
 
@@ -431,6 +459,8 @@ Açıklama: Her nesnenin dikey bir yaşam çizgisi vardır; mesajlar bu çizgile
 Etiketler: uml, sekans
 
 # S15 · Orta · Karşılaştırma
+
+Alan: Veri yapıları ve algoritmalar
 
 Quicksort ile mergesort'u karşılaştırın: ortalama ve en kötü durum, kararlılık ve ek bellek.
 
@@ -473,6 +503,8 @@ Etiketler: quicksort, karmaşıklık
 
 # S16 · Orta · Kod yazma
 
+Alan: Veri yapıları ve algoritmalar
+
 Bir ring buffer (dairesel kuyruk) yazın. Bir ISR ile ana döngü arasında veri aktarırken nelere dikkat edilir?
 
 Nerede soruldu: klasik gömülü yazılım sorusu.
@@ -508,6 +540,8 @@ Etiketler: ring-buffer, kilitsiz
 
 # S17 · Orta · Teori
 
+Alan: Veri yapıları ve algoritmalar
+
 Ağaç gezinme yöntemlerini (BFS, DFS; pre-order, in-order, post-order) ve ikili arama ağacında (BST) ekleme ile aramayı açıklayın.
 
 Nerede soruldu: klasik veri yapıları sorusu.
@@ -539,6 +573,8 @@ Açıklama: Kök 4, ikinci seviye 2 ve 6, üçüncü seviye 1, 3, 5 ve 7'dir; en
 Etiketler: bst, karmaşıklık
 
 # S18 · Zorlayıcı · Teori
+
+Alan: Veri yapıları ve algoritmalar
 
 En kısa yol için Dijkstra veya A* algoritmasını anlatın. Rota planlamada hangisini neden seçersiniz?
 
@@ -578,6 +614,8 @@ Etiketler: dijkstra, graf
 
 # S19 · Kolay · Karşılaştırma
 
+Alan: Gömülü ve işletim sistemleri
+
 Process ile thread arasındaki fark nedir? Hangi kaynaklar paylaşılır, bağlam değiştirme maliyeti nasıl farklılaşır?
 
 Nerede soruldu: HAVELSAN ve Baykar (aday beyanları).
@@ -602,6 +640,8 @@ Açıklama: Process, kendi adres alanı ve kaynaklarıyla çalışan programdır
 Etiketler: process, thread, işletim-sistemi
 
 # S20 · Orta · Karşılaştırma
+
+Alan: Gömülü ve işletim sistemleri
 
 Race condition nedir? Mutex ile semaphore arasındaki fark nedir?
 
@@ -638,6 +678,8 @@ Etiketler: semaphore, sinyalleşme
 
 # S21 · Zorlayıcı · Teori
 
+Alan: Gömülü ve işletim sistemleri
+
 Priority inversion nedir? Gerçek zamanlı sistemlerde nasıl önlenir?
 
 Nerede soruldu: klasik RTOS sorusu.
@@ -673,6 +715,8 @@ Etiketler: rtos, zamanlama
 
 # S22 · Orta · Karşılaştırma
 
+Alan: Gömülü ve işletim sistemleri
+
 Hard ve soft real-time arasındaki fark nedir? Bir RTOS, genel amaçlı işletim sisteminden nasıl ayrılır?
 
 Nerede soruldu: klasik RTOS sorusu.
@@ -706,6 +750,8 @@ Açıklama: Ortalamada çok hızlı ama ara sıra öngörülemeyen gecikmeler ya
 Etiketler: gerçek-zamanlı
 
 # S23 · Orta · Teori
+
+Alan: Gömülü ve işletim sistemleri
 
 Kesme (interrupt) nedir? Bir ISR yazarken nelerden kaçınılır?
 
@@ -746,6 +792,8 @@ Etiketler: kesme, gömülü
 
 # S24 · Orta · Karşılaştırma
 
+Alan: Gömülü ve işletim sistemleri
+
 Polling, interrupt ve DMA ne zaman seçilir? CPU yükü, gecikme ve veri hacmi açısından karşılaştırın.
 
 Nerede soruldu: klasik gömülü yazılım sorusu.
@@ -782,6 +830,8 @@ Etiketler: dma, gömülü
 
 # S25 · Orta · Karşılaştırma
 
+Alan: Gömülü ve işletim sistemleri
+
 UART, SPI ve I2C arasındaki farklar nelerdir? RS232 ile RS485 arasındaki fark nedir?
 
 Nerede soruldu: Roketsan RF gömülü yazılım ilanı.
@@ -815,6 +865,8 @@ Açıklama: SPI protokolünde adres alanı yoktur; master, konuşmak istediği s
 Etiketler: spi, i2c
 
 # S26 · Orta · Karşılaştırma
+
+Alan: Gömülü ve işletim sistemleri
 
 Bare-metal ile RTOS'lu geliştirme arasındaki fark nedir? Watchdog timer ne işe yarar?
 
@@ -851,6 +903,8 @@ Etiketler: bare-metal, rtos
 
 # S27 · Kolay · Teori
 
+Alan: Gömülü ve işletim sistemleri
+
 Kaynak koddan çalışan programa giden adımları anlatın: preprocessor, compiler, assembler ve linker. Statik ve dinamik kütüphane arasındaki fark nedir? Makefile ve CMake ne işe yarar?
 
 Nerede soruldu: Roketsan ilanı (CMake, Makefile, GCC).
@@ -884,6 +938,8 @@ Etiketler: kütüphane, cmake, make
 
 # S28 · Zorlayıcı · Teori
 
+Alan: Gömülü ve işletim sistemleri
+
 Sanal bellek, paging ve page fault nedir? TLB ne işe yarar?
 
 Nerede soruldu: klasik işletim sistemleri sorusu.
@@ -908,6 +964,8 @@ Açıklama: Sayfa tablosu sanal sayfaları fiziksel çerçevelere eşler. Erişi
 Etiketler: sanal-bellek, paging, tlb
 
 # S29 · Orta · Karşılaştırma
+
+Alan: Gömülü ve işletim sistemleri
 
 Verilog/VHDL ile bir yazılım dili arasındaki temel fark nedir?
 
@@ -943,6 +1001,8 @@ Açıklama: Kaynak dosyadaki sıralama, blokların çalışma sırasını belirl
 Etiketler: verilog, eşzamanlılık
 
 # S30 · Orta · Teori
+
+Alan: Gömülü ve işletim sistemleri
 
 Gömülü kodunuzun güvenilirliğini ve emniyetini nasıl sağlarsınız? Kodlama standardı (ör. MISRA C) ve statik analiz neden kullanılır?
 
@@ -981,6 +1041,8 @@ Açıklama: Statik analiz null erişimi, taşma riski ve kural ihlallerini bulur
 Etiketler: statik-analiz, test
 
 # S31 · Kolay · Karşılaştırma
+
+Alan: Ağ ve güvenlik
 
 TCP ile UDP arasındaki fark nedir? Telemetri veya canlı video için hangisini seçersiniz?
 
@@ -1023,6 +1085,8 @@ Etiketler: tcp, ağ
 
 # S32 · Orta · Teori
 
+Alan: Ağ ve güvenlik
+
 OSI ve TCP/IP katmanlarını açıklayın. Tarayıcıya bir adres yazdığınızda neler olur?
 
 Nerede soruldu: klasik ağ sorusu.
@@ -1057,6 +1121,8 @@ Açıklama: IP adresi bulunduktan sonra yerel ağda bir sonraki adımın MAC adr
 Etiketler: dns, tls, http
 
 # S33 · Kolay · Karşılaştırma
+
+Alan: Ağ ve güvenlik
 
 Unicast, multicast ve broadcast arasındaki fark nedir? Aynı veriyi birçok alıcıya göndermenin maliyetini karşılaştırın.
 
@@ -1093,6 +1159,8 @@ Açıklama: Multicast özellikle simülasyon, komuta kontrol ve sensör dağıt�
 Etiketler: multicast, telemetri
 
 # S34 · Orta · Kod yazma
+
+Alan: Veritabanı ve uygulama
 
 Bir ER diyagramı çizin ve SQL sorgusu yazın: JOIN türleri ve GROUP BY.
 
@@ -1139,6 +1207,8 @@ Etiketler: sql, group-by
 
 # S35 · Orta · Teori
 
+Alan: Veritabanı ve uygulama
+
 Normalizasyon nedir (1NF–3NF)? Index nasıl çalışır; ne zaman sorguları yavaşlatır?
 
 Nerede soruldu: klasik veritabanı sorusu.
@@ -1171,6 +1241,8 @@ Açıklama: B-tree index aramayı log n'e indirir. Ancak her yazma işleminde in
 Etiketler: veritabanı, index
 
 # S36 · Orta · Teori
+
+Alan: Veritabanı ve uygulama
 
 Transaction ve ACID nedir? Isolation seviyeleri hangi anomalileri engeller?
 
@@ -1209,6 +1281,8 @@ Etiketler: veritabanı, isolation
 
 # S37 · Orta · Karşılaştırma
 
+Alan: Veritabanı ve uygulama
+
 Mikroservis ile monolit mimari arasındaki fark nedir? Hangi durumda hangisini seçersiniz?
 
 Nerede soruldu: HAVELSAN (Spring ve mikroservis, aday beyanı).
@@ -1233,6 +1307,8 @@ Açıklama: Mikroservislerin faydası ekiplerin ve bileşenlerin bağımsız ile
 Etiketler: mikroservis, mimari
 
 # S38 · Kolay · Teori
+
+Alan: Veritabanı ve uygulama
 
 Linux'ta süreçleri ve portları nasıl izlersiniz? Dosya izinleri ve sinyaller nasıl çalışır? Basit bir shell script yazın.
 
@@ -1263,6 +1339,8 @@ Açıklama: 640'ta sahip 6 (rw-), grup 4 (r--) ve diğerleri 0 (---) alır. Bu, 
 Etiketler: linux, chmod
 
 # S39 · Orta · Kod okuma
+
+Alan: Veritabanı ve uygulama
 
 JavaScript'te closure nedir? Bir örnekle açıklayın.
 
@@ -1296,6 +1374,8 @@ Etiketler: javascript, closure
 
 # S40 · Orta · Karşılaştırma
 
+Alan: Ağ ve güvenlik
+
 Simetrik ve asimetrik şifreleme arasındaki fark nedir? Hash ile şifreleme arasındaki fark nedir?
 
 Nerede soruldu: klasik siber güvenlik sorusu.
@@ -1328,6 +1408,8 @@ Açıklama: Doğrulama için kullanıcının girdiği parola aynı tuzla hash'le
 Etiketler: parola, hash
 
 # S41 · Orta · Teori
+
+Alan: Ağ ve güvenlik
 
 SQL injection, XSS ve buffer overflow nasıl oluşur, nasıl önlenir?
 
@@ -1364,6 +1446,8 @@ Açıklama: 16 baytlık tampona sonlandırıcı dahil en fazla 15 karakter sığ
 Etiketler: c, buffer-overflow
 
 # S42 · Orta · Teori
+
+Alan: Yapay zekâ ve görü
 
 Vanishing gradient nedir, nasıl çözülür?
 
@@ -1403,6 +1487,8 @@ Etiketler: lstm, rnn
 
 # S43 · Kolay · Karşılaştırma
 
+Alan: Yapay zekâ ve görü
+
 Aktivasyon fonksiyonlarını (sigmoid, tanh, ReLU, softmax) karşılaştırın.
 
 Nerede soruldu: Baykar (aday beyanı).
@@ -1423,6 +1509,8 @@ Açıklama: Sigmoid ve tanh uç değerlerde doyuma girip gradyanı söndürür; 
 Etiketler: aktivasyon, derin-öğrenme
 
 # S44 · Orta · Teori
+
+Alan: Yapay zekâ ve görü
 
 Bir dizi modeli (RNN) için uçtan uca pipeline nasıl kurulur? LSTM/GRU'dan Transformer'a geçişin gerekçesi nedir?
 
@@ -1460,6 +1548,8 @@ Etiketler: transformer, attention
 
 # S45 · Zorlayıcı · Teori
 
+Alan: Yapay zekâ ve görü
+
 LLM'lerde fine-tuning, optimizasyon ve RAG'i açıklayın. Hangi durumda hangisini seçersiniz?
 
 Nerede soruldu: Baykar LLM rolü (aday beyanı).
@@ -1495,6 +1585,8 @@ Açıklama: Fine-tuning modele bir görevi, formatı veya üslubu öğretmek iç
 Etiketler: llm, rag, fine-tuning
 
 # S46 · Kolay · Teori
+
+Alan: Yapay zekâ ve görü
 
 Overfitting nasıl anlaşılır, nasıl önlenir?
 
@@ -1539,6 +1631,8 @@ Etiketler: makine-öğrenmesi, regularization
 
 # S47 · Orta · Teori
 
+Alan: Yapay zekâ ve görü
+
 Nesne tespitinde precision, recall, IoU ve mAP nedir? Eşik seçimi yanlış alarmların maliyetini nasıl etkiler?
 
 Nerede soruldu: klasik bilgisayarlı görü sorusu (STM bilgisayarlı görü alanı).
@@ -1573,6 +1667,8 @@ Açıklama: Bir tespit genellikle IoU belirli bir eşiği (ör. 0,5) geçerse do
 Etiketler: map, iou, görü
 
 # S48 · Orta · Kod okuma
+
+Alan: Yapay zekâ ve görü
 
 CNN'de convolution, stride ve padding çıktı boyutunu nasıl etkiler? Tek aşamalı ve iki aşamalı dedektörleri (YOLO, Faster R-CNN) karşılaştırın.
 
@@ -1614,6 +1710,8 @@ Etiketler: yolo, nesne-tespiti
 
 # S49 · Zorlayıcı · Teori
 
+Alan: Sinyal, kontrol ve navigasyon
+
 Kalman filtresi ne işe yarar? Tahmin ve güncelleme adımlarını açıklayın.
 
 Nerede soruldu: klasik takip ve navigasyon sorusu.
@@ -1647,6 +1745,8 @@ Etiketler: kalman
 
 # S50 · Orta · Teori
 
+Alan: Sinyal, kontrol ve navigasyon
+
 Nyquist teoremi ve aliasing nedir? FFT ne işe yarar? FIR ile IIR filtrelerini karşılaştırın.
 
 Nerede soruldu: Roketsan ilanı (sinyal işleme, DSP ve MATLAB).
@@ -1679,6 +1779,8 @@ Açıklama: FIR filtre yalnız girdilerin ağırlıklı toplamıdır; IIR filtre
 Etiketler: fir, iir, fft
 
 # S51 · Zorlayıcı · Teori
+
+Alan: Sinyal, kontrol ve navigasyon
 
 Rotasyon matrisleri ve koordinat dönüşümlerini açıklayın. Euler açıları, gimbal lock ve quaternion arasındaki ilişki nedir?
 
@@ -1715,6 +1817,8 @@ Etiketler: rotasyon, lineer-cebir
 
 # S52 · Orta · Teori
 
+Alan: Sinyal, kontrol ve navigasyon
+
 PID formülünü yazın ve terimlerin etkisini açıklayın. Integral windup nedir?
 
 Nerede soruldu: HAVELSAN sistem mühendisliği (aday beyanı).
@@ -1750,6 +1854,8 @@ Açıklama: Aktüatör sınırına ulaştığında hata sürer ve integral büy�
 Etiketler: pid, windup
 
 # S53 · Kolay · Karşılaştırma
+
+Alan: Test, süreç ve standartlar
 
 Blackbox ve whitebox test arasındaki fark nedir? Sınır değer analizi ve eşdeğer bölümleme nedir?
 
@@ -1796,6 +1902,8 @@ Etiketler: test, eşdeğer-bölümleme
 
 # S54 · Kolay · Teori
 
+Alan: Test, süreç ve standartlar
+
 Unit, integration, system ve acceptance test seviyelerini açıklayın. Regresyon testi nedir?
 
 Nerede soruldu: klasik test sorusu.
@@ -1831,6 +1939,8 @@ Etiketler: test, regresyon
 
 # S55 · Kolay · Karşılaştırma
 
+Alan: Test, süreç ve standartlar
+
 Verification ile validation arasındaki fark nedir?
 
 Nerede soruldu: HAVELSAN üzerinden TUSAŞ projelerine simülatör ilanı.
@@ -1862,6 +1972,8 @@ Açıklama: Doğrulama yöntemleri genellikle test, analiz, inceleme ve gösteri
 Etiketler: verification
 
 # S56 · Orta · Teori
+
+Alan: Test, süreç ve standartlar
 
 İyi bir gereksinim nasıl yazılır? İzlenebilirlik (traceability) nedir?
 
@@ -1898,6 +2010,8 @@ Etiketler: izlenebilirlik
 
 # S57 · Orta · Karşılaştırma
 
+Alan: Test, süreç ve standartlar
+
 Yazılım yaşam döngüsünü anlatın. V-model ile Agile/Scrum arasındaki farklar nelerdir?
 
 Nerede soruldu: Roketsan ilanı (yazılım yaşam döngüsü).
@@ -1930,6 +2044,8 @@ Açıklama: DO-178C ve MIL-STD-498 gibi standartlar hangi çıktıların ve kan�
 Etiketler: agile, savunma
 
 # S58 · Zorlayıcı · Teori
+
+Alan: Test, süreç ve standartlar
 
 DO-178C nedir? Yazılım seviyeleri neye göre belirlenir?
 
@@ -1968,6 +2084,8 @@ Etiketler: do-178c, mc-dc
 
 # S59 · Zorlayıcı · Teori
 
+Alan: Test, süreç ve standartlar
+
 MIL-STD-498 hangi dokümanları tanımlar?
 
 Nerede soruldu: klasik savunma yazılımı sorusu.
@@ -2001,6 +2119,8 @@ Açıklama: Standart 1998'de J-STD-016'ya devredildi; yine de tanımladığı SR
 Etiketler: mil-std-498
 
 # S60 · Kolay · Karşılaştırma
+
+Alan: Test, süreç ve standartlar
 
 Git'te merge ile rebase arasındaki fark nedir? Conflict nasıl çözülür?
 
@@ -2037,6 +2157,8 @@ Etiketler: git, rebase
 
 # S61 · Orta · Teori
 
+Alan: Test, süreç ve standartlar
+
 Konfigürasyon yönetimi nedir? Baseline ve değişiklik kontrolü ne işe yarar?
 
 Nerede soruldu: STM (PLM ve Konfigürasyon Mühendisliği alanı).
@@ -2058,6 +2180,8 @@ Açıklama: Konfigürasyon yönetimi neyin, hangi sürümle, hangi onayla teslim
 Etiketler: konfigürasyon-yönetimi
 
 # S62 · Kolay · Teori
+
+Alan: Test, süreç ve standartlar
 
 Code review'da nelere bakarsınız?
 
@@ -2085,6 +2209,8 @@ Açıklama: İyi bir inceleme küçük değişiklikler üzerinde, yapıcı ve so
 Etiketler: code-review
 
 # S63 · Kolay · Davranışsal
+
+Alan: Davranışsal ve işe alım
 
 Kendinizi ve projelerinizi anlatın. Karşılaştığınız teknik bir problemi ve nasıl çözdüğünüzü anlatın.
 
@@ -2123,6 +2249,8 @@ Etiketler: proje, davranışsal
 
 # S64 · Kolay · Davranışsal
 
+Alan: Davranışsal ve işe alım
+
 Neden bizimle çalışmak istiyorsunuz? Şirketimiz hakkında neler biliyorsunuz?
 
 Nerede soruldu: ASELSAN (Temmuz 2025) ve Baykar yüz yüze İK görüşmesi (aday beyanları).
@@ -2144,6 +2272,8 @@ Açıklama: Baykar İK görüşmelerinde şirketin ürünleri, sahadaki kullanı
 Etiketler: ik, motivasyon
 
 # S65 · Kolay · Teori
+
+Alan: Davranışsal ve işe alım
 
 Kişi Güvenlik Belgesi (KGB) nedir, süreç nasıl işler? Askerlik durumunuz nedir?
 

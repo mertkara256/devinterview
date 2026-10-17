@@ -45,9 +45,10 @@
     onboardingStep: 0,
     pendingImport: null,
     explorerLimit: 60,
-    explorerFilters: { search: '', section: 'all', difficulty: 'all', type: 'all' },
+    explorerFilters: { search: '', section: 'all', area: 'all', difficulty: 'all', type: 'all' },
     builderDefaults: null,
     sections: [],
+    areas: {},
     interviewBank: [],
     interviewById: {},
     interview: null,
@@ -454,6 +455,7 @@
     if (bankVersion) bankVersion.textContent = 'v' + ((window.SOURCE_BANK_META || {}).version || '?');
     state.bank.forEach(function (card) { state.bankById[card.id] = card; });
     state.sections = E.sectionsOf(state.bank);
+    state.areas = E.areasBySection(state.bank);
     state.interviewBank = E.buildInterviewBank(state.bank);
     state.interviewBank.forEach(function (item) { state.interviewById[item.sourceId] = item; });
     if (!state.validation.valid) {
@@ -563,11 +565,34 @@
       '</section>';
   }
 
+  function allAreas() {
+    return Object.keys(state.areas).reduce(function (list, section) { return list.concat(state.areas[section]); }, []);
+  }
+
+  // Area chips for each visible section that has areas.
+  function areaChipsHtml(visibleSections, selectedAreas) {
+    return state.sections.filter(function (section) {
+      return state.areas[section] && visibleSections.indexOf(section) !== -1;
+    }).map(function (section) {
+      var label = E.escapeHtml(section) + ' alanları';
+      return '<section class="form-section"><h2>' + label + '</h2><div class="check-grid" role="group" aria-label="' + label + '">' + state.areas[section].map(function (area) {
+        return '<label class="choice-chip"><input type="checkbox" name="areas" value="' + E.escapeHtml(area) + '" ' + (selectedAreas.indexOf(area) !== -1 ? 'checked' : '') + '><span>' + E.escapeHtml(area) + '</span></label>';
+      }).join('') + '</div></section>';
+    }).join('');
+  }
+
+  // Area chips are not rendered while their section is unselected; keep the earlier choice then.
+  function readAreas(form, data, previous) {
+    if (form.querySelector('input[name="areas"]')) return data.getAll('areas');
+    return previous && previous.areas ? previous.areas.slice() : allAreas();
+  }
+
   function builderFormDefaults() {
     return {
       mode: 'practice',
       path: 'mixed',
       sections: state.sections.slice(),
+      areas: allAreas(),
       difficulties: ['Kolay', 'Orta', 'Zorlayıcı'],
       types: Object.keys(E.TYPE_LABELS),
       topic: 'all',
@@ -605,6 +630,8 @@
             '<label><input type="radio" name="path" value="mixed" ' + (defaults.path === 'mixed' ? 'checked' : '') + '><span>Karışık</span></label>' +
             '<label><input type="radio" name="path" value="learning" ' + (defaults.path === 'learning' ? 'checked' : '') + '><span>Kaynak sırası</span></label></div></section>' +
           '<section class="form-section"><span class="eyebrow">3 · KAPSAM</span><h2>Bölümler</h2>' + chips(state.sections, defaults.sections, 'sections') + '</section>' +
+          // An empty section list means every section in the builder.
+          areaChipsHtml(defaults.sections.length ? defaults.sections : state.sections, defaults.areas || allAreas()) +
           '<section class="form-section"><h2>Zorluk</h2>' + chips(['Kolay', 'Orta', 'Zorlayıcı'], defaults.difficulties, 'difficulties') + '</section>' +
           '<section class="form-section"><h2>Soru türleri</h2>' + chips(Object.keys(E.TYPE_LABELS), defaults.types, 'types', E.TYPE_LABELS) + '</section>' +
           '<section class="form-section"><div class="check-grid"><label class="field"><span>Alt konu</span><select name="topic"><option value="all">Tüm konular</option>' + topics.map(function (topic) { return '<option value="' + E.escapeHtml(topic) + '" ' + (defaults.topic === topic ? 'selected' : '') + '>' + E.escapeHtml(topic) + '</option>'; }).join('') + '</select></label>' +
@@ -629,6 +656,7 @@
       mode: data.get('mode') || 'practice',
       path: data.get('path') || 'mixed',
       sections: data.getAll('sections'),
+      areas: readAreas(form, data, state.builderDefaults),
       difficulties: data.getAll('difficulties'),
       types: data.getAll('types'),
       topic: data.get('topic') || 'all',
@@ -1401,15 +1429,19 @@
     var search = filters.search.toLocaleLowerCase('tr-TR');
     var cards = state.bank.filter(function (card) {
       if (filters.section !== 'all' && card.section !== filters.section) return false;
+      if (filters.area !== 'all' && card.area !== filters.area) return false;
       if (filters.difficulty !== 'all' && card.difficulty !== filters.difficulty) return false;
       if (filters.type !== 'all' && card.type !== filters.type) return false;
-      if (search && (card.id + ' ' + card.sourceId + ' ' + card.topic + ' ' + card.prompt + ' ' + card.tags.join(' ')).toLocaleLowerCase('tr-TR').indexOf(search) === -1) return false;
+      if (search && (card.id + ' ' + card.sourceId + ' ' + card.area + ' ' + card.topic + ' ' + card.prompt + ' ' + card.tags.join(' ')).toLocaleLowerCase('tr-TR').indexOf(search) === -1) return false;
       return true;
     });
     var shown = cards.slice(0, state.explorerLimit);
     app.innerHTML = pageHeader('SORU GEZGİNİ', state.bank.length + ' atomik kart', 'Soruları kaynak kimliği, konu, zorluk ve türe göre bul. Cevap anahtarı çözümden önce gösterilmez.', '<a class="button primary" href="#/builder">Test oluştur</a>') +
       '<div class="filter-bar"><label class="field"><span class="sr-only">Sorularda ara</span><input type="search" id="explorer-search" placeholder="Kimlik, konu veya soru metninde ara…" value="' + E.escapeHtml(filters.search) + '"></label>' +
       '<label class="field"><span class="sr-only">Bölüm</span><select id="explorer-section"><option value="all">Tüm bölümler</option>' + state.sections.map(function (value) { return '<option ' + (filters.section === value ? 'selected' : '') + '>' + value + '</option>'; }).join('') + '</select></label>' +
+      '<label class="field"><span class="sr-only">Alan</span><select id="explorer-area"><option value="all">Tüm alanlar</option>' + Object.keys(state.areas).map(function (section) {
+        return '<optgroup label="' + E.escapeHtml(section) + '">' + state.areas[section].map(function (area) { return '<option value="' + E.escapeHtml(area) + '" ' + (filters.area === area ? 'selected' : '') + '>' + E.escapeHtml(area) + '</option>'; }).join('') + '</optgroup>';
+      }).join('') + '</select></label>' +
       '<label class="field"><span class="sr-only">Zorluk</span><select id="explorer-difficulty"><option value="all">Tüm zorluklar</option>' + ['Kolay', 'Orta', 'Zorlayıcı'].map(function (value) { return '<option ' + (filters.difficulty === value ? 'selected' : '') + '>' + value + '</option>'; }).join('') + '</select></label>' +
       '<label class="field"><span class="sr-only">Soru türü</span><select id="explorer-type"><option value="all">Tüm türler</option>' + Object.keys(E.TYPE_LABELS).map(function (type) { return '<option value="' + type + '" ' + (filters.type === type ? 'selected' : '') + '>' + E.TYPE_LABELS[type] + '</option>'; }).join('') + '</select></label></div>' +
       '<p class="muted tiny" role="status">' + cards.length + ' sonuç · ' + shown.length + ' kart gösteriliyor</p><section class="question-grid">' + shown.map(function (card) {
@@ -1428,13 +1460,14 @@
   var interviewTicker = null;
 
   function interviewFormDefaults() {
-    return { sections: state.sections.slice(), difficulties: ['Kolay', 'Orta', 'Zorlayıcı'], status: 'all', size: '10' };
+    return { sections: state.sections.slice(), areas: allAreas(), difficulties: ['Kolay', 'Orta', 'Zorlayıcı'], status: 'all', size: '10' };
   }
 
   function readInterviewForm(form) {
     var data = new FormData(form);
     return {
       sections: data.getAll('sections'),
+      areas: readAreas(form, data, state.interviewDefaults),
       difficulties: data.getAll('difficulties'),
       status: data.get('status') || 'all',
       size: data.get('size') || '10'
@@ -1451,6 +1484,7 @@
       var record = recordMap[item.sourceId];
       if ((progressMap[item.sourceId] || {}).excluded) return false;
       if (filters.sections && filters.sections.indexOf(item.section) === -1) return false;
+      if (!E.areaAllowed(filters, item.area)) return false;
       if (filters.difficulties && filters.difficulties.indexOf(item.difficulty) === -1) return false;
       if (filters.status === 'new' && record) return false;
       if (filters.status === 'due' && !interviewIsDue(record, now)) return false;
@@ -1558,6 +1592,7 @@
             '<li>Örnek cevabı aç ve kontrol listesinde değindiğin noktaları işaretle.</li>' +
             '<li>Kendini puanla; soru buna göre 1–30 gün sonra yeniden gelir.</li></ol></section>' +
           '<section class="form-section"><span class="eyebrow">1 · KAPSAM</span><h2>Bölümler</h2>' + chips(state.sections, defaults.sections, 'sections', 'Bölümler') + '</section>' +
+            areaChipsHtml(defaults.sections, defaults.areas || allAreas()) +
           '<section class="form-section"><h2>Zorluk</h2>' + chips(['Kolay', 'Orta', 'Zorlayıcı'], defaults.difficulties, 'difficulties', 'Zorluklar') + '</section>' +
           '<section class="form-section"><span class="eyebrow">2 · HAVUZ</span><h2>Hangi sorular?</h2>' + segmented('status', 'Soru havuzu', [['all', 'Tümü'], ['new', 'Yeni'], ['due', 'Tekrar zamanı'], ['weak', 'Zayıf']]) +
             '<p class="tiny muted" style="margin:.65rem 0 0">Zayıf: son puanı "Anlatamadım" veya "Eksik kaldı" olan sorular.</p></section>' +
@@ -2285,8 +2320,9 @@
       saveInterview().catch(function (error) { console.error(error); });
     }
     if (event.target.id === 'import-file' && event.target.files[0]) readImportFile(event.target.files[0]);
-    if (['explorer-section', 'explorer-difficulty', 'explorer-type'].indexOf(event.target.id) !== -1) {
+    if (['explorer-section', 'explorer-area', 'explorer-difficulty', 'explorer-type'].indexOf(event.target.id) !== -1) {
       state.explorerFilters.section = document.getElementById('explorer-section').value;
+      state.explorerFilters.area = document.getElementById('explorer-area').value;
       state.explorerFilters.difficulty = document.getElementById('explorer-difficulty').value;
       state.explorerFilters.type = document.getElementById('explorer-type').value;
       state.explorerLimit = 60;

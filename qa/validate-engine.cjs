@@ -144,6 +144,17 @@ interview = E.nextInterviewState(interview, { sourceId: 'J01', rating: 'again', 
 check(interview.reviewStage === 0 && interview.dueAt === '2026-07-31T10:00:00.000Z', 'Anlatamama ertesi güne almalı.');
 check(interview.ratings.length === 4 && interview.ratings[3].answerText === 'cevap' && interview.lastRating === 'again', 'Mülakat geçmişi ve son puan saklanmalı.');
 
+const areaCards = [
+  { id: 'S90-01', sourceId: 'S90', section: 'Savunma', area: 'Gömülü', difficulty: 'Kolay', type: 'single' },
+  { id: 'S91-01', sourceId: 'S91', section: 'Savunma', area: 'Ağ', difficulty: 'Kolay', type: 'single' },
+  { id: 'J90-01', sourceId: 'J90', section: 'Java', area: '', difficulty: 'Kolay', type: 'single' }
+];
+const areaIds = (filters) => E.filterBank(areaCards, filters, {}, {}).map((card) => card.id).join(',');
+check(areaIds({ areas: ['Gömülü'] }) === 'S90-01,J90-01', 'Alan filtresi seçili alanı ve alanı olmayan kartları bırakmalı.');
+check(areaIds({}) === 'S90-01,S91-01,J90-01', 'Alan filtresi verilmezse hiçbir kart elenmemeli.');
+check(areaIds({ areas: [] }) === 'J90-01', 'Hiç alan seçilmezse alanı olan kartlar elenmeli.');
+check(JSON.stringify(E.areasBySection(areaCards)) === JSON.stringify({ Savunma: ['Gömülü', 'Ağ'] }), 'Alanlar bölüme göre ve banka sırasıyla listelenmeli.');
+
 if (failures.length) {
   console.error(failures.join('\n'));
   process.exit(1);

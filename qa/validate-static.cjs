@@ -137,6 +137,22 @@ check(JSON.stringify(E.SECTION_PREFIXES) === JSON.stringify(build.SECTIONS), 'bu
 check(bank.length > 0, 'Soru bankası boş.');
 check(meta.sourceQuestionCount === Object.keys(sources).length && meta.cardCount === bank.length, 'Banka meta sayaçları içerikle uyuşmuyor.');
 
+// Areas come from the source question and are all-or-nothing within a section.
+for (const card of bank) check(card.area === ((sources[card.sourceId] || {}).area || ''), `${card.id}: alan kaynak sorusundakiyle aynı olmalı.`);
+const areaSample = (id, area) => [
+  `# ${id} · Kolay · Teori`, '', area ? `Alan: ${area}` : '', '', 'Deneme sorusu.', '',
+  `## ${id}-01 · Doğru / Yanlış`, 'Konu: Deneme', 'Soru: Deneme ifadesi doğrudur.', 'Şıklar:',
+  '- [x] Doğru', '  Neden: Doğru.', '- [ ] Yanlış', '  Neden: Yanlış.',
+  'İpucu: Deneme.', 'Kısa açıklama: Deneme.', 'Açıklama: Deneme.', ''
+].join('\n');
+const parsedArea = build.parseFile(areaSample('S98', 'Deneme alanı'), 'deneme.md');
+check(!parsedArea.errors.length && parsedArea.sources[0].area === 'Deneme alanı' && parsedArea.sources[0].prompt === 'Deneme sorusu.', '"Alan:" satırı ayrıştırılıp soru metninden çıkarılmalı.');
+const areaDir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'alan-'));
+fs.writeFileSync(path.join(areaDir, 'deneme.md'), areaSample('S98', 'Deneme alanı') + '\n' + areaSample('S99', ''));
+const mixedAreas = build.buildBank(areaDir);
+fs.rmSync(areaDir, { recursive: true, force: true });
+check(mixedAreas.errors.some((error) => error.includes('S99') && error.includes('Alan:')), 'Bir bölümde alanı olmayan soru derlemede hata vermeli.');
+
 const cardIds = new Set();
 const usedSources = new Set();
 const sectionCounts = {};

@@ -101,9 +101,18 @@ function parseSource(block, file, errors) {
   if (!DIFFICULTIES.includes(difficulty)) errors.push(`${file}:${block.line + 1}: ${id}: zorluk ${DIFFICULTIES.join(', ')} değerlerinden biri olmalı.`);
   const lines = block.body.map((entry) => entry.text);
   while (lines.length && !lines[0].trim()) lines.shift();
+  // An optional "Alan:" first line groups the question under an area of its section.
+  let area = '';
+  const areaLine = lines.length ? /^Alan:(.*)$/.exec(lines[0]) : null;
+  if (areaLine) {
+    area = areaLine[1].trim();
+    if (!area) errors.push(`${file}:${block.line + 1}: ${id}: "Alan:" satırı boş.`);
+    lines.shift();
+    while (lines.length && !lines[0].trim()) lines.shift();
+  }
   while (lines.length && !lines[lines.length - 1].trim()) lines.pop();
   if (!lines.length) errors.push(`${file}:${block.line + 1}: ${id}: soru metni boş.`);
-  return { id, difficulty, kind: kind.trim(), prompt: lines.join('\n'), file, line: block.line };
+  return { id, difficulty, kind: kind.trim(), area, prompt: lines.join('\n'), file, line: block.line };
 }
 
 function parseCard(block, source, file, errors) {
@@ -392,6 +401,14 @@ function buildBank(dir) {
   sources.forEach((source) => {
     if (!cards.some((card) => card.sourceId === source.id)) errors.push(`${source.file}:${source.line + 1}: ${source.id} sorusunun altında hiç kart yok.`);
   });
+  // Areas are all-or-nothing within a section, so an area filter never hides a question silently.
+  SECTION_ORDER.forEach((prefix) => {
+    const inSection = sources.filter((source) => source.id.replace(/\d+$/, '') === prefix);
+    if (!inSection.some((source) => source.area)) return;
+    inSection.filter((source) => !source.area).forEach((source) => {
+      errors.push(`${source.file}:${source.line + 1}: ${source.id}: ${SECTIONS[prefix]} bölümündeki diğer sorularda "Alan:" var; bu soruya da ekleyin.`);
+    });
+  });
   if (errors.length) return { errors };
 
   sources.sort((a, b) => compareIds(a.id, b.id));
@@ -399,6 +416,7 @@ function buildBank(dir) {
   const sourceQuestions = {};
   sources.forEach((source) => {
     sourceQuestions[source.id] = { id: source.id, descriptor: `${source.difficulty} · ${source.kind}`, prompt: source.prompt };
+    if (source.area) sourceQuestions[source.id].area = source.area;
   });
   const digest = crypto.createHash('sha256').update(JSON.stringify({ sourceQuestions, cards })).digest('hex');
   const meta = { title: TITLE, version: digest.slice(0, 8), sourceSha256: digest, sourceQuestionCount: sources.length, cardCount: cards.length };

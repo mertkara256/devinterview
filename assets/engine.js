@@ -121,9 +121,10 @@
         right: normalized.pairs.map(function (pair, index) { return { id: pair.rightId || 'r' + (index + 1), text: pair.right || pair.definition }; })
       };
     }
-    normalized.originalPrompt = window.SOURCE_QUESTIONS && window.SOURCE_QUESTIONS[normalized.sourceId]
-      ? window.SOURCE_QUESTIONS[normalized.sourceId].prompt
-      : '';
+    var source = window.SOURCE_QUESTIONS && window.SOURCE_QUESTIONS[normalized.sourceId];
+    normalized.originalPrompt = source ? source.prompt : '';
+    // Areas live on the source question, so every card of a source shares one.
+    normalized.area = source && source.area || '';
     return normalized;
   }
 
@@ -250,6 +251,22 @@
     return 7000 + ((SECTION_ORDER[SECTION_PREFIXES[prefix]] || 0) * 100) + number;
   }
 
+  // A card with an area passes only when its area is selected; cards without an area are unaffected.
+  function areaAllowed(filters, area) {
+    return !area || !filters.areas || filters.areas.indexOf(area) !== -1;
+  }
+
+  // Areas in bank order, grouped by section; sections without areas are left out.
+  function areasBySection(bank) {
+    var result = {};
+    bank.forEach(function (card) {
+      if (!card.area) return;
+      if (!result[card.section]) result[card.section] = [];
+      if (result[card.section].indexOf(card.area) === -1) result[card.section].push(card.area);
+    });
+    return result;
+  }
+
   function sectionsOf(bank) {
     return Object.keys(SECTION_ORDER).filter(function (section) {
       return bank.some(function (card) { return card.section === section; });
@@ -272,6 +289,7 @@
       if (filters.sections && filters.sections.length && filters.sections.indexOf(card.section) === -1) return false;
       if (filters.difficulties && filters.difficulties.length && filters.difficulties.indexOf(card.difficulty) === -1) return false;
       if (filters.types && filters.types.length && filters.types.indexOf(card.type) === -1) return false;
+      if (!areaAllowed(filters, card.area)) return false;
       if (filters.topic && filters.topic !== 'all' && card.topic !== filters.topic) return false;
       if (progress.excluded && filters.status !== 'excluded') return false;
       if (filters.status === 'new' && (state.timesSeen || progress.known)) return false;
@@ -630,6 +648,7 @@
       return {
         sourceId: sourceId,
         section: cards[0].section,
+        area: cards[0].area,
         difficulty: INTERVIEW_MINUTES[descriptor[0]] ? descriptor[0] : cards[0].difficulty,
         kind: descriptor.slice(1).join(' · '),
         topic: cards[0].topic,
@@ -712,6 +731,8 @@
     makeAttemptItem: makeAttemptItem,
     learningRank: learningRank,
     sectionsOf: sectionsOf,
+    areasBySection: areasBySection,
+    areaAllowed: areaAllowed,
     formatDate: formatDate,
     formatDuration: formatDuration,
     formatAnswer: formatAnswer,
