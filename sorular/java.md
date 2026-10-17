@@ -153,14 +153,14 @@ Soru: `int[] second = first;` ifadesinin en doğru açıklaması hangisidir?
   Neden: Java dizi atamasında otomatik kopya üretmez; iki değişken aynı diziyi gösterir.
 - [x] b: Referans değeri kopyalanır; iki değişken aynı dizi nesnesini gösterebilir
   Neden: Doğru; aliasing oluşur.
-- [ ] c: first null yapılır ve sahiplik second'a taşınır
+- [ ] c: `first` null yapılır ve sahiplik `second`'a taşınır
   Neden: Java'da move semantics uygulanmaz.
-- [ ] d: Dizi salt okunur hâle gelir; second üzerinden eleman değiştirmek derleme hatası verir
-  Neden: Atama mutability'yi değiştirmez; second[0] = 99 geçerlidir.
+- [ ] d: Dizi salt okunur hâle gelir; `second` üzerinden eleman değiştirmek derleme hatası verir
+  Neden: Atama mutability'yi değiştirmez; `second[0] = 99` geçerlidir.
 İpucu: Java ataması nesnenin sahipliğini taşımaz ve otomatik deep copy yapmaz.
 Kısa açıklama: Kopyalanan şey referans değeridir; dizi nesnesi kopyalanmaz.
 Açıklama: Her iki değişken de ayrı değişkenlerdir fakat içlerinde aynı heap nesnesine erişen referans değerleri bulunabilir. Bir değişken yeniden atanırsa diğeri değişmez; ortak nesne mutasyona uğrarsa değişiklik ikisinden de gözlenebilir.
-Varsayım: first başlangıçta null olmayan bir int[] referansı tutar.
+Varsayım: `first` başlangıçta null olmayan bir `int[]` referansı tutar.
 Etiketler: reference, aliasing, array
 
 # J04 · Kolay · Teori
@@ -177,13 +177,13 @@ Soru: Primitive ve reference tipler hakkında doğru ifadeleri seçin.
   Neden: Doğru; null bir reference değeridir.
 - [x] c: Primitive bir değerde örnek metodu doğrudan çağrılamaz
   Neden: Doğru; autoboxing ayrı bir dönüşüm bağlamıdır.
-- [ ] d: İki reference değişkeni == ile karşılaştırmak her zaman içerik eşitliğini sınar
-  Neden: Yanlış; == nesne kimliğini karşılaştırır.
+- [ ] d: İki reference değişkeni `==` ile karşılaştırmak her zaman içerik eşitliğini sınar
+  Neden: Yanlış; `==` nesne kimliğini karşılaştırır.
 - [ ] e: Her reference ataması nesnenin bağımsız kopyasını üretir
   Neden: Yanlış; yalnız referans değeri kopyalanır.
 İpucu: `==` operatörünün reference operandlarda hangi değeri karşılaştırdığını düşünün.
 Kısa açıklama: Primitive değer doğrudan tutulur; reference null olabilir ve bir nesneye erişim değeridir.
-Açıklama: Primitive tipler dilce tanımlı yalın değerlerdir. Reference değişken, nesneye/diziye erişen bir referans veya null tutar. Reference operandlarda == çoğunlukla aynı nesne kimliğini sorgular; içerik semantiği uygun equals uygulamasına bağlıdır. Atama nesneyi kopyalamaz.
+Açıklama: Primitive tipler dilce tanımlı yalın değerlerdir. Reference değişken, nesneye/diziye erişen bir referans veya null tutar. Reference operandlarda `==` çoğunlukla aynı nesne kimliğini sorgular; içerik semantiği uygun `equals` uygulamasına bağlıdır. Atama nesneyi kopyalamaz.
 Varsayım: Wrapper autoboxing mekanizması, primitive üzerinde doğrudan örnek metodu çağrıldığı anlamına gelmez.
 Etiketler: primitive, reference, null, equals
 
@@ -291,7 +291,7 @@ Cevap: 7 5 7
 Büyük/küçük harf duyarlı: evet
 İpucu: Postfix eski değeri üretip sonra artırır; prefix önce artırır.
 Kısa açıklama: Çıktı `7 5 7` olur.
-Açıklama: y = x++ sırasında y 5 alır ve x 6 olur. z = ++x sırasında x önce 7 olur, ifade 7 üretir ve z 7 alır.
+Açıklama: `y = x++` sırasında `y` 5 alır ve `x` 6 olur. `z = ++x` sırasında `x` önce 7 olur, ifade 7 üretir ve `z` 7 alır.
 Varsayım: İfadeler verilen sırayla ayrı statement olarak çalışır; overflow yoktur.
 Etiketler: prefix, postfix, output
 
@@ -334,11 +334,11 @@ if (username != null && username.length() >= 3) {
 - [ ] Doğru
   Neden: Sağ taraf yalnız sol taraf true ise değerlendirilir; NPE oluşmaz.
 - [x] Yanlış
-  Neden: Doğru; && kısa devre yaptığı için null guard güvenlidir.
-İpucu: && sol operand false olduğunda ne yapar?
-Kısa açıklama: Yanlış. && kısa devre yapar; sol taraf false olunca sağ operand değerlendirilmez ve NPE oluşmaz.
-Açıklama: Sol operand `username != null` false olunca && sonucunun false olduğu kesinleşir ve sağ operand çalıştırılmaz. Böylece null üzerinde length çağrılmaz.
-Varsayım: username gerçekten null'dır ve arada başka bir thread tarafından değiştirilen ortak alan değildir; verilen yerel değişken kullanılır.
+  Neden: Doğru; `&&` kısa devre yaptığı için null guard güvenlidir.
+İpucu: `&&` sol operand false olduğunda ne yapar?
+Kısa açıklama: Yanlış. `&&` kısa devre yapar; sol taraf false olunca sağ operand değerlendirilmez ve NPE oluşmaz.
+Açıklama: Sol operand `username != null` false olunca `&&` sonucunun false olduğu kesinleşir ve sağ operand çalıştırılmaz. Böylece null üzerinde `length()` çağrılmaz.
+Varsayım: `username` gerçekten null'dır ve arada başka bir thread tarafından değiştirilen ortak alan değildir; verilen yerel değişken kullanılır.
 Etiketler: short-circuit, null, and
 
 ## J07-02 · Tek seçim
@@ -536,17 +536,17 @@ for (int i = 0; i <= numbers.length; i++) {
 }
 ```
 Şıklar:
-- [x] a: Koşulu i <= numbers.length yerine i < numbers.length yapmak
-  Neden: Doğru; 0'dan length-1'e kadar çalışır.
+- [x] a: Koşulu `i <= numbers.length` yerine `i < numbers.length` yapmak
+  Neden: Doğru; 0'dan `length - 1`'e kadar çalışır.
 - [ ] b: Koşulu koruyup döngüyü try-catch ile sarmak ve oluşan hatayı yutmak
-  Neden: Hata gizlenir ama numbers[3] erişimi yine yapılır; bu bir düzeltme değildir.
-- [ ] c: Koşulu i < numbers.length + 1 yaparak son elemanı da kapsamak
-  Neden: i < length + 1, i <= length ile aynıdır; numbers[3] erişimi sürer.
-- [ ] d: i başlangıcını -1 yapmak
-  Neden: İlk erişimi numbers[-1] yapar.
-İpucu: Son geçerli indeks length - 1'dir.
+  Neden: Hata gizlenir ama `numbers[3]` erişimi yine yapılır; bu bir düzeltme değildir.
+- [ ] c: Koşulu `i < numbers.length + 1` yaparak son elemanı da kapsamak
+  Neden: `i < length + 1`, `i <= length` ile aynıdır; `numbers[3]` erişimi sürer.
+- [ ] d: `i` başlangıcını `-1` yapmak
+  Neden: İlk erişimi `numbers[-1]` yapar.
+İpucu: Son geçerli indeks `length - 1`'dir.
 Kısa açıklama: Koşul `i < numbers.length` olmalıdır.
-Açıklama: Üç elemanlı dizinin geçerli indeksleri 0,1,2'dir. i=3 olduğunda `i <= length` hâlâ true olur fakat numbers[3] erişimi sınır dışıdır. `i < length` standart üst sınırdır.
+Açıklama: Üç elemanlı dizinin geçerli indeksleri 0,1,2'dir. `i = 3` olduğunda `i <= length` hâlâ true olur fakat `numbers[3]` erişimi sınır dışıdır. `i < length` standart üst sınırdır.
 Varsayım: Dizi null değildir; amaç ileri yönde tüm elemanları bir kez dolaşmaktır.
 Etiketler: array, index, off-by-one
 
@@ -724,17 +724,17 @@ Kod:
 String text = "Java";
 ```
 Şıklar:
-- [ ] a: text.concat(" Mülakatı");
+- [ ] a: `text.concat(" Mülakatı");`
   Neden: Dönüş değeri kaybolur.
-- [x] b: text = text.concat(" Mülakatı");
+- [x] b: `text = text.concat(" Mülakatı");`
   Neden: Doğru; yeni String saklanır.
-- [ ] c: text[4] = ' ';
+- [ ] c: `text[4] = ' ';`
   Neden: String dizi değildir ve immutable'dır.
-- [ ] d: String.concat(text, " Mülakatı");
-  Neden: concat static metot değildir.
+- [ ] d: `String.concat(text, " Mülakatı");`
+  Neden: `concat` static metot değildir.
 İpucu: Dönen yeni String referansını saklayın.
-Kısa açıklama: concat sonucunun text'e yeniden atanması gerekir.
-Açıklama: String'in içeriği yerinde değiştirilemez. concat çağrısının ürettiği yeni String referansı text'e atanırsa sonraki okumalar birleşik metni görür.
+Kısa açıklama: `concat` sonucunun `text`'e yeniden atanması gerekir.
+Açıklama: String'in içeriği yerinde değiştirilemez. `concat` çağrısının ürettiği yeni String referansı `text`'e atanırsa sonraki okumalar birleşik metni görür.
 Varsayım: Amaç değişkeni yeni String sonucuna yeniden atamaktır; aynı nesneyi mutasyona uğratmak mümkün değildir.
 Etiketler: string, concat, assignment
 
@@ -765,10 +765,10 @@ Cevap:
 false
 true
 ```
-İpucu: new String iki ayrı nesne üretir; içerikleri aynıdır.
-Kısa açıklama: == false, equals true üretir.
-Açıklama: Her `new String` ayrı nesne kimliği oluşturur; bu yüzden referans kimliği karşılaştıran == false'tur. String.equals karakter dizisini karşılaştırır ve aynı içerik nedeniyle true döner.
-Varsayım: String.equals override'ı kullanılır; iki değişken de null değildir.
+İpucu: `new String` iki ayrı nesne üretir; içerikleri aynıdır.
+Kısa açıklama: `==` false, `equals` true üretir.
+Açıklama: Her `new String` ayrı nesne kimliği oluşturur; bu yüzden referans kimliği karşılaştıran `==` false'tur. `String.equals` karakter dizisini karşılaştırır ve aynı içerik nedeniyle true döner.
+Varsayım: `String.equals` override'ı kullanılır; iki değişken de null değildir.
 Etiketler: string, equals, identity, output
 
 ## J15-02 · Çoklu seçim
@@ -777,18 +777,18 @@ Soru: String karşılaştırması hakkında doğru ifadeleri seçin.
 Şıklar:
 - [x] a: `a == b`, iki referansın aynı nesneyi gösterip göstermediğini sınar
   Neden: Doğru reference kimliği semantiğidir.
-- [x] b: `a.equals(b)`, a null değilse içerik eşitliğini sınar
+- [x] b: `a.equals(b)`, `a` null değilse içerik eşitliğini sınar
   Neden: Doğru; alıcı null değil varsayımı önemlidir.
-- [ ] c: String literal pool nedeniyle String içerikleri her zaman == ile güvenle karşılaştırılabilir
-  Neden: Yanlış; new String ve runtime üretimleri özdeş olmayabilir.
+- [ ] c: String literal pool nedeniyle String içerikleri her zaman `==` ile güvenle karşılaştırılabilir
+  Neden: Yanlış; `new String` ve runtime üretimleri özdeş olmayabilir.
 - [x] d: `Objects.equals(a, b)` null-safe içerik eşitliği sağlayabilir
   Neden: Doğru null-safe yardımcıdır.
-- [ ] e: equals her sınıfta otomatik olarak alan bazlı derin karşılaştırma yapar
-  Neden: Object.equals varsayılanı kimliktir; sınıflar override etmelidir.
+- [ ] e: `equals` her sınıfta otomatik olarak alan bazlı derin karşılaştırma yapar
+  Neden: `Object.equals` varsayılanı kimliktir; sınıflar override etmelidir.
 İpucu: String pool bir optimizasyon/özdeşleştirme ayrıntısıdır; genel içerik sözleşmesi değildir.
-Kısa açıklama: Kimlik için ==, String içeriği için equals; null güvenliği için Objects.equals kullanılabilir.
-Açıklama: String.equals içerik karşılaştıracak şekilde override edilmiştir. Ancak `a.equals(b)` a null ise NPE verir; Objects.equals bunu güvenli ele alır. == yalnız aynı referans değerini sınar ve literal intern durumuna güvenmek hatalıdır.
-Varsayım: a ve b String reference'larıdır; b null olabilir, a için ilgili seçenekte null olmadığı belirtilmiştir.
+Kısa açıklama: Kimlik için `==`, String içeriği için `equals`; null güvenliği için `Objects.equals` kullanılabilir.
+Açıklama: `String.equals` içerik karşılaştıracak şekilde override edilmiştir. Ancak `a.equals(b)` a null ise NPE verir; `Objects.equals` bunu güvenli ele alır. `==` yalnız aynı referans değerini sınar ve literal intern durumuna güvenmek hatalıdır.
+Varsayım: `a` ve `b` String reference'larıdır; `b` null olabilir, `a` için ilgili seçenekte null olmadığı belirtilmiştir.
 Etiketler: string, equals, objects-equals, null
 
 # J16 · Kolay · Kod yazma
@@ -803,17 +803,17 @@ Kod:
 String[] topics = {"Java", "OOP", "Algoritma"};
 ```
 Şıklar:
-- [ ] a: StringBuilder sb = new StringBuilder(); for (String s : topics) sb.append(s).append(','); return sb.toString();
+- [ ] a: `StringBuilder sb = new StringBuilder(); for (String s : topics) sb.append(s).append(','); return sb.toString();`
   Neden: Sonuçta fazladan son virgül vardır.
-- [x] b: StringBuilder sb = new StringBuilder(); for (int i=0; i<topics.length; i++) { if (i>0) sb.append(','); sb.append(topics[i]); } return sb.toString();
+- [x] b: `StringBuilder sb = new StringBuilder(); for (int i=0; i<topics.length; i++) { if (i>0) sb.append(','); sb.append(topics[i]); } return sb.toString();`
   Neden: Doğru ve boş diziyi de ele alır.
-- [ ] c: StringBuilder sb = null; for (String s : topics) sb.append(s); return sb.toString();
-  Neden: İlk append NullPointerException üretir.
-- [ ] d: StringBuilder sb = new StringBuilder(); for (int i=0; i<topics.length; i++) { sb.append(topics[i]); if (i>0) sb.append(','); } return sb.toString();
+- [ ] c: `StringBuilder sb = null; for (String s : topics) sb.append(s); return sb.toString();`
+  Neden: İlk `append` NullPointerException üretir.
+- [ ] d: `StringBuilder sb = new StringBuilder(); for (int i=0; i<topics.length; i++) { sb.append(topics[i]); if (i>0) sb.append(','); } return sb.toString();`
   Neden: Virgül elemandan sonra eklendiği için ilk ayraç kaybolur ve sonda fazladan virgül kalır.
 İpucu: Ayırıcıyı ilk elemandan önce değil, sonraki elemanlardan önce ekleyin.
 Kısa açıklama: B seçeneği elemanlar arasına virgül koyar ve sonda ayırıcı bırakmaz.
-Açıklama: Tek bir StringBuilder oluşturulur. i>0 koşulu yalnız ikinci ve sonraki elemanlardan önce virgül ekler. Boş dizi için de güvenle boş String üretir. A sonda virgül bırakır, C null dereference eder, d dizi içeriğini birleştirmez.
+Açıklama: Tek bir StringBuilder oluşturulur. `i>0` koşulu yalnız ikinci ve sonraki elemanlardan önce virgül ekler. Boş dizi için de güvenle boş String üretir. A sonda virgül bırakır, C null dereference eder, d dizi içeriğini birleştirmez.
 Varsayım: topics null değildir; elemanların null olması hâlinde StringBuilder `null` metnini ekler, ancak verilen dizi null eleman içermez.
 Etiketler: stringbuilder, array, join
 
@@ -872,17 +872,17 @@ Kod:
 int[] numbers = {1, 2, 3};
 ```
 Şıklar:
-- [ ] a: for (int n : numbers) n *= 2;
+- [ ] a: `for (int n : numbers) n *= 2;`
   Neden: Yalnız yerel kopyayı değiştirir.
-- [x] b: for (int i=0; i<numbers.length; i++) numbers[i] *= 2;
+- [x] b: `for (int i=0; i<numbers.length; i++) numbers[i] *= 2;`
   Neden: Doğru; her dizi hücresine geri yazar.
-- [ ] c: for (int n : numbers) numbers = new int[]{n * 2};
+- [ ] c: `for (int n : numbers) numbers = new int[]{n * 2};`
   Neden: Her turda tüm dizi referansını tek elemanlı başka diziye atar.
-- [ ] d: for (int i=0; i<numbers.length; i++) { int n = numbers[i]; n *= 2; }
-  Neden: Yalnız yerel n değişir; değer dizi elemanına geri yazılmaz.
+- [ ] d: `for (int i=0; i<numbers.length; i++) { int n = numbers[i]; n *= 2; }`
+  Neden: Yalnız yerel `n` değişir; değer dizi elemanına geri yazılmaz.
 İpucu: Dizi hücresine yazmak için indeks gerekir.
 Kısa açıklama: B seçeneği her `numbers[i]` yuvasını günceller.
-Açıklama: Primitive enhanced-for değişkeni elemanın kopyasıdır. İndeks tabanlı döngü doğrudan dizi elemanına atama yapar. length sabittir ve atanamaz.
+Açıklama: Primitive enhanced-for değişkeni elemanın kopyasıdır. İndeks tabanlı döngü doğrudan dizi elemanına atama yapar. `length` sabittir ve atanamaz.
 Varsayım: Her çarpım int aralığında kalır; taşma beklenmez.
 Etiketler: array, loop, mutation
 
@@ -1065,7 +1065,7 @@ Developer
 Büyük/küçük harf duyarlı: evet
 İpucu: Alt sınıf constructor gövdesinden önce üst constructor tamamlanır.
 Kısa açıklama: Önce `Person: Ayşe`, sonra `Developer` yazdırılır.
-Açıklama: Developer constructor'ının ilk statement'ı super çağrısıdır. Person(String) tamamlandıktan sonra kontrol Developer constructor gövdesindeki println'e döner.
+Açıklama: Developer constructor'ının ilk statement'ı `super` çağrısıdır. `Person(String)` tamamlandıktan sonra kontrol Developer constructor gövdesindeki `println`'e döner.
 Varsayım: Sınıf initialization blokları veya field initializer'ları yoktur; kod geçerli bir çalıştırma bağlamındadır.
 Etiketler: constructor, super, inheritance, output
 
@@ -1084,8 +1084,8 @@ Soru: Constructor ve nesne bağlamı hakkında doğru ifadeleri seçin.
 - [x] e: Açık constructor invocation varsa constructor'ın ilk statement'ı olmalıdır
   Neden: Doğru sözdizim kuralıdır.
 İpucu: Bir constructor zinciri ilk statement'ta tek bir yönde başlatılır.
-Kısa açıklama: this nesneyi, this(...) kardeş constructor'ı, super(...) üst constructor'ı belirtir; açık çağrı ilk statement'tır.
-Açıklama: Bir constructor en fazla bir explicit constructor invocation ile başlar: this(...) veya super(...). İkisi birlikte yazılamaz. Çağrı yoksa ve superclass Object değilse derleyici erişilebilir no-arg super() eklemeye çalışır.
+Kısa açıklama: `this` nesneyi, `this(...)` kardeş constructor'ı, `super(...)` üst constructor'ı belirtir; açık çağrı ilk statement'tır.
+Açıklama: Bir constructor en fazla bir explicit constructor invocation ile başlar: `this(...)` veya `super(...)`. İkisi birlikte yazılamaz. Çağrı yoksa ve superclass Object değilse derleyici erişilebilir no-arg `super()` eklemeye çalışır.
 Varsayım: Java 8–21 ortak explicit constructor invocation kuralları esas alınır.
 Etiketler: this, super, constructor
 
@@ -1143,7 +1143,7 @@ Soru: Aynı sınıfta yalnız dönüş tipleri farklı olan `int parse(String s)
   Neden: Doğru; parametre listesi farklı olmalıdır.
 İpucu: İki çağrının argüman listesi aynıdır.
 Kısa açıklama: Yanlış. Dönüş tipi tek başına overload ayırt etmez.
-Açıklama: Her iki metodun imzası parse(String)'dir. Çağrı sonucunun atandığı değişken üzerinden overload seçilmez; sınıf duplicate method nedeniyle derlenmez.
+Açıklama: Her iki metodun imzası `parse(String)`'dir. Çağrı sonucunun atandığı değişken üzerinden overload seçilmez; sınıf duplicate method nedeniyle derlenmez.
 Varsayım: Metotlar aynı sınıfta, static/instance ayrımıyla da farklılaştırılmadan bildirilmiştir.
 Etiketler: overload, return-type, signature
 
@@ -1290,11 +1290,11 @@ Soru: Gerçek uygulama performansı açısından doğru ifadeleri seçin.
   Neden: Yanlış mutlak genellemedir.
 - [x] d: ArrayList ortasına ekleme eleman kaydırmayı gerektirebilir
   Neden: Doğru; sonraki elemanlar kayar.
-- [ ] e: LinkedList get(i) her i için O(1)'dir
+- [ ] e: LinkedList `get(i)` her `i` için O(1)'dir
   Neden: Yanlış; bağlantılar boyunca yürünür.
 İpucu: Asimptotik maliyetin yanında indeks arama ve bellek yerelliğini düşünün.
 Kısa açıklama: İndeks bulma LinkedList'i O(n) yapar; ArrayList kaydırabilir fakat bellek yerelliği güçlüdür.
-Açıklama: LinkedList yalnız konum iterator/düğüm olarak zaten eldeyse bağlantı değişimini O(1) yapar. İndeksli API önce düğümü arar. ArrayList orta eklemede System.arraycopy benzeri kaydırma yapar, fakat kompakt düzen ve düşük allocation maliyeti pratikte çoğu kullanımda avantajlıdır.
+Açıklama: LinkedList yalnız konum iterator/düğüm olarak zaten eldeyse bağlantı değişimini O(1) yapar. İndeksli API önce düğümü arar. ArrayList orta eklemede `System.arraycopy` benzeri kaydırma yapar, fakat kompakt düzen ve düşük allocation maliyeti pratikte çoğu kullanımda avantajlıdır.
 Varsayım: Standart OpenJDK benzeri ArrayList/LinkedList tasarımı ve ortalama uygulama kullanımı ele alınır; mikrobenchmark sonucu garanti edilmez.
 Etiketler: arraylist, linkedlist, performance
 
@@ -1364,20 +1364,20 @@ Bir sipariş listesini müşteri kimliğine göre gruplandıran ve `Map<Integer,
 
 ## J28-01 · Tek seçim
 Konu: Map ile gruplama
-Soru: Siparişleri customerId'ye göre `Map<Integer,List<Order>>` içinde doğru biçimde gruplayan gövde hangisidir? `Order#getCustomerId()` int döndürür.
+Soru: Siparişleri `customerId`'ye göre `Map<Integer,List<Order>>` içinde doğru biçimde gruplayan gövde hangisidir? `Order#getCustomerId()` int döndürür.
 Şıklar:
-- [x] a: for (Order o : orders) result.computeIfAbsent(o.getCustomerId(), k -> new ArrayList<>()).add(o);
+- [x] a: `for (Order o : orders) result.computeIfAbsent(o.getCustomerId(), k -> new ArrayList<>()).add(o);`
   Neden: Doğru Java 8 gruplama kalıbıdır.
-- [ ] b: for (Order o : orders) { List<Order> list = new ArrayList<>(); list.add(o); result.put(o.getCustomerId(), list); }
+- [ ] b: `for (Order o : orders) { List<Order> list = new ArrayList<>(); list.add(o); result.put(o.getCustomerId(), list); }`
   Neden: Her siparişte yeni liste açılır; aynı müşterinin önceki siparişleri ezilir.
-- [ ] c: for (Order o : orders) result.get(o.getCustomerId()).add(o);
+- [ ] c: `for (Order o : orders) result.get(o.getCustomerId()).add(o);`
   Neden: Liste önceden yoksa NPE verir.
-- [ ] d: for (Order o : orders) result.put(null, Arrays.asList(o));
+- [ ] d: `for (Order o : orders) result.put(null, Arrays.asList(o));`
   Neden: Müşteri kimliğini kullanmaz ve gruplamaz.
 İpucu: Anahtar ilk kez görülürse liste oluşturun; her durumda siparişi o listeye ekleyin.
-Kısa açıklama: computeIfAbsent her müşteri için listeyi bir kez oluşturup siparişi ekler.
-Açıklama: A seçeneğinde mapping function yalnız anahtar için mevcut non-null değer yoksa ArrayList üretir; dönen listeye sipariş eklenir. B her siparişte boş listeyle önceki grubu ezer. C ilk anahtarda null.get/add nedeniyle NPE üretir.
-Varsayım: orders ve içindeki Order öğeleri null değildir; getCustomerId int döndürür; result başlangıçta boş mutable HashMap'tir.
+Kısa açıklama: `computeIfAbsent` her müşteri için listeyi bir kez oluşturup siparişi ekler.
+Açıklama: A seçeneğinde mapping function yalnız anahtar için mevcut non-null değer yoksa ArrayList üretir; dönen listeye sipariş eklenir. B her siparişte boş listeyle önceki grubu ezer. C ilk anahtarda `get` null döndürdüğü için `add` çağrısında NPE üretir.
+Varsayım: `orders` ve içindeki Order öğeleri null değildir; `getCustomerId` int döndürür; `result` başlangıçta boş mutable HashMap'tir.
 Etiketler: map, grouping, computeifabsent
 
 ## J28-02 · Sıralama
@@ -1574,17 +1574,17 @@ Geçersiz yaş bilgisi için `InvalidAgeException` tasarlayın. Bunun checked m�
 Konu: Özel exception tasarımı
 Soru: Geçersiz yaşın çağıranın işlemi düzeltip yeniden deneyebileceği iş kuralı ihlali olarak checked exception ile bildirilmesi isteniyor. Doğru tasarım hangisidir?
 Şıklar:
-- [x] a: class InvalidAgeException extends Exception { InvalidAgeException(String m) { super(m); } } ve `void register(int age) throws InvalidAgeException { if (age < 0) throw new InvalidAgeException("age"); }`
+- [x] a: `class InvalidAgeException extends Exception { InvalidAgeException(String m) { super(m); } }` ve `void register(int age) throws InvalidAgeException { if (age < 0) throw new InvalidAgeException("age"); }`
   Neden: Doğru checked exception tasarımıdır.
-- [ ] b: class InvalidAgeException extends Error {} ve yalnız `return`
+- [ ] b: `class InvalidAgeException extends Error {}` ve yalnız `return`
   Neden: Error iş kuralı doğrulaması için uygun değildir ve exception fırlatmıyor.
-- [ ] c: class InvalidAgeException extends RuntimeException { InvalidAgeException(String m) { super(m); } } ve `void register(int age) throws InvalidAgeException { if (age < 0) throw new InvalidAgeException("age"); }`
-  Neden: RuntimeException unchecked'tır; throws ile bildirilse bile derleyici çağıranı hatayı ele almaya zorlamaz.
-- [ ] d: class InvalidAgeException {} ve `throw InvalidAgeException;`
-  Neden: Throwable alt tipi değildir ve throw bir nesne ifadesi ister.
-İpucu: Checked tür Exception'dan türemeli; tür bildiriminde throws, nesne üretiminde throw kullanılır.
+- [ ] c: `class InvalidAgeException extends RuntimeException { InvalidAgeException(String m) { super(m); } }` ve `void register(int age) throws InvalidAgeException { if (age < 0) throw new InvalidAgeException("age"); }`
+  Neden: RuntimeException unchecked'tır; `throws` ile bildirilse bile derleyici çağıranı hatayı ele almaya zorlamaz.
+- [ ] d: `class InvalidAgeException {}` ve `throw InvalidAgeException;`
+  Neden: Throwable alt tipi değildir ve `throw` bir nesne ifadesi ister.
+İpucu: Checked tür Exception'dan türemeli; tür bildiriminde `throws`, nesne üretiminde `throw` kullanılır.
 Kısa açıklama: A seçeneği checked türü, throws sözleşmesini ve throw ifadesini doğru kurar.
-Açıklama: Exception alt sınıfı RuntimeException dışında kaldığı için checked'dır. Constructor mesajı üst sınıfa iletir. register metodunun bildirimi olası türü `throws InvalidAgeException` ile açıklar; koşul oluşunca `throw new InvalidAgeException(...)` bir nesneyi fırlatır.
+Açıklama: Exception alt sınıfı RuntimeException dışında kaldığı için checked'dır. Constructor mesajı üst sınıfa iletir. `register` metodunun bildirimi olası türü `throws InvalidAgeException` ile açıklar; koşul oluşunca `throw new InvalidAgeException(...)` bir nesneyi fırlatır.
 Varsayım: Geçerli yaş aralığının alt sınırı bu kartta 0'dır; üst sınır gereksinimi verilmemiştir.
 Varsayım: Checked/unchecked seçimi bağlama bağlıdır; kart açıkça checked politika istemektedir.
 Etiketler: custom-exception, throw, throws, checked
@@ -1726,15 +1726,15 @@ Soru: Liste yalnız String saklamalıysa en tip güvenli düzeltme hangisidir?
 Şıklar:
 - [x] a: `List<String> values = new ArrayList<>();` kullanıp 42 eklemesini kaldırmak veya metne çevirmek
   Neden: Doğru compile-time güvenliktir.
-- [ ] b: Raw List'i koruyup her get sonucunu String'e cast etmek
+- [ ] b: Raw List'i koruyup her `get` sonucunu String'e cast etmek
   Neden: Raw type riskini sürdürür.
-- [ ] c: `List<Object>` kullanıp her get sonucunu `(String)` ile cast etmek; 42 eklenirse hata çalışma zamanında yakalanır
+- [ ] c: `List<Object>` kullanıp her `get` sonucunu `(String)` ile cast etmek; 42 eklenirse hata çalışma zamanında yakalanır
   Neden: Tip güvenliği derleme zamanından çalışma zamanına kayar; gereksinim karşılanmaz.
 - [ ] d: `List<int>` kullanmak
   Neden: Primitive generic type argument geçersizdir.
 İpucu: Yanlış türün eklenmesini derleme zamanında engelleyin.
-Kısa açıklama: List<String> generic bildirimi yalnız String eklenmesini sağlar.
-Açıklama: Generic tür bilgisi add çağrısında Integer'ı reddeder ve get sonucunu String olarak verir. Raw/Object çözümleri gereksiz cast ve runtime riskini korur. Generics primitive type argument kabul etmez.
+Kısa açıklama: `List<String>` generic bildirimi yalnız String eklenmesini sağlar.
+Açıklama: Generic tür bilgisi `add` çağrısında Integer'ı reddeder ve `get` sonucunu String olarak verir. Raw/Object çözümleri gereksiz cast ve runtime riskini korur. Generics primitive type argument kabul etmez.
 Varsayım: Gereksinim listenin heterojen değil yalnız String olmasıdır.
 Etiketler: generics, list, type-safety
 
@@ -1808,15 +1808,15 @@ Etiketler: removeif, iterator, arraylist
 Konu: Generic wildcard PECS
 Soru: Wildcard listelerini güvenli okuma/ekleme özellikleriyle eşleştirin. null ekleme özel durumu dışarıda bırakılmıştır.
 Eşleşmeler:
-- extread: List<? extends Number> içinden okuma => r1: Güvenle Number olarak okunur
-- extwrite: List<? extends Number> içine non-null sayı ekleme => r2: Somut alt tip bilinmediği için güvenli değildir
-- superread: List<? super Integer> içinden okuma => r3: Güvenle yalnız Object olarak okunur
-- superwrite: List<? super Integer> içine ekleme => r4: Integer güvenle eklenir
+- extread: `List<? extends Number>` içinden okuma => r1: Güvenle Number olarak okunur
+- extwrite: `List<? extends Number>` içine non-null sayı ekleme => r2: Somut alt tip bilinmediği için güvenli değildir
+- superread: `List<? super Integer>` içinden okuma => r3: Güvenle yalnız Object olarak okunur
+- superwrite: `List<? super Integer>` içine ekleme => r4: Integer güvenle eklenir
 Fazladan seçenekler:
 - decoy: Herhangi bir Number alt tipi güvenle eklenir
 İpucu: Producer extends, consumer super (PECS).
-Kısa açıklama: extends Number üreticidir; super Integer tüketicidir.
-Açıklama: `? extends Number` gerçekte List<Integer>, List<Double> vb. olabilir; okunan her öğe Number'dır ama hangi alt tip beklendiği bilinmediğinden non-null eklenemez. `? super Integer` Integer veya üst tip listesi olduğundan Integer kabul eder; okuma ise yalnız Object garantiler.
+Kısa açıklama: `? extends Number` üreticidir; `? super Integer` tüketicidir.
+Açıklama: `? extends Number` gerçekte `List<Integer>`, `List<Double>` vb. olabilir; okunan her öğe Number'dır ama hangi alt tip beklendiği bilinmediğinden non-null eklenemez. `? super Integer` Integer veya üst tip listesi olduğundan Integer kabul eder; okuma ise yalnız Object garantiler.
 Varsayım: Listeler null değildir; wildcard listesine her durumda teknik olarak eklenebilen null, soruda açıkça kapsam dışıdır.
 Etiketler: generics, wildcard, pecs
 
@@ -1839,9 +1839,9 @@ List<? super Integer> target = new ArrayList<Number>();
   Neden: Derlenmez; okuma static olarak Object'tir.
 - [x] e: `Object o = target.get(0);`
   Neden: Derlenir; Object her olası öğenin üst tipidir.
-İpucu: source'un alt tipi, target'ın üst tipi tam olarak bilinmiyor.
-Kısa açıklama: source Number üretir; target Integer tüketir ve Object üretir.
-Açıklama: source.get'in static tipi Number'dır. source.add(1), source'un List<Double> olabilme olasılığı nedeniyle reddedilir. target Integer eklemeyi kabul eder; ancak get sonucu Integer garantili değildir, çünkü hedef List<Object> olabilir ve başka Object'ler içerebilir.
+İpucu: `source`'un alt tipi, `target`'ın üst tipi tam olarak bilinmiyor.
+Kısa açıklama: `source` Number üretir; `target` Integer tüketir ve Object üretir.
+Açıklama: `source.get`'in static tipi Number'dır. `source.add(1)`, `source`'un `List<Double>` olabilme olasılığı nedeniyle reddedilir. `target` Integer eklemeyi kabul eder; ancak `get` sonucu Integer garantili değildir, çünkü hedef `List<Object>` olabilir ve başka Object'ler içerebilir.
 Varsayım: Soru yalnız tip kontrolünü ölçer; `source.get(0)` çalışma zamanında boş liste nedeniyle hata verebilir fakat statement derlenir.
 Etiketler: extends, super, compile-time, pecs
 
@@ -1957,21 +1957,21 @@ Etiketler: gc, nondeterminism, eligibility
 
 ## J40-01 · Tek seçim
 Konu: equals ve hashCode sözleşmesi
-Soru: Candidate nesneleri yalnız id alanına göre eşit olacaksa en doğru Java 8 uygulaması hangisidir? id constructor'da atanmış final int'tir.
+Soru: Candidate nesneleri yalnız `id` alanına göre eşit olacaksa en doğru Java 8 uygulaması hangisidir? `id` constructor'da atanmış `final int`'tir.
 Şıklar:
 - [x] a: `public boolean equals(Object o) { if (this == o) return true; if (!(o instanceof Candidate)) return false; Candidate c=(Candidate)o; return id==c.id; } public int hashCode() { return Integer.hashCode(id); }`
   Neden: Doğru ve sözleşmeyle uyumludur.
 - [ ] b: `public boolean equals(Object o) { if (this == o) return true; if (!(o instanceof Candidate)) return false; Candidate c=(Candidate)o; return id==c.id; } public int hashCode() { return Objects.hash(id, System.identityHashCode(this)); }`
-  Neden: hashCode nesne kimliğini kattığı için eşit iki Candidate farklı hash üretebilir; hash sözleşmesi bozulur.
-- [ ] c: equals override edilmez; `public int hashCode() { return id; }`
-  Neden: Eşitliği id bazlı yapmaz.
+  Neden: `hashCode` nesne kimliğini kattığı için eşit iki Candidate farklı hash üretebilir; hash sözleşmesi bozulur.
+- [ ] c: `equals` override edilmez; `public int hashCode() { return id; }`
+  Neden: Eşitliği `id` bazlı yapmaz.
 - [ ] d: `public boolean equals(Candidate c) { return id==c.id; }` ve `public int hashCode(){ return 1; }`
-  Neden: Object.equals'i override etmez; yalnız overload eder.
-İpucu: Object imzasını override edin; null/tür kontrolü yapın ve aynı alanı hashCode'da kullanın.
-Kısa açıklama: A, Object.equals'i güvenle override eder ve hashCode'u id ile tutarlı kurar.
-Açıklama: Kimlik kısa yolu refleksiviteyi hızlı karşılar. instanceof null için false döner ve güvenli cast sağlar. id eşitliği değer ölçütüdür. Eşit id'ler aynı Integer.hashCode üretir. equals(Candidate) overload olur, Object.equals override'ı olmaz.
-Varsayım: Candidate final sınıftır veya alt sınıf eşitliği ayrıca kısıtlanmıştır; id immutable'dır.
-Varsayım: Integer.hashCode(int) Java 8'de mevcuttur.
+  Neden: `Object.equals`'i override etmez; yalnız overload eder.
+İpucu: Object imzasını override edin; null/tür kontrolü yapın ve aynı alanı `hashCode`'da kullanın.
+Kısa açıklama: A, `Object.equals`'i güvenle override eder ve `hashCode`'u `id` ile tutarlı kurar.
+Açıklama: Kimlik kısa yolu refleksiviteyi hızlı karşılar. `instanceof` null için false döner ve güvenli cast sağlar. `id` eşitliği değer ölçütüdür. Eşit `id`'ler aynı `Integer.hashCode` üretir. `equals(Candidate)` overload olur, `Object.equals` override'ı olmaz.
+Varsayım: Candidate final sınıftır veya alt sınıf eşitliği ayrıca kısıtlanmıştır; `id` immutable'dır.
+Varsayım: `Integer.hashCode(int)` Java 8'de mevcuttur.
 Etiketler: equals, hashcode, candidate, immutable-key
 
 ## J40-02 · Çoklu seçim
@@ -2019,7 +2019,7 @@ System.out.println(map.get(key));
 
 ## J41-01 · Kod çıktısı
 Konu: Mutable HashMap anahtarı
-Soru: `equals` ve `hashCode` yalnız id'yi kullanıyor ve hashCode `Integer.hashCode(id)` döndürüyor. Standart HashMap'te kodun çıktısını yazın.
+Soru: `equals` ve `hashCode` yalnız `id`'yi kullanıyor ve `hashCode` `Integer.hashCode(id)` döndürüyor. Standart HashMap'te kodun çıktısını yazın.
 Kod:
 ```java
 Key key = new Key(1);
@@ -2032,8 +2032,8 @@ Cevap: null
 Büyük/küçük harf duyarlı: evet
 İpucu: Entry eklenirken hesaplanan hash/bucket, anahtar nesnesinin içinde sonradan otomatik güncellenmez.
 Kısa açıklama: `null` yazdırılır; mutasyondan sonra arama farklı hash ile yapılır.
-Açıklama: put sırasında id=1 hash'i entry'de saklanır ve bucket seçer. id=2 olduktan sonra get yeni hash hesaplar; saklı entry'nin hash'iyle eşleşmez ve entry bulunamaz. Nesne map'in içinde fiziksel olarak kalabilir fakat normal anahtarla erişilemez hâle gelir.
-Varsayım: Key.hashCode tam olarak Integer.hashCode(id), equals id bazlıdır; id 1 ve 2 farklı yayılmış hash üretir; map'te başka eş anahtar/değer yoktur.
+Açıklama: `put` sırasında `id = 1` hash'i entry'de saklanır ve bucket seçer. `id = 2` olduktan sonra `get` yeni hash hesaplar; saklı entry'nin hash'iyle eşleşmez ve entry bulunamaz. Nesne map'in içinde fiziksel olarak kalabilir fakat normal anahtarla erişilemez hâle gelir.
+Varsayım: `Key.hashCode` tam olarak `Integer.hashCode(id)`, `equals` ise `id` bazlıdır; `id` 1 ve 2 farklı yayılmış hash üretir; map'te başka eş anahtar/değer yoktur.
 Etiketler: hashmap, mutable-key, hashcode, output
 
 ## J41-02 · Tek seçim
@@ -2062,18 +2062,18 @@ Etiketler: immutable, map-key, hashmap
 Konu: Immutable sınıf tasarımı
 Soru: Java 8'de `User(String name, List<String> roles)` sınıfını gerçekten immutable yapmaya en uygun yaklaşım hangisidir?
 Şıklar:
-- [x] a: Sınıfı final, alanları private final yap; constructor'da `this.roles = Collections.unmodifiableList(new ArrayList<>(roles));`; getter'da bu değiştirilemez listeyi döndür
+- [x] a: Sınıfı `final`, alanları `private final` yap; constructor'da `this.roles = Collections.unmodifiableList(new ArrayList<>(roles));`; getter'da bu değiştirilemez listeyi döndür
   Neden: Doğru Java 8 defensive-copy kalıbıdır.
-- [ ] b: Sınıfı final, alanları private final yap; constructor'da `this.roles = roles;` ata, getter'da her seferinde `Collections.unmodifiableList(roles)` döndürerek yalnız okunur görünüm ver
-  Neden: Kopya alınmadığı için çağıran elindeki roles listesini değiştirerek nesnenin iç durumunu değiştirebilir.
-- [ ] c: roles getter'ında doğrudan mutable internal ArrayList döndür
+- [ ] b: Sınıfı `final`, alanları `private final` yap; constructor'da `this.roles = roles;` ata, getter'da her seferinde `Collections.unmodifiableList(roles)` döndürerek yalnız okunur görünüm ver
+  Neden: Kopya alınmadığı için çağıran elindeki `roles` listesini değiştirerek nesnenin iç durumunu değiştirebilir.
+- [ ] c: `roles` getter'ında doğrudan mutable internal ArrayList döndür
   Neden: Getter iç durumu mutasyona açar.
-- [ ] d: Sınıfı final yap ama roles alanını public bırak
+- [ ] d: Sınıfı `final` yap ama `roles` alanını `public` bırak
   Neden: Public liste doğrudan değiştirilebilir.
 İpucu: Hem constructor'a verilen listenin alias'ını hem getter üzerinden mutasyonu kapatın.
 Kısa açıklama: Defensive copy + unmodifiable görünüm, mutable listenin iki dış erişim yolunu da kapatır.
-Açıklama: Constructor yalnız unmodifiableList(roles) yapsaydı çağıran orijinal listeyi değiştirerek iç durumu etkileyebilirdi. Önce new ArrayList ile snapshot alınır, sonra dış mutasyon kapatılır. final sınıf override ile state sızdırılmasını; private final alanlar yeniden atamayı engeller. String zaten immutable'dır.
-Varsayım: Constructor Objects.requireNonNull ile name ve roles null durumunu reddeder; roles içinde null kabul politikası ayrıca seçilebilir.
+Açıklama: Constructor yalnız `unmodifiableList(roles)` yapsaydı çağıran orijinal listeyi değiştirerek iç durumu etkileyebilirdi. Önce `new ArrayList` ile snapshot alınır, sonra dış mutasyon kapatılır. `final` sınıf override ile state sızdırılmasını; `private final` alanlar yeniden atamayı engeller. String zaten immutable'dır.
+Varsayım: Constructor `Objects.requireNonNull` ile `name` ve `roles` null durumunu reddeder; `roles` içinde null kabul politikası ayrıca seçilebilir.
 Varsayım: Role elemanları String olduğu için eleman düzeyinde deep copy gerekmez.
 Etiketler: immutability, defensive-copy, unmodifiable-list
 
@@ -2181,13 +2181,13 @@ class Counter {
   Neden: Doğru lost-update yarışıdır.
 - [ ] b: int yalnız tek thread'de kullanılabilen bir tiptir
   Neden: int thread'e bağlı değildir.
-- [ ] c: Her thread increment çağırırken Counter nesnesinin ayrı bir kopyasını alır; artışlar farklı kopyalara yazılır
+- [ ] c: Her thread `increment` çağırırken Counter nesnesinin ayrı bir kopyasını alır; artışlar farklı kopyalara yazılır
   Neden: Thread'ler aynı nesne referansını paylaşır; Java metot çağrısında nesneyi kopyalamaz.
 - [ ] d: Metot void olduğu için artış uygulanmaz
   Neden: void yalnız dönüş değeri olmadığını belirtir.
 İpucu: Her thread aynı eski değeri okuyup aynı yeni değeri yazabilir.
-Kısa açıklama: value++ birleşik ve atomik olmayan bir read-modify-write işlemidir.
-Açıklama: İki thread ikisi de örneğin 5 okuyabilir, 6 hesaplayabilir ve 6 yazabilir; iki çağrıdan yalnız bir net artış görünür. Ayrıca uygun synchronization olmadan visibility garantisi de yoktur. int tek okuma/yazmanın atomik olması, ++ işleminin tamamını atomik yapmaz.
+Kısa açıklama: `value++` birleşik ve atomik olmayan bir read-modify-write işlemidir.
+Açıklama: İki thread ikisi de örneğin 5 okuyabilir, 6 hesaplayabilir ve 6 yazabilir; iki çağrıdan yalnız bir net artış görünür. Ayrıca uygun synchronization olmadan visibility garantisi de yoktur. int tek okuma/yazmanın atomik olması, `++` işleminin tamamını atomik yapmaz.
 Varsayım: Aynı Counter nesnesi birden çok thread tarafından paylaşılır; external synchronization yoktur.
 Etiketler: race-condition, atomicity, visibility
 
