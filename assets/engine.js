@@ -607,6 +607,11 @@
     return escapeHtml(text).replace(/`([^`]+)`/g, '<code>$1</code>');
   }
 
+  // For places that cannot hold markup, such as select options and aria-labels.
+  function plainInline(text) {
+    return String(text == null ? '' : text).replace(/`([^`]+)`/g, '$1');
+  }
+
   function buildInterviewBank(bank) {
     var sources = window.SOURCE_QUESTIONS || {};
     var groups = {};
@@ -723,6 +728,7 @@
     INTERVIEW_MINUTES: INTERVIEW_MINUTES,
     promptBlocks: promptBlocks,
     inlineMarkdown: inlineMarkdown,
+    plainInline: plainInline,
     buildInterviewBank: buildInterviewBank,
     nextInterviewState: nextInterviewState,
     download: download

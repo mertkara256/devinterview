@@ -665,8 +665,11 @@ kbd { display: inline-flex; justify-content: center; min-width: 52px; padding: .
 
 .interview-prompt p { color: var(--text-soft); line-height: 1.65; white-space: pre-wrap; }
 .interview-prompt :not(pre) > code,
-.interview-reveal :not(pre) > code { padding: .05rem .32rem; border: 1px solid var(--line); border-radius: 6px; background: var(--surface-soft); font: 600 .86em/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
-.question-title code { font-size: .82em; }
+.interview-reveal :not(pre) > code,
+.question-card :not(pre) > code,
+.review-item :not(pre) > code,
+.explorer-card :not(pre) > code { padding: .05rem .32rem; border: 1px solid var(--line); border-radius: 6px; background: var(--surface-soft); font: 600 .86em/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+.question-title :not(pre) > code { font-size: .82em; }
 .interview-timer { min-width: 4.2rem; justify-content: center; font-variant-numeric: tabular-nums; }
 .interview-timer.over { color: var(--warning); background: var(--warning-soft); border-color: transparent; }
 .interview-steps { display: grid; gap: .4rem; margin: 0 0 1rem; padding-left: 1.3rem; }

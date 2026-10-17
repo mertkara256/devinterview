@@ -702,6 +702,12 @@
       '<pre class="code-block" tabindex="0" aria-label="Java kodu"><code>' + E.highlightJava(code) + '</code></pre></div>';
   }
 
+  // Typed answers stay literal; answers built from option text may carry inline code.
+  function answerHtml(card, value) {
+    var text = E.formatAnswer(card, value);
+    return card.type === 'fill' || card.type === 'output' ? E.escapeHtml(text) : E.inlineMarkdown(text);
+  }
+
   function renderAnswerInput(card, item, response, locked) {
     var answer = response.currentAnswer;
     if (card.type === 'single' || card.type === 'multi') {
@@ -717,7 +723,7 @@
         }
         var optionStatus = optionClass === ' correct' ? '<span class="sr-only"> — doğru seçenek</span>' : optionClass === ' incorrect' ? '<span class="sr-only"> — verdiğin yanlış cevap</span>' : '';
         return '<label class="option' + optionClass + '"><input type="' + inputType + '" name="answer" value="' + E.escapeHtml(option.id) + '" aria-keyshortcuts="' + (index + 1) + '" ' + (checked ? 'checked' : '') + ' ' + (locked ? 'disabled' : '') + '>' +
-          '<span class="option-key" aria-hidden="true">' + (index + 1) + '</span><span class="option-text">' + E.escapeHtml(option.text) + optionStatus + '</span></label>';
+          '<span class="option-key" aria-hidden="true">' + (index + 1) + '</span><span class="option-text">' + E.inlineMarkdown(option.text) + optionStatus + '</span></label>';
       }).join('') + '</div>';
     }
     if (card.type === 'boolean') {
@@ -740,9 +746,9 @@
       (card.items || []).forEach(function (entry) { itemMap[entry.id] = entry; });
       return '<div class="ordering-list" role="list" aria-label="Sıralanacak adımlar">' + order.map(function (id, index) {
         var entry = itemMap[id] || { text: id };
-        return '<div class="ordering-item" role="listitem" data-order-id="' + E.escapeHtml(id) + '"><span class="ordering-index">' + (index + 1) + '</span><span>' + E.escapeHtml(entry.text) + '</span><span class="ordering-actions">' +
-          '<button type="button" data-action="move-order" data-dir="up" aria-label="' + E.escapeHtml(entry.text) + ' adımını yukarı taşı" ' + (locked || index === 0 ? 'disabled' : '') + '>↑</button>' +
-          '<button type="button" data-action="move-order" data-dir="down" aria-label="' + E.escapeHtml(entry.text) + ' adımını aşağı taşı" ' + (locked || index === order.length - 1 ? 'disabled' : '') + '>↓</button></span></div>';
+        return '<div class="ordering-item" role="listitem" data-order-id="' + E.escapeHtml(id) + '"><span class="ordering-index">' + (index + 1) + '</span><span>' + E.inlineMarkdown(entry.text) + '</span><span class="ordering-actions">' +
+          '<button type="button" data-action="move-order" data-dir="up" aria-label="' + E.escapeHtml(E.plainInline(entry.text)) + ' adımını yukarı taşı" ' + (locked || index === 0 ? 'disabled' : '') + '>↑</button>' +
+          '<button type="button" data-action="move-order" data-dir="down" aria-label="' + E.escapeHtml(E.plainInline(entry.text)) + ' adımını aşağı taşı" ' + (locked || index === order.length - 1 ? 'disabled' : '') + '>↓</button></span></div>';
       }).join('') + '</div>';
     }
     if (card.type === 'match') {
@@ -751,8 +757,8 @@
       ((card.pairs && card.pairs.right) || []).forEach(function (entry) { rightMap[entry.id] = entry; });
       var rightOrder = withNewIds(item.rightOrder, Object.keys(rightMap));
       return '<div class="matching-list" role="group" aria-label="Eşleştirilecek öğeler">' + ((card.pairs && card.pairs.left) || []).map(function (left) {
-        return '<label class="matching-row"><span class="matching-left">' + E.escapeHtml(left.text) + '</span><span aria-hidden="true">→</span><select name="match-' + E.escapeHtml(left.id) + '" ' + (locked ? 'disabled' : '') + ' aria-label="' + E.escapeHtml(left.text) + ' için eşleşme"><option value="">Seç…</option>' +
-          rightOrder.map(function (rightId) { var right = rightMap[rightId]; return '<option value="' + E.escapeHtml(rightId) + '" ' + (mapping[left.id] === rightId ? 'selected' : '') + '>' + E.escapeHtml(right ? right.text : rightId) + '</option>'; }).join('') + '</select></label>';
+        return '<label class="matching-row"><span class="matching-left">' + E.inlineMarkdown(left.text) + '</span><span aria-hidden="true">→</span><select name="match-' + E.escapeHtml(left.id) + '" ' + (locked ? 'disabled' : '') + ' aria-label="' + E.escapeHtml(E.plainInline(left.text)) + ' için eşleşme"><option value="">Seç…</option>' +
+          rightOrder.map(function (rightId) { var right = rightMap[rightId]; return '<option value="' + E.escapeHtml(rightId) + '" ' + (mapping[left.id] === rightId ? 'selected' : '') + '>' + E.escapeHtml(right ? E.plainInline(right.text) : rightId) + '</option>'; }).join('') + '</select></label>';
       }).join('') + '</div>';
     }
     return '<p class="muted">Bu soru türü gösterilemiyor.</p>';
@@ -768,7 +774,7 @@
 
   function renderFeedback(card, response) {
     if (response.stage === 'hint' && !response.completed) {
-      return '<div class="feedback hint" id="answer-feedback" tabindex="-1"><h3>Küçük ipucu</h3><p>' + E.escapeHtml(card.hint) + '</p><p class="tiny">Cevabını değiştirip bir kez daha dene.</p></div>';
+      return '<div class="feedback hint" id="answer-feedback" tabindex="-1"><h3>Küçük ipucu</h3><p>' + E.inlineMarkdown(card.hint) + '</p><p class="tiny">Cevabını değiştirip bir kez daha dene.</p></div>';
     }
     if (!response.completed) return '';
     var score = typeof response.finalScore === 'number' ? response.finalScore : response.firstScore;
@@ -777,12 +783,12 @@
     var heading = correct ? (response.supported ? 'Destekli doğru' : 'Doğru cevap') : score > 0 ? 'Kısmen doğru' : 'Henüz değil';
     var optionDetails = Object.keys(card.optionExplanations || {}).map(function (id) {
       var option = (card.options || []).find(function (entry) { return String(entry.id) === String(id); });
-      return '<div class="option-explanation"><strong>' + E.escapeHtml(option ? option.text : id) + '</strong><br>' + E.escapeHtml(card.optionExplanations[id]) + '</div>';
+      return '<div class="option-explanation"><strong>' + E.inlineMarkdown(option ? option.text : id) + '</strong><br>' + E.inlineMarkdown(card.optionExplanations[id]) + '</div>';
     }).join('');
-    return '<div class="feedback ' + className + '" id="answer-feedback" tabindex="-1"><h3>' + heading + (score > 0 && score < 1 ? ' · %' + Math.round(score * 100) : '') + '</h3><p>' + E.escapeHtml(card.explanationShort) + '</p>' +
-      '<div class="answer-comparison"><p><strong>Verdiğin cevap</strong><br><span style="white-space:pre-wrap">' + E.escapeHtml(E.formatAnswer(card, response.currentAnswer)) + '</span></p>' +
-      '<p><strong>Doğru cevap</strong><br><span style="white-space:pre-wrap">' + E.escapeHtml(E.formatAnswer(card, card.answer)) + '</span></p></div>' +
-      '<details class="explanation-details"><summary>Ayrıntılı açıklama</summary><p>' + E.escapeHtml(card.explanationLong) + '</p>' + (optionDetails ? '<div class="option-explanations">' + optionDetails + '</div>' : '') + '</details>' +
+    return '<div class="feedback ' + className + '" id="answer-feedback" tabindex="-1"><h3>' + heading + (score > 0 && score < 1 ? ' · %' + Math.round(score * 100) : '') + '</h3><p>' + E.inlineMarkdown(card.explanationShort) + '</p>' +
+      '<div class="answer-comparison"><p><strong>Verdiğin cevap</strong><br><span style="white-space:pre-wrap">' + answerHtml(card, response.currentAnswer) + '</span></p>' +
+      '<p><strong>Doğru cevap</strong><br><span style="white-space:pre-wrap">' + answerHtml(card, card.answer) + '</span></p></div>' +
+      '<details class="explanation-details"><summary>Ayrıntılı açıklama</summary><p>' + E.inlineMarkdown(card.explanationLong) + '</p>' + (optionDetails ? '<div class="option-explanations">' + optionDetails + '</div>' : '') + '</details>' +
       '<details class="explanation-details source-question"><summary>Kaynak soruyu gör · ' + E.escapeHtml(card.sourceId) + '</summary><pre>' + E.escapeHtml(card.originalPrompt) + '</pre></details></div>';
   }
 
@@ -826,7 +832,7 @@
     var showMeta = attempt.mode === 'practice';
     // Snapshots saved before assumptions were normalized may still hold a single string.
     var assumptionList = [].concat(card.assumptions || []).filter(Boolean);
-    var assumptions = assumptionList.length ? '<div class="question-assumption"><strong>Varsayım:</strong> ' + E.escapeHtml(assumptionList.join(' · ')) + '</div>' : '';
+    var assumptions = assumptionList.length ? '<div class="question-assumption"><strong>Varsayım:</strong> ' + E.inlineMarkdown(assumptionList.join(' · ')) + '</div>' : '';
     var progressValue = (attempt.currentIndex + 1) / attempt.items.length * 100;
 
     app.innerHTML = '<section class="session-page">' +
@@ -835,7 +841,7 @@
       '<div class="session-layout"><article class="card question-card"><div class="question-meta"><div class="question-meta-left">' +
         (showMeta ? '<span class="badge primary">' + E.escapeHtml(card.sourceId) + '</span>' + difficultyBadge(card.difficulty) + '<span class="badge">' + E.escapeHtml(card.topic) + '</span>' : '<span class="badge">Soru ' + (attempt.currentIndex + 1) + '</span>') +
         '</div><div class="question-meta-right"><span class="badge">' + E.escapeHtml(typeLabel(card.type)) + '</span></div></div>' +
-        '<h1 class="question-title">' + E.escapeHtml(card.prompt) + '</h1>' + assumptions + renderCode(card.code) +
+        '<h1 class="question-title">' + E.inlineMarkdown(card.prompt) + '</h1>' + assumptions + renderCode(card.code) +
         '<form id="question-form" class="answer-area" data-question-id="' + E.escapeHtml(item.questionId) + '" autocomplete="off">' + renderAnswerInput(card, item, response, locked) + renderConfidence(response, locked) + '</form>' +
         renderFeedback(card, response) +
         '<div class="question-actions"><div class="question-actions-left"><button class="button ghost" type="button" data-action="previous-question" ' + (attempt.currentIndex === 0 ? 'disabled' : '') + '>← Önceki</button>' +
@@ -1140,11 +1146,11 @@
     var status = resultState(result);
     var optionDetails = Object.keys(card.optionExplanations || {}).map(function (id) {
       var option = (card.options || []).find(function (entry) { return String(entry.id) === String(id); });
-      return '<div class="option-explanation"><strong>' + E.escapeHtml(option ? option.text : id) + '</strong><br>' + E.escapeHtml(card.optionExplanations[id]) + '</div>';
+      return '<div class="option-explanation"><strong>' + E.inlineMarkdown(option ? option.text : id) + '</strong><br>' + E.inlineMarkdown(card.optionExplanations[id]) + '</div>';
     }).join('');
-    return '<details class="card review-item"><summary class="review-summary"><span class="review-state ' + status.className + '" aria-hidden="true">' + status.symbol + '</span><span><strong>' + (index + 1) + '. ' + E.escapeHtml(card.prompt) + '</strong><span class="badge-row" style="margin-top:.35rem"><span class="badge primary">' + E.escapeHtml(card.sourceId) + '</span><span class="badge">' + E.escapeHtml(typeLabel(card.type)) + '</span><span class="badge">Kart v' + E.escapeHtml(card.version || '1.0.0') + '</span></span></span><span class="status-pill ' + (status.className === 'correct' ? 'success' : status.className === 'blank' ? 'warning' : 'danger') + '">' + status.label + '</span></summary>' +
-      '<div class="review-body">' + renderCode(card.code) + '<div class="card pad" style="background:var(--surface-soft);margin-bottom:.75rem"><p><strong>Verdiğin cevap</strong><br><span style="white-space:pre-wrap">' + E.escapeHtml(response.blank || !response.id ? 'Boş' : E.formatAnswer(card, response.currentAnswer)) + '</span></p><p><strong>Doğru cevap</strong><br><span style="white-space:pre-wrap">' + E.escapeHtml(E.formatAnswer(card, card.answer)) + '</span></p><p class="tiny muted">Aktif süre: ' + E.formatDuration(response.timeMs) + (response.confidence ? ' · Eminlik: ' + E.escapeHtml(response.confidence) : '') + '</p></div>' +
-      '<div class="feedback ' + (status.className === 'correct' ? 'correct' : 'incorrect') + '"><h3>' + E.escapeHtml(card.explanationShort) + '</h3><p>' + E.escapeHtml(card.explanationLong) + '</p>' + (optionDetails ? '<div class="option-explanations">' + optionDetails + '</div>' : '') +
+    return '<details class="card review-item"><summary class="review-summary"><span class="review-state ' + status.className + '" aria-hidden="true">' + status.symbol + '</span><span><strong>' + (index + 1) + '. ' + E.inlineMarkdown(card.prompt) + '</strong><span class="badge-row" style="margin-top:.35rem"><span class="badge primary">' + E.escapeHtml(card.sourceId) + '</span><span class="badge">' + E.escapeHtml(typeLabel(card.type)) + '</span><span class="badge">Kart v' + E.escapeHtml(card.version || '1.0.0') + '</span></span></span><span class="status-pill ' + (status.className === 'correct' ? 'success' : status.className === 'blank' ? 'warning' : 'danger') + '">' + status.label + '</span></summary>' +
+      '<div class="review-body">' + renderCode(card.code) + '<div class="card pad" style="background:var(--surface-soft);margin-bottom:.75rem"><p><strong>Verdiğin cevap</strong><br><span style="white-space:pre-wrap">' + (response.blank || !response.id ? 'Boş' : answerHtml(card, response.currentAnswer)) + '</span></p><p><strong>Doğru cevap</strong><br><span style="white-space:pre-wrap">' + answerHtml(card, card.answer) + '</span></p><p class="tiny muted">Aktif süre: ' + E.formatDuration(response.timeMs) + (response.confidence ? ' · Eminlik: ' + E.escapeHtml(response.confidence) : '') + '</p></div>' +
+      '<div class="feedback ' + (status.className === 'correct' ? 'correct' : 'incorrect') + '"><h3>' + E.inlineMarkdown(card.explanationShort) + '</h3><p>' + E.inlineMarkdown(card.explanationLong) + '</p>' + (optionDetails ? '<div class="option-explanations">' + optionDetails + '</div>' : '') +
       '<details class="explanation-details"><summary>Kaynak soruyu gör</summary><pre style="white-space:pre-wrap;font-family:inherit">' + E.escapeHtml(card.originalPrompt) + '</pre></details></div></div></details>';
   }
 
@@ -1410,7 +1416,7 @@
         var progress = progressMap[card.sourceId] || {};
         var cardState = cardStateMap[card.id] || {};
         return '<article class="card explorer-card"><div class="badge-row"><span class="badge primary">' + E.escapeHtml(card.id) + '</span>' + difficultyBadge(card.difficulty) + '<span class="badge">' + E.escapeHtml(typeLabel(card.type)) + '</span>' + (E.isLearned(progress) ? '<span class="badge success">Öğrenildi</span>' : '') + '</div>' +
-          '<h3>' + E.escapeHtml(card.prompt) + '</h3><p>' + E.escapeHtml(card.topic) + ' · Kaynak ' + E.escapeHtml(card.sourceId) + '</p><div class="explorer-actions"><button class="button small primary" data-action="practice-card" data-id="' + E.escapeHtml(card.id) + '">Çalış</button>' +
+          '<h3>' + E.inlineMarkdown(card.prompt) + '</h3><p>' + E.escapeHtml(card.topic) + ' · Kaynak ' + E.escapeHtml(card.sourceId) + '</p><div class="explorer-actions"><button class="button small primary" data-action="practice-card" data-id="' + E.escapeHtml(card.id) + '">Çalış</button>' +
           '<button class="button small ' + (cardState.favorite ? 'soft' : 'ghost') + '" data-action="explorer-favorite" data-id="' + E.escapeHtml(card.id) + '" aria-label="Favori olarak işaretle" aria-pressed="' + (cardState.favorite ? 'true' : 'false') + '">' + (cardState.favorite ? '★' : '☆') + ' Favori</button>' +
           '<button class="button small ' + (progress.known ? 'soft' : 'ghost') + '" data-action="toggle-known" data-source="' + E.escapeHtml(card.sourceId) + '" data-card-id="' + E.escapeHtml(card.id) + '" aria-label="' + (progress.known ? 'Biliniyor: zaten biliyorum durumu' : 'Zaten biliyorum olarak işaretle') + '" aria-pressed="' + (progress.known ? 'true' : 'false') + '">' + (progress.known ? 'Biliniyor' : 'Zaten biliyorum') + '</button>' +
           '<button class="button small ' + (progress.excluded ? 'warning' : 'ghost') + '" data-action="toggle-excluded" data-source="' + E.escapeHtml(card.sourceId) + '" data-card-id="' + E.escapeHtml(card.id) + '" aria-label="' + (progress.excluded ? 'Dahil et: kaynak şu anda hariç tutuluyor' : 'Hariç tut: kaynağı şimdilik hariç bırak') + '" aria-pressed="' + (progress.excluded ? 'true' : 'false') + '">' + (progress.excluded ? 'Dahil et' : 'Hariç tut') + '</button>' +
