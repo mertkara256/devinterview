@@ -1676,7 +1676,12 @@
     var titleIndex = blocks.findIndex(function (block) { return block.type === 'text'; });
     var html = blocks.map(function (block, index) {
       if (block.type === 'code') return renderCode(block.text);
-      if (index === titleIndex) return '<h1 class="question-title">' + E.inlineMarkdown(block.text) + '</h1>';
+      if (index === titleIndex) {
+        // Only the first paragraph is the title; later ones (such as "Nerede soruldu") read as body text.
+        var paragraphs = block.text.split(/\n\s*\n/);
+        return '<h1 class="question-title">' + E.inlineMarkdown(paragraphs[0]) + '</h1>' +
+          (paragraphs.length > 1 ? '<p>' + E.inlineMarkdown(paragraphs.slice(1).join('\n\n')) + '</p>' : '');
+      }
       return '<p>' + E.inlineMarkdown(block.text) + '</p>';
     }).join('');
     return titleIndex === -1 ? '<h1 class="question-title">' + E.escapeHtml(item.sourceId) + '</h1>' + html : html;
