@@ -106,6 +106,7 @@
       optionExplanations: {},
       assumptions: [],
       tags: [],
+      language: 'java',
       version: '1.0.0'
     }, card);
     normalized.options = asArray(normalized.options).map(function (option, index) {
@@ -554,26 +555,65 @@
     return review;
   }
 
-  // One pass over the raw source, so later rules never match inside markup or entities produced by earlier ones.
-  var JAVA_TOKEN = new RegExp([
-    '(\\/\\/[^\\n]*|\\/\\*[\\s\\S]*?\\*\\/)',
-    '("(?:\\\\.|[^"\\\\\\n])*"|\'(?:\\\\.|[^\'\\\\\\n])*\')',
-    '\\b(public|private|protected|static|final|class|interface|abstract|extends|implements|new|return|if|else|for|while|do|switch|case|break|continue|try|catch|finally|throw|throws|this|super|instanceof|void|default|synchronized)\\b',
-    '\\b(int|long|short|byte|double|float|boolean|char|String|Integer|Object|List|Set|Map|ArrayList|LinkedList|HashMap|HashSet)\\b',
-    '\\b(\\d+(?:\\.\\d+)?[fFdDlL]?)\\b'
-  ].join('|'), 'g');
+  // Labels for the languages a "Kod:" block may use; keep the keys in step with CODE_LANGUAGES in build.cjs.
+  var CODE_LANGUAGES = { java: 'Java', c: 'C', cpp: 'C++', sql: 'SQL' };
 
-  function highlightJava(code) {
+  // Each pattern is one capture group, tried in order: comment, string, keyword, type, number.
+  var QUOTED = '"(?:\\\\.|[^"\\\\\\n])*"|\'(?:\\\\.|[^\'\\\\\\n])*\'';
+  var C_KEYWORDS = 'if|else|for|while|do|switch|case|break|continue|return|goto|sizeof|struct|union|enum|typedef|static|const|volatile|extern|inline|default';
+  var TOKEN_PATTERNS = {
+    java: new RegExp([
+      '(\\/\\/[^\\n]*|\\/\\*[\\s\\S]*?\\*\\/)',
+      '(' + QUOTED + ')',
+      '\\b(public|private|protected|static|final|class|interface|abstract|extends|implements|new|return|if|else|for|while|do|switch|case|break|continue|try|catch|finally|throw|throws|this|super|instanceof|void|default|synchronized)\\b',
+      '\\b(int|long|short|byte|double|float|boolean|char|String|Integer|Object|List|Set|Map|ArrayList|LinkedList|HashMap|HashSet)\\b',
+      '\\b(\\d+(?:\\.\\d+)?[fFdDlL]?)\\b'
+    ].join('|'), 'g'),
+    // Preprocessor lines take the keyword colour so #include does not read as a comment.
+    c: new RegExp([
+      '(\\/\\/[^\\n]*|\\/\\*[\\s\\S]*?\\*\\/)',
+      '(' + QUOTED + ')',
+      '(^[ \\t]*#[^\\n]*|\\b(?:' + C_KEYWORDS + ')\\b)',
+      '\\b(void|char|short|int|long|float|double|signed|unsigned|bool|size_t|uint8_t|uint16_t|uint32_t|int32_t|FILE)\\b',
+      '\\b(0[xX][0-9a-fA-F]+[uUlL]*|\\d+(?:\\.\\d+)?[fFuUlL]*)\\b'
+    ].join('|'), 'gm'),
+    cpp: new RegExp([
+      '(\\/\\/[^\\n]*|\\/\\*[\\s\\S]*?\\*\\/)',
+      '(' + QUOTED + ')',
+      '(^[ \\t]*#[^\\n]*|\\b(?:' + C_KEYWORDS + '|class|public|private|protected|virtual|override|new|delete|this|template|typename|namespace|using|try|catch|throw|nullptr|true|false|operator|explicit)\\b)',
+      '\\b(void|char|short|int|long|float|double|signed|unsigned|bool|size_t|auto|std|string|vector)\\b',
+      '\\b(0[xX][0-9a-fA-F]+[uUlL]*|\\d+(?:\\.\\d+)?[fFuUlL]*)\\b'
+    ].join('|'), 'gm'),
+    sql: new RegExp([
+      '(--[^\\n]*)',
+      '(\'(?:\'\'|[^\'\\n])*\')',
+      '\\b(select|from|where|join|left|right|full|outer|inner|cross|on|group|by|having|order|as|and|or|not|null|is|in|insert|into|values|update|set|delete|create|table|primary|key|foreign|references|distinct|limit|union|all|case|when|then|else|end|exists|between|like|asc|desc)\\b',
+      '\\b(count|sum|avg|min|max|int|integer|varchar|text|date)\\b',
+      '\\b(\\d+(?:\\.\\d+)?)\\b'
+    ].join('|'), 'gi')
+  };
+  var TOKEN_KINDS = ['comment', 'string', 'keyword', 'type', 'number'];
+
+  // One pass over the raw source, so later rules never match inside markup or entities produced by earlier ones.
+  function highlightCode(code, language) {
     var source = String(code || '');
+    var pattern = TOKEN_PATTERNS[language] || TOKEN_PATTERNS.java;
     var html = '';
     var last = 0;
-    source.replace(JAVA_TOKEN, function (match, comment, string, keyword, type, number, offset) {
-      var kind = comment ? 'comment' : string ? 'string' : keyword ? 'keyword' : type ? 'type' : 'number';
+    pattern.lastIndex = 0;
+    source.replace(pattern, function (match) {
+      var groups = Array.prototype.slice.call(arguments, 1, 1 + TOKEN_KINDS.length);
+      var offset = arguments[1 + TOKEN_KINDS.length];
+      var kind = TOKEN_KINDS[groups.findIndex(function (group) { return group !== undefined; })];
       html += escapeHtml(source.slice(last, offset)) + '<span class="tok-' + kind + '">' + escapeHtml(match) + '</span>';
       last = offset + match.length;
       return match;
     });
     return html + escapeHtml(source.slice(last));
+  }
+
+  function highlightJava(code) {
+    return highlightCode(code, 'java');
   }
 
   function toCsv(rows) {
@@ -661,6 +701,7 @@
         examples: cards.filter(function (card) { return shown.indexOf(card) === -1 && card.type !== 'order'; }).map(function (card) {
           return {
             code: card.code,
+            language: card.language,
             caption: shortText(card),
             detail: card.explanationLong,
             output: card.type === 'output' ? card.answer : '',
@@ -744,6 +785,8 @@
     addDays: addDays,
     dateKey: dateKey,
     highlightJava: highlightJava,
+    highlightCode: highlightCode,
+    CODE_LANGUAGES: CODE_LANGUAGES,
     toCsv: toCsv,
     sessionResponseSignature: sessionResponseSignature,
     sessionsEquivalent: sessionsEquivalent,

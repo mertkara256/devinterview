@@ -60,7 +60,7 @@ Etiketler: etiket1, etiket2
 - Başlıktan sonraki ilk satır isteğe bağlı olarak `Alan: Gömülü ve işletim sistemleri` gibi bir alan olabilir. Alan, soruyu bölümünün içinde bir gruba koyar; test oluşturucu, mülakat modu ve soru gezgini bu gruplara göre filtreler. Bir bölümde bir soruya alan verilirse o bölümdeki bütün sorulara da verilmelidir; eksik olanı derleme bildirir. Şu an yalnız Savunma bölümünde alan var.
 - Soru metninden sonra, ilk karttan önce isteğe bağlı bir `Anahtar noktalar:` listesi gelebilir. Her satırı `- ` ile başlar ve iyi bir cevapta geçmesi gereken bir noktayı söyler. Mülakat modu kendine puan verirken bu listeyi kontrol listesi olarak gösterir; liste yoksa kartların kısa açıklamalarından üretilir. Şu an Savunma sorularında bu liste var.
 - Kart kimliği soru kimliğiyle başlar: `J46-01`, `J46-02`. İlerleme kayıtları bu kimliklere bağlıdır; mevcut bir kartın kimliğini değiştirmeyin.
-- Her alan tek satırdır. Kod, `Kod:` satırının hemen altında ```` ``` ```` bloğu içinde yazılır.
+- Her alan tek satırdır. Kod, `Kod:` satırının hemen altında ```` ``` ```` bloğu içinde yazılır. Bloğun dili açılış satırındaki etiketle belirtilir: ```` ```java ````, ```` ```c ````, ```` ```cpp ```` veya ```` ```sql ````. Etiketsiz blok Java sayılır. Uygulama kodu bu dile göre renklendirir.
 - Zorunlu alanlar: `Konu`, `Soru`, `İpucu`, `Kısa açıklama`, `Açıklama`. İsteğe bağlı alanlar: `Kod`, `Varsayım` (birden çok kez yazılabilir) ve `Etiketler` (virgülle ayrılır).
 - Kartın zorluğu sorunun başlığından gelir. Kart sürümü içerikten otomatik üretilir; kart değişince sürümü de değişir ve yarım kalmış oturumlar kartı başladıkları hâliyle göstermeye devam eder.
 - `<!-- ... -->` yorumları yok sayılır.
@@ -112,7 +112,7 @@ Fazladan seçenekler:
 
 ## Yerel doğrulama
 
-İsteğe bağlı geliştirici kontrolleri için Node.js ve JDK gerekir; uygulamanın kendisini açmak için bunlar gerekmez. Bu klasörde aşağıdaki komutlar ayrı ayrı çalıştırılabilir:
+İsteğe bağlı geliştirici kontrolleri için Node.js, JDK ve bir C/C++ derleyicisi (`cc`, `c++`) gerekir; uygulamanın kendisini açmak için bunlar gerekmez. Bu klasörde aşağıdaki komutlar ayrı ayrı çalıştırılabilir:
 
 ```bash
 node build.cjs --check
@@ -121,9 +121,10 @@ node qa/validate-bank.cjs
 node qa/validate-engine.cjs
 node qa/validate-runtime.cjs
 node qa/validate-java.cjs
+node qa/validate-c.cjs
 ```
 
-Kontroller; `assets/bank.js` dosyasının `sorular/` ile güncel olduğunu, teslimat dosyalarını, klasik yerel script sırasını, ağ/CDN/telemetri ve ES module kullanılmadığını, yedi cevap türünün veri biçimini, puanlama davranışını, cevapların şık biçiminden tahmin edilemediğini, sıralama kartlarının boş-geçme durumunu ve aktif sınavda çözüm rotasının kapalı olduğunu doğrular. Java kontrolü kod içeren kartları `javac --release 8` ile derler, kasıtlı derleme hatalarını beklenen hata olarak sınar ve doğrudan çalıştırılabilen çıktı örneklerini cevap anahtarıyla karşılaştırır. Boşluk doldurma kod şablonları, eksik kısmı bilerek içerdiği için derlenmez. Bilerek derlenmeyen kod içeren yeni bir kart eklerseniz, onu `qa/validate-java.cjs` içindeki beklenen hatalar listesine de ekleyin.
+Kontroller; `assets/bank.js` dosyasının `sorular/` ile güncel olduğunu, teslimat dosyalarını, klasik yerel script sırasını, ağ/CDN/telemetri ve ES module kullanılmadığını, yedi cevap türünün veri biçimini, puanlama davranışını, cevapların şık biçiminden tahmin edilemediğini, sıralama kartlarının boş-geçme durumunu ve aktif sınavda çözüm rotasının kapalı olduğunu doğrular. Java kontrolü kod içeren kartları `javac --release 8` ile derler, kasıtlı derleme hatalarını beklenen hata olarak sınar ve doğrudan çalıştırılabilen çıktı örneklerini cevap anahtarıyla karşılaştırır. C ve C++ kontrolü bu dillerdeki kartları `cc -std=c11` ve `c++ -std=c++17` ile derler; kod çıktısı kartlarını çalıştırıp cevap anahtarıyla karşılaştırır. Bu yüzden C/C++ kartlarındaki kod, `#include` satırlarıyla birlikte tek başına derlenebilir olmalı; kod çıktısı kartlarında `main` de bulunmalıdır. SQL kodu yalnız gösterilir, çalıştırılmaz. Boşluk doldurma kod şablonları, eksik kısmı bilerek içerdiği için derlenmez. Bilerek derlenmeyen kod içeren yeni bir kart eklerseniz, onu `qa/validate-java.cjs` içindeki beklenen hatalar listesine de ekleyin.
 
 Aynı kontroller GitHub'a yapılan her push'ta ve pull request'te GitHub Actions ile de çalışır (`.github/workflows/qa.yml`). Bir kontrol başarısız olursa GitHub'ın Actions sekmesinde hangi adımın neden düştüğü görünür ve hesap ayarlarına göre e-posta bildirimi gelir.
 

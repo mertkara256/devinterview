@@ -135,6 +135,32 @@ Kısa açıklama: static yerel değişkende kalıcı ömür, dosya kapsamında i
 Açıklama: Fonksiyon içindeki static değişken bir kez başlatılır ve program boyunca yaşar. Dosya kapsamında static, sembolü diğer çeviri birimlerinden gizler (internal linkage). Sınıfın static üyesi nesneye değil sınıfa aittir. Salt okunurluk const'un işidir.
 Etiketler: static, c, cpp
 
+## S04-02 · Kod çıktısı
+Konu: static yerel değişken
+Soru: Programın çıktısını yazın.
+Kod:
+```c
+#include <stdio.h>
+
+int next_id(void) {
+    static int count = 0;
+    count++;
+    return count;
+}
+
+int main(void) {
+    next_id();
+    next_id();
+    printf("%d\n", next_id());
+    return 0;
+}
+```
+Cevap: 3
+İpucu: `count` her çağrıda yeniden mi başlatılıyor?
+Kısa açıklama: `static` yerel değişken bir kez başlatılır ve çağrılar arasında değerini korur; üçüncü çağrı 3 döndürür.
+Açıklama: `static int count = 0;` başlatması program boyunca bir kez yapılır; her çağrı aynı `count` değişkenini artırır. `static` olmasaydı her çağrıda yeni bir yerel değişken oluşur ve fonksiyon hep 1 döndürürdü.
+Etiketler: c, static
+
 # S05 · Orta · Teori
 
 Alan: C/C++
@@ -178,6 +204,37 @@ Soru: Virtual fonksiyonu olan bir sınıfın nesneleri, yaygın derleyicilerde s
 Kısa açıklama: Dinamik bağlama vptr/vtable ile gerçekleşir.
 Açıklama: Her çok biçimli sınıfın virtual fonksiyon adreslerini tutan bir tablosu vardır; nesne kurulurken vptr bu tabloyu gösterecek şekilde ayarlanır. Virtual çağrı vptr üzerinden tablodaki adrese dolaylı bir sıçramadır.
 Etiketler: virtual, vtable
+
+## S05-03 · Kod çıktısı
+Konu: Virtual yıkıcı
+Soru: Programın çıktısını satır satır yazın.
+Kod:
+```cpp
+#include <iostream>
+
+struct Base {
+    virtual ~Base() { std::cout << "Base\n"; }
+};
+
+struct Derived : Base {
+    ~Derived() override { std::cout << "Derived\n"; }
+};
+
+int main() {
+    Base* p = new Derived();
+    delete p;
+    return 0;
+}
+```
+Cevap:
+```
+Derived
+Base
+```
+İpucu: Yıkıcılar kurucuların ters sırasıyla çalışır.
+Kısa açıklama: Yıkıcı virtual olduğu için önce `Derived`, sonra `Base` yıkıcısı çalışır.
+Açıklama: `delete p`, virtual yıkıcı sayesinde nesnenin gerçek tipi olan `Derived` sınıfının yıkıcısını çağırır; o bitince taban sınıfın yıkıcısı otomatik olarak çalışır. `Base` sınıfının yıkıcısı virtual olmasaydı davranış tanımsız olurdu ve pratikte yalnız `Base` yazdırılabilirdi.
+Etiketler: cpp, virtual, yıkıcı
 
 # S06 · Zorlayıcı · Teori
 
@@ -272,14 +329,21 @@ Anahtar noktalar:
 - Dizi sınırı dışına erişim ve başlatılmamış değişken tanımsız davranıştır
 - Kodu satır satır izleyip her değişkenin değerini yazarak ilerlemek
 
-## S08-01 · Boşluk doldurma
+## S08-01 · Kod çıktısı
 Konu: İşaretsiz taşma
-Soru: 32 bitlik `unsigned int x = 0; x = x - 1;` sonrasında `x` değerini onluk sistemde yazın.
+Soru: Programın çıktısını yazın.
+Kod:
+```c
+#include <stdio.h>
+
+int main(void) {
+    unsigned int x = 0;
+    x = x - 1;
+    printf("%u\n", x);
+    return 0;
+}
+```
 Cevap: 4294967295
-Kabul: 4.294.967.295
-Kabul: UINT_MAX
-Kabul: uint_max
-Kabul: 2^32-1
 İpucu: İşaretsiz tamsayılar modüler aritmetikle sarar.
 Kısa açıklama: 0'dan 1 çıkarmak işaretsiz tipte UINT_MAX değerine sarar.
 Açıklama: İşaretsiz aritmetik 2^32 modunda tanımlıdır; 0 - 1 sonucu 4294967295 olur. İşaretli tamsayı taşması ise tanımsız davranıştır. Bu yüzden sayaç ve indeks hesaplarında işaretsiz tiplerle eksiltme yaparken dikkatli olmak gerekir.
@@ -288,7 +352,18 @@ Etiketler: c, taşma, unsigned
 
 ## S08-02 · Tek seçim
 Konu: Pointer aritmetiği
-Soru: `int a[4] = {1, 2, 3, 4}; int *p = a;` için `*(p + 2)` ifadesinin değeri nedir?
+Soru: Program ne yazdırır?
+Kod:
+```c
+#include <stdio.h>
+
+int main(void) {
+    int a[4] = {1, 2, 3, 4};
+    int *p = a;
+    printf("%d\n", *(p + 2));
+    return 0;
+}
+```
 Şıklar:
 - [x] a: 3
 - [ ] b: Dizinin başlangıç adresine 2 bayt eklenmiş adresteki değer
@@ -301,6 +376,53 @@ Soru: `int a[4] = {1, 2, 3, 4}; int *p = a;` için `*(p + 2)` ifadesinin değeri
 Kısa açıklama: *(p + 2) ifadesi a[2], yani 3'tür.
 Açıklama: Bir işaretçiye n eklemek onu n eleman (n * sizeof(int) bayt) ilerletir. a[i] ifadesi tanım gereği *(a + i) ile aynıdır; bu yüzden *(p + 2) üçüncü elemanı verir.
 Etiketler: c, işaretçi
+
+## S08-03 · Kod çıktısı
+Konu: İşaretli ve işaretsiz karşılaştırma
+Soru: Programın çıktısını yazın.
+Kod:
+```c
+#include <stdio.h>
+
+int main(void) {
+    int i = -1;
+    unsigned int u = 1;
+    printf("%d\n", i < u);
+    return 0;
+}
+```
+Cevap: 0
+İpucu: Karşılaştırmadan önce iki taraf ortak bir tipe dönüştürülür.
+Kısa açıklama: `i` işaretsiz tipe dönüşüp `UINT_MAX` olur; `i < u` yanlıştır ve 0 yazdırılır.
+Açıklama: `int` ile `unsigned int` karşılaştırılırken olağan aritmetik dönüşümler `int` değerini `unsigned int` tipine çevirir. -1, 32 bitte 4294967295 olur ve 1'den küçük değildir; karşılaştırma 0 üretir. Derleyiciler bu tuzak için `-Wsign-compare` uyarısı verebilir; uzunluk ve indeks hesaplarında işaretli ve işaretsiz tipleri karıştırmamak gerekir.
+Varsayım: `int` ve `unsigned int` 32 bittir.
+Etiketler: c, unsigned, dönüşüm
+
+## S08-04 · Tek seçim
+Konu: Sarkan işaretçi
+Soru: Girdi kısa olsa bile bu fonksiyonun her çağrısında sorun çıkaran hata hangisidir?
+Kod:
+```c
+#include <string.h>
+
+char *copy_name(const char *name) {
+    char buffer[32];
+    strcpy(buffer, name);
+    return buffer;
+}
+```
+Şıklar:
+- [ ] a: `strcpy` sonlandırıcı `'\0'` karakterini kopyalamaz; dönen metin sonlanmamış kalır
+  Neden: `strcpy` sonlandırıcı karakteri de kopyalar.
+- [ ] b: `const char*` parametresi `strcpy` fonksiyonuna verilemez; kod derlenmez
+  Neden: `strcpy` kaynak olarak zaten `const char*` alır; kod derlenir.
+- [x] c: Fonksiyon dönünce ömrü biten yerel dizinin adresini döndürür
+- [ ] d: `buffer` sıfırla başlatılmadığı için kopyalanan metin bozulur
+  Neden: `strcpy` hedefi baştan yazar ve sonlandırıcıyı koyar; başlangıç değeri önemli değildir.
+İpucu: `buffer` hangi bellek bölgesinde yaşar ve ne zaman yok olur?
+Kısa açıklama: Yerel dizinin adresini döndürmek sarkan (dangling) işaretçi üretir.
+Açıklama: `buffer` stack'te yaşar ve fonksiyon dönünce ömrü biter; dönen işaretçiyle yapılan her erişim tanımsız davranıştır. Düzeltmek için çağıran, tamponu ve boyutunu parametre olarak vermeli ya da bellek `malloc` ile ayrılıp serbest bırakma işi çağırana bırakılmalıdır. 31 karakterden uzun girdilerde ayrıca taşma vardır; `strcpy` yerine boyut sınırı olan bir kopyalama kullanılmalıdır.
+Etiketler: c, işaretçi, stack
 
 # S09 · Orta · Kod yazma
 
@@ -347,6 +469,27 @@ Soru: `uint32_t v = 0x01020304;` değerinin en düşük adresteki baytı `0x04` 
 Kısa açıklama: En düşük adreste en düşük anlamlı bayt varsa sistem little-endian'dır.
 Açıklama: Endianness, çok baytlı bir değerin baytlarının bellekteki sırasıdır. x86 ve çoğu ARM yapılandırması little-endian'dır; ağ protokolleri ise big-endian (network byte order) kullanır. Bu yüzden haberleşmede htonl/ntohl gibi dönüşümler gerekir.
 Etiketler: endianness, gömülü
+
+## S09-03 · Kod çıktısı
+Konu: Bit işlemleri
+Soru: Programın çıktısını yazın.
+Kod:
+```c
+#include <stdio.h>
+
+int main(void) {
+    unsigned int reg = 0x0F;
+    reg &= ~(1u << 2);
+    reg |= (1u << 7);
+    printf("0x%X\n", reg);
+    return 0;
+}
+```
+Cevap: 0x8B
+İpucu: Önce 2. biti temizleyin, sonra 7. biti açın; bitler 0'dan sayılır.
+Kısa açıklama: 0x0F'te 2. bit temizlenince 0x0B, ardından 7. bit açılınca 0x8B olur.
+Açıklama: 0x0F ikilik tabanda 0000 1111'dir. `reg &= ~(1u << 2)` 2. biti sıfırlar: 0000 1011, yani 0x0B. `reg |= (1u << 7)` 7. biti açar: 1000 1011, yani 0x8B. `%X` onaltılık değeri büyük harflerle yazdırır.
+Etiketler: c, bit, register
 
 # S10 · Orta · Teori
 
@@ -1439,6 +1582,29 @@ Cevap: GROUP BY
 Kısa açıklama: Eksik ifade GROUP BY'dır.
 Açıklama: GROUP BY dept_id aynı departmandaki satırları tek grupta toplar ve COUNT(*) her grubun satır sayısını verir. SELECT listesindeki toplama dışı sütunlar GROUP BY'da yer almalıdır.
 Etiketler: sql, group-by
+
+## S34-04 · Tek seçim
+Konu: SQL JOIN ve COUNT
+Soru: Hiç çalışanı olmayan bir departman bu sorgunun sonucunda nasıl görünür?
+Kod:
+```sql
+SELECT d.name, COUNT(e.id) AS employee_count
+FROM departments d
+LEFT JOIN employees e ON e.dept_id = d.id
+GROUP BY d.name;
+```
+Şıklar:
+- [x] a: `employee_count` değeri 0 olarak listelenir
+- [ ] b: Departman sonuçta hiç yer almaz
+  Neden: Eşleşmeyen satırları eleyen INNER JOIN'dir; LEFT JOIN soldaki tüm departmanları tutar.
+- [ ] c: `employee_count` değeri 1 olarak listelenir
+  Neden: 1 sonucu `COUNT(*)` ile çıkardı; `COUNT(e.id)` NULL değerleri saymaz.
+- [ ] d: `employee_count` değeri NULL olarak listelenir
+  Neden: `COUNT` NULL döndürmez; sayılacak değer yoksa 0 döner.
+İpucu: LEFT JOIN eşleşmeyen satırı nasıl doldurur; `COUNT(sütun)` NULL değerleri sayar mı?
+Kısa açıklama: LEFT JOIN departmanı korur; `COUNT(e.id)` NULL saymadığı için 0 döner.
+Açıklama: Çalışanı olmayan departman LEFT JOIN sonucunda bir kez, çalışan sütunları NULL olarak yer alır. `COUNT(e.id)` yalnız NULL olmayan değerleri saydığı için bu grupta 0 döner. `COUNT(*)` kullanılsaydı satırın kendisi sayılır ve sonuç 1 olurdu; "çalışanı olmayanlar da görünsün" sorularındaki klasik tuzak budur.
+Etiketler: sql, join, count
 
 # S35 · Orta · Teori
 

@@ -30,7 +30,7 @@ const expectedAssets = [
   'storage.js',
   'styles.css'
 ];
-const expectedQa = ['validate-bank.cjs', 'validate-engine.cjs', 'validate-java.cjs', 'validate-runtime.cjs', 'validate-static.cjs'];
+const expectedQa = ['validate-bank.cjs', 'validate-c.cjs', 'validate-engine.cjs', 'validate-java.cjs', 'validate-runtime.cjs', 'validate-static.cjs'];
 
 sameList(sortedEntries(root).filter((name) => name !== '.git'), expectedRoot, 'Teslimat kök dosyaları değişti');
 sameList(sortedEntries(assetsDir), expectedAssets, 'Çalışma zamanı varlıkları değişti');
@@ -134,6 +134,7 @@ Object.keys(build.TYPES).forEach((label) => { buildLabels[build.TYPES[label]] = 
 check(JSON.stringify(buildLabels, Object.keys(buildLabels).sort()) === JSON.stringify(Object.assign({}, E.TYPE_LABELS), Object.keys(buildLabels).sort()), 'build.cjs tür adları engine.js TYPE_LABELS ile aynı olmalı.');
 
 check(JSON.stringify(E.SECTION_PREFIXES) === JSON.stringify(build.SECTIONS), 'build.cjs SECTIONS ile engine.js SECTION_PREFIXES aynı olmalı.');
+check(JSON.stringify(Object.keys(E.CODE_LANGUAGES)) === JSON.stringify(build.CODE_LANGUAGES), 'build.cjs CODE_LANGUAGES ile engine.js CODE_LANGUAGES aynı olmalı.');
 check(bank.length > 0, 'Soru bankası boş.');
 check(meta.sourceQuestionCount === Object.keys(sources).length && meta.cardCount === bank.length, 'Banka meta sayaçları içerikle uyuşmuyor.');
 

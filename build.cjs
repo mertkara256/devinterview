@@ -28,6 +28,8 @@ const ID = '[A-Za-z0-9_-]+';
 const SINGLE_FIELDS = ['Konu', 'Soru', 'İpucu', 'Kısa açıklama', 'Açıklama', 'Etiketler', 'Büyük/küçük harf duyarlı'];
 const FIELD = /^(Konu|Soru|İpucu|Kısa açıklama|Açıklama|Varsayım|Etiketler|Büyük\/küçük harf duyarlı|Cevap|Kabul|Kod|Şıklar|Sıra|Eşleşmeler|Fazladan seçenekler):(.*)$/;
 const FENCE = /^\s*```/;
+// Tags a "Kod:" block may carry after its opening ```; an untagged block is Java.
+const CODE_LANGUAGES = ['java', 'c', 'cpp', 'sql'];
 
 function idParts(id) {
   const match = /^([A-Z]+)(\d+)(?:-(\d+))?$/.exec(id);
@@ -81,13 +83,14 @@ function readFence(body, start, file, errors, label) {
     errors.push(`${file}:${(body[start - 1] || body[0]).line + 1}: "${label}:" satırından sonra \`\`\` ile başlayan bir blok bekleniyor.`);
     return { text: '', next: start };
   }
+  const language = body[index].text.trim().slice(3).trim();
   const lines = [];
   index += 1;
   while (index < body.length && !FENCE.test(body[index].text)) {
     lines.push(body[index].text);
     index += 1;
   }
-  return { text: lines.join('\n'), next: index + 1 };
+  return { text: lines.join('\n'), next: index + 1, language };
 }
 
 function parseSource(block, file, errors) {
@@ -157,6 +160,7 @@ function parseCard(block, source, file, errors) {
   let pairs = null;
   let extras = null;
   let code = '';
+  let language = 'java';
   let answerText = null;
   const body = block.body;
   let index = 0;
@@ -216,6 +220,8 @@ function parseCard(block, source, file, errors) {
       if (value) errors.push(`${where(line)}: ${id}: kod "Kod:" satırının altında \`\`\` bloğu içinde yazılmalı.`);
       const fence = readFence(body, index + 1, file, errors, label);
       code = fence.text;
+      language = fence.language || 'java';
+      if (!CODE_LANGUAGES.includes(language)) errors.push(`${where(line)}: ${id}: kod dili ${CODE_LANGUAGES.join(', ')} değerlerinden biri olmalı.`);
       index = fence.next;
     } else if (label === 'Şıklar') {
       const optionPattern = type === 'boolean'
@@ -300,6 +306,8 @@ function parseCard(block, source, file, errors) {
     assumptions,
     tags: fields.Etiketler ? fields.Etiketler.split(',').map((tag) => tag.trim()).filter(Boolean) : []
   };
+  // Java cards leave the field out, so their content and versions stay as they were.
+  if (language !== 'java') card.language = language;
 
   if (options) {
     const seen = new Set();
@@ -466,6 +474,6 @@ function main() {
   console.log(`assets/bank.js yazıldı: ${summary}.`);
 }
 
-module.exports = { buildBank, parseFile, TYPES, SECTIONS, OUTPUT };
+module.exports = { buildBank, parseFile, TYPES, SECTIONS, CODE_LANGUAGES, OUTPUT };
 
 if (require.main === module) main();

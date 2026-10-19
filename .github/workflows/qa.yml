@@ -47,3 +47,7 @@ jobs:
       - name: Java kod kartları
         if: ${{ !cancelled() }}
         run: node qa/validate-java.cjs
+
+      - name: C/C++ kod kartları
+        if: ${{ !cancelled() }}
+        run: node qa/validate-c.cjs

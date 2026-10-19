@@ -733,10 +733,11 @@
     return ids.map(function (id) { return map[id]; }).filter(Boolean);
   }
 
-  function renderCode(code) {
+  function renderCode(code, language) {
     if (!code) return '';
+    var lang = E.CODE_LANGUAGES[language] ? language : 'java';
     return '<div class="code-wrap"><div class="code-toolbar" role="group" aria-label="Kod görünümü araçları"><button class="code-button" type="button" data-action="code-smaller" title="Kodu küçült" aria-label="Kod yazısını küçült">A−</button><button class="code-button" type="button" data-action="code-larger" title="Kodu büyüt" aria-label="Kod yazısını büyüt">A+</button><button class="code-button" type="button" data-action="copy-code" title="Kodu kopyala">Kopyala</button></div>' +
-      '<pre class="code-block" tabindex="0" aria-label="Java kodu"><code>' + E.highlightJava(code) + '</code></pre></div>';
+      '<pre class="code-block" tabindex="0" aria-label="' + E.CODE_LANGUAGES[lang] + ' kodu"><code>' + E.highlightCode(code, lang) + '</code></pre></div>';
   }
 
   // Typed answers stay literal; answers built from option text may carry inline code.
@@ -878,7 +879,7 @@
       '<div class="session-layout"><article class="card question-card"><div class="question-meta"><div class="question-meta-left">' +
         (showMeta ? '<span class="badge primary">' + E.escapeHtml(card.sourceId) + '</span>' + difficultyBadge(card.difficulty) + '<span class="badge">' + E.escapeHtml(card.topic) + '</span>' : '<span class="badge">Soru ' + (attempt.currentIndex + 1) + '</span>') +
         '</div><div class="question-meta-right"><span class="badge">' + E.escapeHtml(typeLabel(card.type)) + '</span></div></div>' +
-        '<h1 class="question-title">' + E.inlineMarkdown(card.prompt) + '</h1>' + assumptions + renderCode(card.code) +
+        '<h1 class="question-title">' + E.inlineMarkdown(card.prompt) + '</h1>' + assumptions + renderCode(card.code, card.language) +
         '<form id="question-form" class="answer-area" data-question-id="' + E.escapeHtml(item.questionId) + '" autocomplete="off">' + renderAnswerInput(card, item, response, locked) + renderConfidence(response, locked) + '</form>' +
         renderFeedback(card, response) +
         '<div class="question-actions"><div class="question-actions-left"><button class="button ghost" type="button" data-action="previous-question" ' + (attempt.currentIndex === 0 ? 'disabled' : '') + '>← Önceki</button>' +
@@ -1186,7 +1187,7 @@
       return '<div class="option-explanation"><strong>' + E.inlineMarkdown(option ? option.text : id) + '</strong><br>' + E.inlineMarkdown(card.optionExplanations[id]) + '</div>';
     }).join('');
     return '<details class="card review-item"><summary class="review-summary"><span class="review-state ' + status.className + '" aria-hidden="true">' + status.symbol + '</span><span><strong>' + (index + 1) + '. ' + E.inlineMarkdown(card.prompt) + '</strong><span class="badge-row" style="margin-top:.35rem"><span class="badge primary">' + E.escapeHtml(card.sourceId) + '</span><span class="badge">' + E.escapeHtml(typeLabel(card.type)) + '</span><span class="badge">Kart v' + E.escapeHtml(card.version || '1.0.0') + '</span></span></span><span class="status-pill ' + (status.className === 'correct' ? 'success' : status.className === 'blank' ? 'warning' : 'danger') + '">' + status.label + '</span></summary>' +
-      '<div class="review-body">' + renderCode(card.code) + '<div class="card pad" style="background:var(--surface-soft);margin-bottom:.75rem"><p><strong>Verdiğin cevap</strong><br><span style="white-space:pre-wrap">' + (response.blank || !response.id ? 'Boş' : answerHtml(card, response.currentAnswer)) + '</span></p><p><strong>Doğru cevap</strong><br><span style="white-space:pre-wrap">' + answerHtml(card, card.answer) + '</span></p><p class="tiny muted">Aktif süre: ' + E.formatDuration(response.timeMs) + (response.confidence ? ' · Eminlik: ' + E.escapeHtml(response.confidence) : '') + '</p></div>' +
+      '<div class="review-body">' + renderCode(card.code, card.language) + '<div class="card pad" style="background:var(--surface-soft);margin-bottom:.75rem"><p><strong>Verdiğin cevap</strong><br><span style="white-space:pre-wrap">' + (response.blank || !response.id ? 'Boş' : answerHtml(card, response.currentAnswer)) + '</span></p><p><strong>Doğru cevap</strong><br><span style="white-space:pre-wrap">' + answerHtml(card, card.answer) + '</span></p><p class="tiny muted">Aktif süre: ' + E.formatDuration(response.timeMs) + (response.confidence ? ' · Eminlik: ' + E.escapeHtml(response.confidence) : '') + '</p></div>' +
       '<div class="feedback ' + (status.className === 'correct' ? 'correct' : 'incorrect') + '"><h3>' + E.inlineMarkdown(card.explanationShort) + '</h3><p>' + E.inlineMarkdown(card.explanationLong) + '</p>' + (optionDetails ? '<div class="option-explanations">' + optionDetails + '</div>' : '') +
       '<details class="explanation-details"><summary>Kaynak soruyu gör</summary><pre style="white-space:pre-wrap;font-family:inherit">' + E.escapeHtml(card.originalPrompt) + '</pre></details></div></div></details>';
   }
@@ -1693,7 +1694,7 @@
     }).join('');
     var outputs = item.expectedOutputs.length ? '<h3>Beklenen çıktı</h3>' + item.expectedOutputs.map(function (output) { return '<pre class="interview-output">' + E.escapeHtml(output) + '</pre>'; }).join('') : '';
     var examples = item.examples.length ? '<h3>Örnek kod</h3>' + item.examples.map(function (example) {
-      return '<div class="interview-example">' + renderCode(example.code) +
+      return '<div class="interview-example">' + renderCode(example.code, example.language) +
         (example.output ? '<p class="tiny muted">Çıktı</p><pre class="interview-output">' + E.escapeHtml(example.output) + '</pre>' : '') +
         (example.blank ? '<p>Eksik parça: <code>' + E.escapeHtml(example.blank) + '</code></p>' : '') +
         '<p><strong>' + E.inlineMarkdown(example.caption) + '</strong> ' + E.inlineMarkdown(example.detail) + '</p></div>';

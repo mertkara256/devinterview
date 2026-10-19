@@ -25,7 +25,7 @@ for (const relative of [
 
 const E = context.window.ExamEngine;
 const bank = E.getBank();
-const cardsWithCode = bank.filter((card) => typeof card.code === 'string' && card.code.trim());
+const cardsWithCode = bank.filter((card) => typeof card.code === 'string' && card.code.trim() && card.language === 'java');
 const templateCards = cardsWithCode.filter((card) => /_{4,}/.test(card.code));
 const expectedTemplateIds = ['O05-02', 'O16-02', 'O23-02', 'O33-02'];
 const expectedInvalid = {

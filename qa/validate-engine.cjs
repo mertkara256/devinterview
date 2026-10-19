@@ -163,6 +163,9 @@ check(interviewItems.every((item) => {
   return written ? JSON.stringify(item.keyPoints) === JSON.stringify(written) : item.keyPoints.length > 0;
 }), 'Mülakat kontrol listesi yazılmış anahtar noktaları, yoksa kart özetlerini kullanmalı.');
 
+check(E.highlightCode('#include <stdio.h>\nint x = 0x0F; // not', 'c') === '<span class="tok-keyword">#include &lt;stdio.h&gt;</span>\n<span class="tok-type">int</span> x = <span class="tok-number">0x0F</span>; <span class="tok-comment">// not</span>', 'C renklendirmesi önişlemci satırı, onaltılık sayı ve yorumu tanımalı.');
+check(E.highlightCode("select 'a--b' -- yorum", 'sql') === '<span class="tok-keyword">select</span> <span class="tok-string">&#039;a--b&#039;</span> <span class="tok-comment">-- yorum</span>', 'SQL renklendirmesi büyük/küçük harf duyarsız olmalı ve dize içindeki -- işaretini yorum saymamalı.');
+
 if (failures.length) {
   console.error(failures.join('\n'));
   process.exit(1);
