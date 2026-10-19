@@ -1821,7 +1821,8 @@
     await DB.put('interview', E.nextInterviewState(previous, {
       sourceId: current.sourceId,
       rating: rating,
-      covered: current.checked.length,
+      // Key points can change between releases; only count ticks that still point at one.
+      covered: current.checked.filter(function (index) { return item && index < item.keyPoints.length; }).length,
       total: item ? item.keyPoints.length : 0,
       timeMs: current.elapsedMs,
       answerText: String(current.answerText || '').trim()

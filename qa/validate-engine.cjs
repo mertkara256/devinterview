@@ -156,6 +156,13 @@ check(areaIds({ areas: [] }) === 'J90-01', 'Hiç alan seçilmezse alanı olan ka
 check(areaIds({ sections: [] }) === '' && areaIds({ difficulties: [] }) === '' && areaIds({ types: [] }) === '', 'Boş bölüm, zorluk veya tür seçimi hiçbir kartla eşleşmemeli.');
 check(JSON.stringify(E.areasBySection(areaCards)) === JSON.stringify({ Savunma: ['Gömülü', 'Ağ'] }), 'Alanlar bölüme göre ve banka sırasıyla listelenmeli.');
 
+const interviewItems = E.buildInterviewBank(E.getBank());
+const sourceQuestions = context.window.SOURCE_QUESTIONS;
+check(interviewItems.every((item) => {
+  const written = sourceQuestions[item.sourceId].keyPoints;
+  return written ? JSON.stringify(item.keyPoints) === JSON.stringify(written) : item.keyPoints.length > 0;
+}), 'Mülakat kontrol listesi yazılmış anahtar noktaları, yoksa kart özetlerini kullanmalı.');
+
 if (failures.length) {
   console.error(failures.join('\n'));
   process.exit(1);

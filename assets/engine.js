@@ -654,7 +654,8 @@
         kind: descriptor.slice(1).join(' · '),
         topic: cards[0].topic,
         prompt: source.prompt,
-        keyPoints: unique((shown.length ? shown : cards).map(shortText)),
+        // Hand-written key points win; otherwise the checklist comes from the cards' short explanations.
+        keyPoints: source.keyPoints && source.keyPoints.length ? source.keyPoints.slice() : unique((shown.length ? shown : cards).map(shortText)),
         explanations: unique(shown.map(function (card) { return card.explanationLong; })),
         expectedOutputs: unique(shown.filter(function (card) { return card.type === 'output'; }).map(function (card) { return card.answer; })),
         examples: cards.filter(function (card) { return shown.indexOf(card) === -1 && card.type !== 'order'; }).map(function (card) {

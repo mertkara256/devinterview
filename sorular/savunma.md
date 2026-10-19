@@ -8,6 +8,13 @@ Memory leak nedir, nasıl önlenir? C ve C++ için önleme yollarını ve gömü
 
 Nerede soruldu: ASELSAN (aday beyanı).
 
+Anahtar noktalar:
+- Tanım: heap'te ayrılıp serbest bırakılmayan ve artık erişilemeyen bellek
+- C'de her `malloc` için tek bir `free`; hata yollarında da serbest bırakmak
+- C++'ta RAII ve akıllı işaretçiler (`std::unique_ptr`, `std::shared_ptr`)
+- Tespit araçları: Valgrind, AddressSanitizer ve statik analiz
+- Gömülüde çalışma sırasında dinamik tahsisten kaçınmak; statik veya havuz (pool) tahsisi
+
 ## S01-01 · Çoklu seçim
 Konu: C/C++ bellek yönetimi
 Soru: C/C++'ta memory leak'i önlemeye veya bulmaya yardımcı olan uygulamaları seçin.
@@ -34,6 +41,12 @@ Alan: C/C++
 `volatile` anahtar kelimesi ne işe yarar? Ne zaman gereklidir ve neyi garanti etmez?
 
 Nerede soruldu: klasik gömülü yazılım sorusu.
+
+Anahtar noktalar:
+- Derleyicinin değişkeni register'da tutup okumayı optimize etmesini engeller
+- Kullanım: donanım register'ları, ISR ile paylaşılan bayraklar, memory-mapped I/O
+- Atomiklik sağlamaz; `count++` gibi okuma-değiştirme-yazma işlemi kesilebilir
+- Thread senkronizasyonu veya bellek sıralaması garantisi vermez; mutex ya da atomik tipler gerekir
 
 ## S02-01 · Tek seçim
 Konu: volatile
@@ -72,6 +85,13 @@ Alan: C/C++
 
 Nerede soruldu: klasik C/C++ sorusu.
 
+Anahtar noktalar:
+- `const int* p`: gösterilen veri değiştirilemez, işaretçi başka adrese yöneltilebilir
+- `int* const p`: işaretçi sabittir, gösterdiği veri değiştirilebilir
+- `const int* const p`: ikisi de sabittir
+- `const` üye fonksiyon nesneyi değiştirmez ve const nesnelerde çağrılabilir
+- Kural: `const` solundakine, solunda bir şey yoksa sağındakine uygulanır
+
 ## S03-01 · Eşleştirme
 Konu: const ve işaretçiler
 Soru: Bildirimleri anlamlarıyla eşleştirin.
@@ -95,6 +115,12 @@ C/C++'ta `static` anahtar kelimesinin farklı kullanımlarını açıklayın.
 
 Nerede soruldu: klasik C/C++ sorusu.
 
+Anahtar noktalar:
+- Fonksiyon içinde: bir kez başlatılır, program boyunca yaşar ve değerini korur
+- Dosya kapsamında: iç bağlantı (internal linkage); yalnız o kaynak dosyada görünür
+- Sınıf üyesinde: nesneye değil sınıfa aittir; tek kopya paylaşılır
+- `static` üye fonksiyonun `this` işaretçisi yoktur
+
 ## S04-01 · Eşleştirme
 Konu: static
 Soru: static kullanımlarını etkileriyle eşleştirin.
@@ -116,6 +142,13 @@ Alan: C/C++
 C++'ta virtual fonksiyonlar nasıl çalışır? Taban sınıfın yıkıcısı neden virtual olmalıdır?
 
 Nerede soruldu: ASELSAN gömülü yazılım (C++ OOP, aday beyanı).
+
+Anahtar noktalar:
+- Virtual çağrı çalışma zamanında nesnenin gerçek tipine göre seçilir
+- Tipik uygulama: her nesnede bir vptr, her sınıfta bir vtable
+- Taban sınıf işaretçisiyle silinen nesnede yıkıcı virtual değilse davranış tanımsızdır
+- Saf virtual fonksiyon (`= 0`) sınıfı soyut yapar
+- Maliyet: dolaylı çağrı ve inline edilememe
 
 ## S05-01 · Tek seçim
 Konu: Virtual yıkıcı
@@ -154,6 +187,13 @@ Kopya kurucu, atama operatörü ve move semantiğini açıklayın. Rule of three
 
 Nerede soruldu: klasik C++ sorusu.
 
+Anahtar noktalar:
+- Ham kaynak sahibi sınıfta varsayılan kopya yüzeyseldir; çift silmeye yol açar
+- Rule of three: yıkıcı, kopya kurucu ve kopya atama birlikte tanımlanır
+- Rule of five: bunlara move kurucu ve move atama eklenir
+- Move kaynağı kopyalamadan devralır; `std::move` yalnız rvalue'ya çevirir
+- Rule of zero: kaynağı `std::unique_ptr` gibi sınıflara bırakıp hiçbirini yazmamak
+
 ## S06-01 · Çoklu seçim
 Konu: Rule of three/five
 Soru: Ham bir işaretçiyle heap belleği sahiplenen bir C++ sınıfı için doğru ifadeleri seçin.
@@ -180,6 +220,13 @@ Alan: C/C++
 `malloc`/`free` ile `new`/`delete` arasındaki farklar nelerdir?
 
 Nerede soruldu: klasik C/C++ sorusu.
+
+Anahtar noktalar:
+- `new` bellek ayırıp kurucuyu çağırır; `delete` yıkıcıyı çağırıp belleği bırakır
+- `malloc`/`free` yalnız ham bellek verir; kurucu ve yıkıcı çalışmaz
+- `new` hatada `std::bad_alloc` fırlatır; `malloc` NULL döner
+- `new` tipli işaretçi döner; `malloc` `void*` döner
+- Çiftler karıştırılmaz: `new`/`delete`, `new[]`/`delete[]`, `malloc`/`free`
 
 ## S07-01 · Tek seçim
 Konu: Dinamik bellek
@@ -218,6 +265,13 @@ Verilen C kodunun çıktısını bulun ve koddaki hatayı gösterin. İşaretsiz
 
 Nerede soruldu: Baykar kontrol sınavı (C/C++ hata bulma, aday beyanı).
 
+Anahtar noktalar:
+- İşaretsiz taşma tanımlıdır ve sarar (`0u - 1` = `UINT_MAX`); işaretli taşma tanımsızdır
+- Pointer aritmetiği eleman boyutu kadar ilerler; `a[i]` ile `*(a + i)` aynıdır
+- Operatör önceliği tuzakları: `*p++`, `a & b == c` gibi ifadeler
+- Dizi sınırı dışına erişim ve başlatılmamış değişken tanımsız davranıştır
+- Kodu satır satır izleyip her değişkenin değerini yazarak ilerlemek
+
 ## S08-01 · Boşluk doldurma
 Konu: İşaretsiz taşma
 Soru: 32 bitlik `unsigned int x = 0; x = x - 1;` sonrasında `x` değerini onluk sistemde yazın.
@@ -255,6 +309,13 @@ Alan: C/C++
 Bir register'da n. biti set, clear ve toggle edin; sistemin endianness'ını test eden bir kod yazın.
 
 Nerede soruldu: klasik gömülü yazılım sorusu.
+
+Anahtar noktalar:
+- Set: `reg |= (1u << n)`, clear: `reg &= ~(1u << n)`, toggle: `reg ^= (1u << n)`
+- Bit okuma: `(reg >> n) & 1u`
+- İşaretsiz tip kullanmak; işaretli kaydırmada tanımsız davranış riski
+- Endianness testi: çok baytlı değerin ilk baytını `uint8_t*` ile okumak
+- Ağ düzeni big-endian'dır; `htonl`/`ntohl` ile dönüşüm yapılır
 
 ## S09-01 · Eşleştirme
 Konu: Bit işlemleri
@@ -295,6 +356,13 @@ C++ akıllı işaretçi türlerini ve aralarındaki farkları açıklayın.
 
 Nerede soruldu: klasik C++ sorusu.
 
+Anahtar noktalar:
+- `std::unique_ptr`: tek sahiplik; kopyalanamaz, taşınabilir, ek maliyeti yok
+- `std::shared_ptr`: referans sayacıyla ortak sahiplik
+- `std::weak_ptr`: sayacı artırmadan gözlemler, shared_ptr döngülerini kırar
+- `std::make_unique` ve `std::make_shared` tercih edilir
+- C++'ta çöp toplayıcı yoktur; bellek sahiplik kurallarıyla yönetilir
+
 ## S10-01 · Eşleştirme
 Konu: Akıllı işaretçiler
 Soru: Akıllı işaretçileri sahiplik modelleriyle eşleştirin.
@@ -329,6 +397,13 @@ Alan: Tasarım ve modelleme
 Singleton nasıl yazılır? Çok thread'li ortamda nasıl güvenli hâle getirilir ve dezavantajları nelerdir?
 
 Nerede soruldu: klasik tasarım sorusu.
+
+Anahtar noktalar:
+- Özel kurucu, kopyalamanın yasaklanması ve tek erişim noktası
+- C++11'de fonksiyon-yerel `static` nesnenin başlatılması thread-safe'tir
+- Elle çift kontrollü kilitleme hataya açıktır
+- Dezavantajlar: global durum, gizli bağımlılık ve test zorluğu
+- Alternatif: nesneyi bir kez oluşturup bağımlılık olarak geçirmek
 
 ## S11-01 · Tek seçim
 Konu: Singleton
@@ -369,6 +444,13 @@ Observer, Factory, Strategy ve State desenleri hangi problemleri çözer? Her bi
 
 Nerede soruldu: klasik tasarım sorusu.
 
+Anahtar noktalar:
+- Observer: bir nesnedeki değişikliği abonelere bildirir (ör. radar verisini ekranlara dağıtmak)
+- Factory: hangi somut sınıfın üretileceğini istemciden gizler
+- Strategy: değiştirilebilir algoritmayı ayrı nesnelere taşır
+- State: davranışı nesnenin iç durumuna göre değiştirir
+- Her desen için somut bir örnek ve çözdüğü problem
+
 ## S12-01 · Eşleştirme
 Konu: Tasarım desenleri
 Soru: Desenleri çözdükleri problemle eşleştirin.
@@ -391,6 +473,13 @@ Alan: Tasarım ve modelleme
 Dependency Injection nedir? .NET'te `AddTransient`, `AddScoped` ve `AddSingleton` ömürleri arasındaki fark nedir?
 
 Nerede soruldu: HAVELSAN .NET (aday beyanı).
+
+Anahtar noktalar:
+- DI: sınıf bağımlılıklarını kendisi oluşturmaz, dışarıdan alır
+- Faydaları: gevşek bağlılık ve test edilebilirlik
+- `AddTransient`: her istendiğinde yeni nesne
+- `AddScoped`: kapsam (ör. web isteği) başına bir nesne
+- `AddSingleton`: uygulama boyunca tek nesne; içine scoped servis enjekte etmek captive dependency'dir
 
 ## S13-01 · Eşleştirme
 Konu: DI ömürleri
@@ -426,6 +515,12 @@ Alan: Tasarım ve modelleme
 Sınıf ve sekans diyagramı çizin. Model tabanlı bir araç (ör. IBM Rational Rhapsody) kullandınız mı?
 
 Nerede soruldu: ASELSAN gömülü yazılım (Rhapsody ön ödevi, aday beyanı).
+
+Anahtar noktalar:
+- Sınıf diyagramı: sınıflar, alanlar, metotlar ve ilişkiler
+- Kalıtım içi boş üçgen; composition dolu, aggregation içi boş elmas
+- Sekans diyagramı: nesneler arası mesajların zaman sırası
+- Model tabanlı geliştirmede modelden kod üretimi (ör. Rhapsody)
 
 ## S14-01 · Eşleştirme
 Konu: UML
@@ -465,6 +560,13 @@ Alan: Veri yapıları ve algoritmalar
 Quicksort ile mergesort'u karşılaştırın: ortalama ve en kötü durum, kararlılık ve ek bellek.
 
 Nerede soruldu: Baykar (basit sıralama problemi ve kod testi, aday beyanı).
+
+Anahtar noktalar:
+- Quicksort ortalama Θ(n log n), en kötü Θ(n²); pivot seçimi belirleyici
+- Mergesort her durumda Θ(n log n) ama Θ(n) ek bellek ister
+- Mergesort kararlıdır; tipik yerinde quicksort kararsızdır
+- Quicksort önbellek dostu olduğu için pratikte çoğu zaman daha hızlı
+- Rastgele ya da üç ortanca pivot en kötü durumu pratikte engeller
 
 ## S15-01 · Çoklu seçim
 Konu: Sıralama algoritmaları
@@ -509,6 +611,13 @@ Bir ring buffer (dairesel kuyruk) yazın. Bir ISR ile ana döngü arasında veri
 
 Nerede soruldu: klasik gömülü yazılım sorusu.
 
+Anahtar noktalar:
+- `head` yazma, `tail` okuma indeksi; indeksler mod N ile sarar
+- Boş: `head == tail`; dolu: `(head + 1) % N == tail` (bir slot boş kalır) ya da ayrı sayaç
+- N ikinin kuvvetiyse modulo yerine maske kullanılabilir
+- Tek üretici–tek tüketici düzeninde her taraf yalnız kendi indeksini yazarsa kilit gerekmez
+- Paylaşılan indeksler `volatile` ve atomik genişlikte; çok çekirdekte bellek bariyeri
+
 ## S16-01 · Tek seçim
 Konu: Ring buffer
 Soru: Boyutu N olan, `head` yazma ve `tail` okuma indeksi olan ve bir slotu boş bırakan ring buffer'da kuyruğun dolu olduğu nasıl anlaşılır?
@@ -546,6 +655,13 @@ Ağaç gezinme yöntemlerini (BFS, DFS; pre-order, in-order, post-order) ve ikil
 
 Nerede soruldu: klasik veri yapıları sorusu.
 
+Anahtar noktalar:
+- BFS seviye seviye gezer (kuyruk); DFS derine iner (yığın veya özyineleme)
+- Pre-order, in-order ve post-order farkı; BST'de in-order sıralı verir
+- BST ekleme ve arama: küçükse sola, büyükse sağa
+- Dengeli ağaçta O(log n), dengesizde O(n)
+- Dengeli ağaç örnekleri: AVL ve kırmızı-siyah ağaç
+
 ## S17-01 · Tek seçim
 Konu: BST
 Soru: Bir BST'yi in-order gezmek hangi çıktıyı verir?
@@ -579,6 +695,13 @@ Alan: Veri yapıları ve algoritmalar
 En kısa yol için Dijkstra veya A* algoritmasını anlatın. Rota planlamada hangisini neden seçersiniz?
 
 Nerede soruldu: klasik algoritma sorusu (rota planlama bağlamı).
+
+Anahtar noktalar:
+- Dijkstra: öncelik kuyruğundan en yakın düğümü al, komşuları gevşet
+- İkili yığınla süre O((V + E) log V)
+- Negatif ağırlıklı kenarlarda çalışmaz; Bellman-Ford gerekir
+- A*: f = g + h; kabul edilebilir sezgiselle sonuç yine optimaldir
+- Haritada Öklid veya Manhattan uzaklığı sezgisel olarak kullanılır
 
 ## S18-01 · Çoklu seçim
 Konu: En kısa yol
@@ -620,6 +743,13 @@ Process ile thread arasındaki fark nedir? Hangi kaynaklar paylaşılır, bağla
 
 Nerede soruldu: HAVELSAN ve Baykar (aday beyanları).
 
+Anahtar noktalar:
+- Process kendi adres alanına sahiptir; thread'ler process'in adres alanını paylaşır
+- Her thread'in kendi stack'i ve register durumu vardır
+- Thread geçişi genellikle process geçişinden ucuzdur
+- Paylaşım senkronizasyon gerektirir; process'ler arası iletişim IPC ile yapılır
+- Bir thread'in çökmesi genellikle bütün process'i düşürür
+
 ## S19-01 · Çoklu seçim
 Konu: Process ve thread
 Soru: Process ve thread için doğru ifadeleri seçin.
@@ -646,6 +776,13 @@ Alan: Gömülü ve işletim sistemleri
 Race condition nedir? Mutex ile semaphore arasındaki fark nedir?
 
 Nerede soruldu: ASELSAN gömülü yazılım (multithreading, aday beyanı).
+
+Anahtar noktalar:
+- Race condition: sonucun eşzamanlı erişimin zamanlamasına bağlı olması
+- Mutex: sahipli kilit; alan thread bırakır ve kritik bölgeyi korur
+- Semaphore: sayaç; N kaynağı sayar veya thread'ler arası sinyal verir
+- RTOS mutex'leri genellikle priority inheritance destekler
+- Deadlock riskine karşı kilitleri hep aynı sırayla almak
 
 ## S20-01 · Tek seçim
 Konu: Mutex ve semaphore
@@ -684,6 +821,13 @@ Priority inversion nedir? Gerçek zamanlı sistemlerde nasıl önlenir?
 
 Nerede soruldu: klasik RTOS sorusu.
 
+Anahtar noktalar:
+- Düşük öncelikli görev kilidi tutarken yüksek öncelikli görev bekler
+- Araya giren orta öncelikli görev bu beklemeyi sınırsız uzatabilir
+- Çözüm: priority inheritance veya priority ceiling
+- Kritik bölgeleri kısa tutmak
+- Bilinen örnek: Mars Pathfinder'daki sıfırlamalar
+
 ## S21-01 · Tek seçim
 Konu: Priority inversion
 Soru: Priority inversion'ı sınırlamak için RTOS mutex'lerinde yaygın kullanılan mekanizma hangisidir?
@@ -721,6 +865,13 @@ Hard ve soft real-time arasındaki fark nedir? Bir RTOS, genel amaçlı işletim
 
 Nerede soruldu: klasik RTOS sorusu.
 
+Anahtar noktalar:
+- Hard real-time'da süre aşımı sistem hatasıdır; soft real-time'da kaliteyi düşürür
+- Gerçek zamanlılık hız değil, öngörülebilirliktir
+- RTOS: öncelikli, preemptive ve deterministik zamanlama
+- En kötü durum yürütme süresi (WCET) ve sınırlı kesme gecikmesi
+- Örnekler: uçuş kontrolü hard, video akışı soft real-time
+
 ## S22-01 · Eşleştirme
 Konu: Gerçek zamanlı sistemler
 Soru: Kavramları tanımlarıyla eşleştirin.
@@ -756,6 +907,13 @@ Alan: Gömülü ve işletim sistemleri
 Kesme (interrupt) nedir? Bir ISR yazarken nelerden kaçınılır?
 
 Nerede soruldu: klasik gömülü yazılım sorusu.
+
+Anahtar noktalar:
+- Kesme gelince bağlam kaydedilir, vektör tablosundaki ISR çalışır, sonra geri dönülür
+- ISR kısa olmalı; işi bayrak veya kuyrukla ana döngüye ya da bir göreve devretmek
+- ISR'de bloklayan çağrı, `printf`, `malloc` ve mutex beklemek yok
+- Paylaşılan değişkenler `volatile`; çok baytlı erişimlerde kısa kritik bölge
+- Kesme bayrağını temizlemek ve kesme önceliklerini doğru ayarlamak
 
 ## S23-01 · Çoklu seçim
 Konu: Kesmeler
@@ -798,6 +956,13 @@ Polling, interrupt ve DMA ne zaman seçilir? CPU yükü, gecikme ve veri hacmi a
 
 Nerede soruldu: klasik gömülü yazılım sorusu.
 
+Anahtar noktalar:
+- Polling basittir ama beklerken CPU harcar; çok kısa beklemeler için uygundur
+- Interrupt seyrek olaylarda CPU'yu boşta bırakır; her olay bir bağlam geçişidir
+- DMA büyük ve sürekli veriyi CPU'ya uğramadan taşır, bitince kesme üretir
+- Seçim ölçütleri: veri hacmi, olay sıklığı, gecikme ve CPU yükü
+- DMA'da önbellek tutarlılığı ve aktarım sürerken tampona dokunmamak
+
 ## S24-01 · Eşleştirme
 Konu: Polling, interrupt ve DMA
 Soru: Senaryoları en uygun yöntemle eşleştirin.
@@ -836,6 +1001,13 @@ UART, SPI ve I2C arasındaki farklar nelerdir? RS232 ile RS485 arasındaki fark 
 
 Nerede soruldu: Roketsan RF gömülü yazılım ilanı.
 
+Anahtar noktalar:
+- UART: saat hattı yok, asenkron, iki uç arası; baud rate iki tarafta aynı olmalı
+- SPI: SCLK, MOSI, MISO ve slave başına chip select; tam çift yönlü ve hızlı
+- I2C: SDA ve SCL, adresleme, çok cihaz, pull-up dirençleri; daha yavaş
+- RS232 tek uçlu ve noktadan noktaya; RS485 diferansiyel, uzun mesafe ve çok noktalı
+- Seçim ölçütleri: hız, mesafe, cihaz sayısı ve pin maliyeti
+
 ## S25-01 · Eşleştirme
 Konu: Haberleşme arayüzleri
 Soru: Arayüzleri özellikleriyle eşleştirin.
@@ -871,6 +1043,13 @@ Alan: Gömülü ve işletim sistemleri
 Bare-metal ile RTOS'lu geliştirme arasındaki fark nedir? Watchdog timer ne işe yarar?
 
 Nerede soruldu: Roketsan ilanı (bare-metal).
+
+Anahtar noktalar:
+- Bare-metal: işletim sistemi yok; super-loop ve kesmelerle çalışır
+- RTOS görevler, öncelikler, kuyruklar ve semaphore'lar sunar
+- Küçük ve öngörülebilir sistemlerde bare-metal, karmaşık zamanlamada RTOS
+- Watchdog düzenli beslenmezse sistemi resetler
+- Watchdog'u kesme içinden koşulsuz beslemek kilitlenmeyi gizler
 
 ## S26-01 · Tek seçim
 Konu: Watchdog
@@ -909,6 +1088,13 @@ Kaynak koddan çalışan programa giden adımları anlatın: preprocessor, compi
 
 Nerede soruldu: Roketsan ilanı (CMake, Makefile, GCC).
 
+Anahtar noktalar:
+- Preprocessor `#include` ve makroları açar
+- Derleyici assembly'ye, assembler nesne dosyasına çevirir
+- Linker nesne dosyalarını ve kütüphaneleri birleştirip sembolleri çözer
+- Statik kütüphane programa kopyalanır; dinamik kütüphane çalışma zamanında yüklenir
+- Make kuralları çalıştırır; CMake platforma uygun yapı dosyalarını üretir
+
 ## S27-01 · Sıralama
 Konu: Derleme zinciri
 Soru: Bir C programının derlenme adımlarını doğru sırayla dizin.
@@ -944,6 +1130,13 @@ Sanal bellek, paging ve page fault nedir? TLB ne işe yarar?
 
 Nerede soruldu: klasik işletim sistemleri sorusu.
 
+Anahtar noktalar:
+- Her process kendi sanal adres alanını görür; MMU adresi fiziksel adrese çevirir
+- Sayfa tablosu sanal sayfaları fiziksel çerçevelere eşler
+- TLB son adres çevirilerini önbellekte tutar
+- Page fault'ta işletim sistemi sayfayı getirir; geçersiz adres segmentation fault olur
+- Sık swap performansı düşürür; gerçek zamanlı sistemlerde sayfalar belleğe kilitlenir
+
 ## S28-01 · Çoklu seçim
 Konu: Sanal bellek
 Soru: Sanal bellek için doğru ifadeleri seçin.
@@ -970,6 +1163,13 @@ Alan: Gömülü ve işletim sistemleri
 Verilog/VHDL ile bir yazılım dili arasındaki temel fark nedir?
 
 Nerede soruldu: Roketsan ilanı (Verilog veya VHDL zorunlu).
+
+Anahtar noktalar:
+- HDL eşzamanlı çalışan donanımı tanımlar; yazılım dili sıralı komut üretir
+- Sentezlenebilir kod FPGA veya ASIC devresine dönüşür
+- Saat kenarı, senkron tasarım ve zamanlama kısıtları temel kavramlardır
+- Ardışık mantıkta non-blocking (`<=`), kombinasyonel mantıkta blocking (`=`) atama
+- Simülasyon ve testbench ile doğrulama
 
 ## S29-01 · Tek seçim
 Konu: HDL
@@ -1007,6 +1207,13 @@ Alan: Gömülü ve işletim sistemleri
 Gömülü kodunuzun güvenilirliğini ve emniyetini nasıl sağlarsınız? Kodlama standardı (ör. MISRA C) ve statik analiz neden kullanılır?
 
 Nerede soruldu: Roketsan staj (aday beyanı); kodlama standardı klasik gömülü yazılım sorusu.
+
+Anahtar noktalar:
+- MISRA C gibi bir kodlama standardıyla riskli yapıları yasaklamak
+- Statik analizi sürekli entegrasyonda çalıştırmak; derleyici uyarılarını açık tutmak
+- Birim testlerini hem bilgisayarda hem hedef donanımda koşturmak
+- Savunmacı programlama: girdi ve sınır kontrolleri, dönen hata kodlarını kontrol etmek
+- Watchdog, dinamik tahsisten kaçınmak ve kod incelemesi
 
 ## S30-01 · Çoklu seçim
 Konu: Güvenilir gömülü yazılım
@@ -1047,6 +1254,13 @@ Alan: Ağ ve güvenlik
 TCP ile UDP arasındaki fark nedir? Telemetri veya canlı video için hangisini seçersiniz?
 
 Nerede soruldu: HAVELSAN ve Baykar (aday beyanları); Roketsan ilanı (UDP/TCP).
+
+Anahtar noktalar:
+- TCP: bağlantı tabanlı, güvenilir ve sıralı; üçlü el sıkışma ve yeniden iletim
+- UDP: bağlantısız, sırasız ve onaysız ama düşük gecikmeli
+- Canlı video ve telemetride genellikle UDP; geç gelen veri işe yaramaz
+- Gereken güvenilirlik uygulama katmanında eklenir (ör. önemli komutlara onay)
+- Multicast UDP ile yapılır
 
 ## S31-01 · Tek seçim
 Konu: TCP ve UDP
@@ -1091,6 +1305,13 @@ OSI ve TCP/IP katmanlarını açıklayın. Tarayıcıya bir adres yazdığınız
 
 Nerede soruldu: klasik ağ sorusu.
 
+Anahtar noktalar:
+- OSI yedi katmanlıdır; TCP/IP modeli uygulama, taşıma, ağ ve bağlantı katmanlarından oluşur
+- HTTP uygulama, TCP/UDP taşıma, IP ağ, Ethernet veri bağlantı katmanındadır
+- Adres yazılınca: DNS çözümleme, TCP bağlantısı ve TLS el sıkışma
+- Ardından HTTP isteği, sunucu yanıtı ve sayfanın çizilmesi
+- Yerel ağda bir sonraki adımın MAC adresi ARP ile bulunur
+
 ## S32-01 · Eşleştirme
 Konu: Ağ katmanları
 Soru: Protokolleri katmanlarıyla eşleştirin.
@@ -1127,6 +1348,13 @@ Alan: Ağ ve güvenlik
 Unicast, multicast ve broadcast arasındaki fark nedir? Aynı veriyi birçok alıcıya göndermenin maliyetini karşılaştırın.
 
 Nerede soruldu: klasik ağ sorusu.
+
+Anahtar noktalar:
+- Unicast tek alıcıya, multicast gruba, broadcast yerel ağdaki herkese gönderir
+- Multicast'te gönderici bir kez yollar; ağ yalnız gruba katılanlara çoğaltır
+- Grup üyeliği IGMP ile yönetilir
+- Broadcast yönlendiricileri aşmaz ve ilgisiz cihazları da meşgul eder
+- Aynı veriyi çok alıcıya unicast ile göndermek bant genişliğini katlar
 
 ## S33-01 · Eşleştirme
 Konu: Gönderim türleri
@@ -1165,6 +1393,13 @@ Alan: Veritabanı ve uygulama
 Bir ER diyagramı çizin ve SQL sorgusu yazın: JOIN türleri ve GROUP BY.
 
 Nerede soruldu: HAVELSAN iş analistliği (aday beyanı).
+
+Anahtar noktalar:
+- ER diyagramı: varlıklar, ilişkiler ve kardinalite (1-1, 1-N, N-N)
+- N-N ilişki ara tabloyla kurulur
+- INNER, LEFT ve FULL OUTER JOIN farkları
+- `GROUP BY` ile gruplama ve `COUNT`, `SUM` gibi toplama fonksiyonları
+- `WHERE` gruplamadan önce satırları, `HAVING` sonra grupları filtreler
 
 ## S34-01 · Eşleştirme
 Konu: SQL JOIN
@@ -1213,6 +1448,13 @@ Normalizasyon nedir (1NF–3NF)? Index nasıl çalışır; ne zaman sorguları y
 
 Nerede soruldu: klasik veritabanı sorusu.
 
+Anahtar noktalar:
+- 1NF atomik değer, 2NF tam anahtar bağımlılığı, 3NF geçişli bağımlılığın olmaması
+- Normalizasyon tekrarı ve güncelleme anomalilerini azaltır
+- Index (genellikle B-tree) aramayı hızlandırır
+- Index yazmayı yavaşlatır ve yer kaplar; düşük seçicilikli sütunda faydası azdır
+- Okuma ağırlıklı raporlamada bilinçli denormalizasyon yapılabilir
+
 ## S35-01 · Eşleştirme
 Konu: Normalizasyon
 Soru: Normal formları kurallarıyla eşleştirin.
@@ -1247,6 +1489,13 @@ Alan: Veritabanı ve uygulama
 Transaction ve ACID nedir? Isolation seviyeleri hangi anomalileri engeller?
 
 Nerede soruldu: klasik veritabanı sorusu.
+
+Anahtar noktalar:
+- Atomicity: işlemlerin hepsi uygulanır ya da hiçbiri
+- Consistency: kurallara uyan bir durumdan yine kurallara uyan bir duruma geçiş
+- Isolation: eşzamanlı işlemler birbirinin ara sonuçlarını görmez
+- Durability: onaylanan değişiklik çökmeden sonra da kalıcıdır
+- Isolation seviyeleri ve anomaliler: dirty read, non-repeatable read, phantom read
 
 ## S36-01 · Eşleştirme
 Konu: ACID
@@ -1287,6 +1536,13 @@ Mikroservis ile monolit mimari arasındaki fark nedir? Hangi durumda hangisini s
 
 Nerede soruldu: HAVELSAN (Spring ve mikroservis, aday beyanı).
 
+Anahtar noktalar:
+- Monolit tek dağıtım birimidir; geliştirme ve hata ayıklama daha basittir
+- Mikroservisler bağımsız olarak dağıtılır ve ölçeklenir
+- Bedeli: ağ gecikmesi, dağıtık veri tutarlılığı, izleme ve operasyon yükü
+- Küçük ekip ve belirsiz sınırlarda modüler monolitle başlamak
+- Servis sınırlarını iş alanına göre belirlemek
+
 ## S37-01 · Çoklu seçim
 Konu: Mikroservis ve monolit
 Soru: Mikroservis ve monolit mimariler için doğru ifadeleri seçin.
@@ -1313,6 +1569,13 @@ Alan: Veritabanı ve uygulama
 Linux'ta süreçleri ve portları nasıl izlersiniz? Dosya izinleri ve sinyaller nasıl çalışır? Basit bir shell script yazın.
 
 Nerede soruldu: HAVELSAN (aday beyanı).
+
+Anahtar noktalar:
+- Süreçler: `ps aux`, `top`; portlar: `ss -tlnp`
+- İzinler: sahip, grup ve diğerleri için `rwx`; `chmod` ve `chown`
+- Sinyaller: `kill -15` temiz kapanış, `kill -9` zorla sonlandırma
+- Servisler ve loglar: `systemctl`, `journalctl`
+- Basit shell script: değişken, döngü, koşul ve çıkış kodu
 
 ## S38-01 · Eşleştirme
 Konu: Linux komutları
@@ -1345,6 +1608,12 @@ Alan: Veritabanı ve uygulama
 JavaScript'te closure nedir? Bir örnekle açıklayın.
 
 Nerede soruldu: Baykar (aday beyanı).
+
+Anahtar noktalar:
+- Closure, tanımlandığı kapsamdaki değişkenleri hatırlayan fonksiyondur
+- Dış fonksiyon dönse de yakalanan değişken yaşamaya devam eder
+- Kullanım: sayaç ve fabrika fonksiyonları, olay işleyicileri, veriyi gizleme
+- Döngüde `var` tuzağı; `let` her tur için yeni bir bağlama oluşturur
 
 ## S39-01 · Boşluk doldurma
 Konu: Closure
@@ -1380,6 +1649,13 @@ Simetrik ve asimetrik şifreleme arasındaki fark nedir? Hash ile şifreleme ara
 
 Nerede soruldu: klasik siber güvenlik sorusu.
 
+Anahtar noktalar:
+- Simetrik (ör. AES): tek anahtar, hızlı; büyük veri için
+- Asimetrik (ör. RSA, ECC): açık ve özel anahtar; anahtar değişimi ve dijital imza
+- Pratikte ikisi birlikte kullanılır: oturum anahtarı asimetrik yolla paylaşılır (TLS)
+- Hash (ör. SHA-256) tek yönlüdür, şifreleme değildir; bütünlük kontrolünde kullanılır
+- Parolalar tuzlanıp bcrypt veya Argon2 gibi yavaş fonksiyonlarla hash'lenir
+
 ## S40-01 · Eşleştirme
 Konu: Kriptografi
 Soru: Algoritmaları türleriyle eşleştirin.
@@ -1414,6 +1690,13 @@ Alan: Ağ ve güvenlik
 SQL injection, XSS ve buffer overflow nasıl oluşur, nasıl önlenir?
 
 Nerede soruldu: klasik siber güvenlik sorusu.
+
+Anahtar noktalar:
+- SQL injection: girdi sorgu metnine eklenir; önlem parametreli sorgu
+- XSS: girdi kodlanmadan sayfaya yazılır; önlem bağlama uygun çıktı kodlaması
+- Buffer overflow: sınır kontrolü olmadan yazmak; `strcpy` yerine boyut alan fonksiyonlar
+- Girdi doğrulama ve en az yetki ilkesi
+- Ek savunmalar: stack canary, ASLR ve DEP
 
 ## S41-01 · Eşleştirme
 Konu: Güvenlik açıkları
@@ -1452,6 +1735,13 @@ Alan: Yapay zekâ ve görü
 Vanishing gradient nedir, nasıl çözülür?
 
 Nerede soruldu: ASELSAN (aday beyanı).
+
+Anahtar noktalar:
+- Geri yayılımda küçük türevler çarpılınca gradyan ilk katmanlara ulaşamaz
+- Sigmoid ve tanh doyuma girince türev çok küçülür
+- Çözümler: ReLU ailesi, residual bağlantılar, batch veya layer normalization
+- Uygun ağırlık başlatma (He, Xavier)
+- RNN'lerde LSTM/GRU; tersi olan exploding gradient için gradient clipping
 
 ## S42-01 · Çoklu seçim
 Konu: Derin öğrenme
@@ -1493,6 +1783,13 @@ Aktivasyon fonksiyonlarını (sigmoid, tanh, ReLU, softmax) karşılaştırın.
 
 Nerede soruldu: Baykar (aday beyanı).
 
+Anahtar noktalar:
+- Sigmoid: 0–1 çıktı; ikili sınıflandırma çıkışı; doyumda gradyan söner
+- tanh: -1–1 çıktı, sıfır merkezli
+- ReLU: `max(0, x)`, hızlı; negatif bölgede ölü nöron sorunu (çözüm: Leaky ReLU)
+- Softmax: çok sınıflı çıkışta olasılık dağılımı üretir
+- Gizli katmanlarda genellikle ReLU ailesi tercih edilir
+
 ## S43-01 · Eşleştirme
 Konu: Aktivasyon fonksiyonları
 Soru: Aktivasyon fonksiyonlarını özellikleriyle eşleştirin.
@@ -1515,6 +1812,13 @@ Alan: Yapay zekâ ve görü
 Bir dizi modeli (RNN) için uçtan uca pipeline nasıl kurulur? LSTM/GRU'dan Transformer'a geçişin gerekçesi nedir?
 
 Nerede soruldu: Baykar (aday beyanı).
+
+Anahtar noktalar:
+- Veriyi eğitim, doğrulama ve test olarak ayırmak
+- Tokenizasyon ve sözlüğü yalnız eğitim verisinden kurmak (veri sızıntısı olmaması)
+- Padding ve mask; embedding, LSTM/GRU ve çıkış katmanı
+- Doğrulama kaybını izleyip early stopping; test kümesini en sonda bir kez kullanmak
+- Transformer: self-attention ile paralel işleme ve uzak bağımlılıklar; konum kodlaması gerekir
 
 ## S44-01 · Sıralama
 Konu: Dizi modelleri
@@ -1554,6 +1858,13 @@ LLM'lerde fine-tuning, optimizasyon ve RAG'i açıklayın. Hangi durumda hangisi
 
 Nerede soruldu: Baykar LLM rolü (aday beyanı).
 
+Anahtar noktalar:
+- Fine-tuning modele görev, format veya üslup öğretir; LoRA gibi yöntemler maliyeti düşürür
+- RAG: belgeleri parçala, embedding çıkar, soruya en yakın parçaları getirip modele ver
+- Sık değişen ya da kaynağı gösterilmesi gereken bilgi için RAG
+- Değerlendirme: cevabın kaynağa dayanması ve uydurma (hallucination) kontrolü
+- Çıkarım optimizasyonu: quantization, önbellekleme ve daha küçük model
+
 ## S45-01 · Sıralama
 Konu: RAG
 Soru: Bir RAG sisteminin adımlarını doğru sırayla dizin.
@@ -1591,6 +1902,13 @@ Alan: Yapay zekâ ve görü
 Overfitting nasıl anlaşılır, nasıl önlenir?
 
 Nerede soruldu: klasik makine öğrenmesi sorusu.
+
+Anahtar noktalar:
+- Belirti: eğitim kaybı düşerken doğrulama kaybının artması
+- Underfitting'te iki kayıp da yüksek kalır
+- Önlemler: daha çok ve çeşitli veri, veri artırma
+- Dropout, L2 regularization ve early stopping
+- Model kapasitesini veriye göre seçmek; çapraz doğrulama
 
 ## S46-01 · Tek seçim
 Konu: Overfitting
@@ -1637,6 +1955,13 @@ Nesne tespitinde precision, recall, IoU ve mAP nedir? Eşik seçimi yanlış ala
 
 Nerede soruldu: klasik bilgisayarlı görü sorusu (STM bilgisayarlı görü alanı).
 
+Anahtar noktalar:
+- Precision = TP / (TP + FP): tespitlerin ne kadarı doğru
+- Recall = TP / (TP + FN): gerçek hedeflerin ne kadarı bulundu
+- IoU: kutuların kesişimi bölü birleşimi; tespit IoU eşiğini geçince doğru sayılır
+- mAP: sınıflar ve eşikler üzerinden ortalama precision
+- Eşik, yanlış alarm ile kaçırılan hedefin maliyetine göre seçilir
+
 ## S47-01 · Boşluk doldurma
 Konu: Precision ve recall
 Soru: Bir dedektör 10 hedef içeren bir görüntüde 8 tespit yapıyor; bunların 6'sı doğru. Precision değerini ondalık olarak yazın.
@@ -1673,6 +1998,13 @@ Alan: Yapay zekâ ve görü
 CNN'de convolution, stride ve padding çıktı boyutunu nasıl etkiler? Tek aşamalı ve iki aşamalı dedektörleri (YOLO, Faster R-CNN) karşılaştırın.
 
 Nerede soruldu: klasik bilgisayarlı görü sorusu.
+
+Anahtar noktalar:
+- Çıktı boyutu: (girdi − çekirdek + 2 × padding) / stride + 1
+- Padding kenarları korur; stride çözünürlüğü düşürür
+- Pooling ve derinleşen katmanlarla özellik hiyerarşisi
+- YOLO tek aşamalı ve hızlı; Faster R-CNN önce bölge önerir, genellikle daha doğru
+- Gömülü çıkarımda hız ve doğruluk dengesi
 
 ## S48-01 · Boşluk doldurma
 Konu: CNN çıktı boyutu
@@ -1716,6 +2048,13 @@ Kalman filtresi ne işe yarar? Tahmin ve güncelleme adımlarını açıklayın.
 
 Nerede soruldu: klasik takip ve navigasyon sorusu.
 
+Anahtar noktalar:
+- Gürültülü ölçümlerden durumu (ör. konum ve hız) en iyi doğrusal kestirimle izler
+- Tahmin adımı: hareket modeliyle durumu ve belirsizliği ilerletmek
+- Güncelleme adımı: Kalman kazancıyla ölçümü tahminle birleştirmek
+- Ölçüm gürültüsü büyükse kazanç küçülür ve model tahminine daha çok güvenilir
+- Doğrusal olmayan sistemlerde EKF veya UKF
+
 ## S49-01 · Sıralama
 Konu: Kalman filtresi
 Soru: Kalman filtresinin bir döngüsündeki adımları doğru sırayla dizin.
@@ -1751,6 +2090,13 @@ Nyquist teoremi ve aliasing nedir? FFT ne işe yarar? FIR ile IIR filtrelerini k
 
 Nerede soruldu: Roketsan ilanı (sinyal işleme, DSP ve MATLAB).
 
+Anahtar noktalar:
+- Nyquist: örnekleme hızı en yüksek frekansın en az iki katı olmalı
+- Aliasing ve örneklemeden önce anti-aliasing filtre
+- FFT, DFT'yi O(n log n) sürede hesaplar; spektrum analizinde kullanılır
+- FIR: geri beslemesiz, her zaman kararlı, doğrusal faz sağlanabilir
+- IIR: geri beslemeli, daha az katsayı ister ama kararsız olabilir
+
 ## S50-01 · Boşluk doldurma
 Konu: Örnekleme
 Soru: En yüksek frekans bileşeni 5 kHz olan bir sinyali aliasing olmadan örneklemek için gereken teorik minimum örnekleme hızı nedir? Birimiyle yazın (ör. 3 kHz).
@@ -1785,6 +2131,13 @@ Alan: Sinyal, kontrol ve navigasyon
 Rotasyon matrisleri ve koordinat dönüşümlerini açıklayın. Euler açıları, gimbal lock ve quaternion arasındaki ilişki nedir?
 
 Nerede soruldu: Baykar havacılık (aday beyanı).
+
+Anahtar noktalar:
+- Rotasyon matrisi ortogonaldir: tersi transpozudur, determinantı 1'dir
+- Koordinat dönüşümleri (ör. gövde ve dünya eksenleri) matris çarpımıyla zincirlenir; sıra önemlidir
+- Euler açıları (yaw, pitch, roll) sezgiseldir ama gimbal lock yaşar
+- Gimbal lock: iki eksen hizalanınca bir serbestlik derecesi kaybolur
+- Quaternion tekillik yaşamaz ve ara değerleme (slerp) için uygundur
 
 ## S51-01 · Tek seçim
 Konu: Rotasyonlar
@@ -1823,6 +2176,13 @@ PID formülünü yazın ve terimlerin etkisini açıklayın. Integral windup ned
 
 Nerede soruldu: HAVELSAN sistem mühendisliği (aday beyanı).
 
+Anahtar noktalar:
+- `u = Kp·e + Ki·∫e dt + Kd·de/dt`
+- P mevcut hataya tepki verir; tek başına kalıcı hata bırakabilir
+- I kalıcı hatayı giderir; D aşmayı azaltır ama ölçüm gürültüsünü büyütür
+- Integral windup: aktüatör doyumdayken integralin birikmesi; clamping ile önlenir
+- Ayar: önce P, sonra I ve D; Ziegler–Nichols gibi yöntemler
+
 ## S52-01 · Eşleştirme
 Konu: PID
 Soru: PID terimlerini etkileriyle eşleştirin.
@@ -1860,6 +2220,13 @@ Alan: Test, süreç ve standartlar
 Blackbox ve whitebox test arasındaki fark nedir? Sınır değer analizi ve eşdeğer bölümleme nedir?
 
 Nerede soruldu: ASELSAN test mühendisliği ("blackbox whitebox testing duydun mu?", aday beyanı).
+
+Anahtar noktalar:
+- Blackbox: spesifikasyona göre, iç yapıyı bilmeden test
+- Whitebox: kodun yapısına göre; statement, branch ve MC/DC kapsaması
+- Eşdeğer bölümleme: her sınıftan bir temsilci
+- Sınır değer analizi: sınırın kendisi, hemen altı ve hemen üstü
+- İki yaklaşım birbirini tamamlar
 
 ## S53-01 · Tek seçim
 Konu: Test teknikleri
@@ -1908,6 +2275,13 @@ Unit, integration, system ve acceptance test seviyelerini açıklayın. Regresyo
 
 Nerede soruldu: klasik test sorusu.
 
+Anahtar noktalar:
+- Unit test: tek bir birim izole edilerek test edilir
+- Integration test: birimlerin birlikte çalışması ve arayüzler
+- System test: bütün sistem gereksinimlere göre
+- Acceptance test: müşterinin ihtiyacına göre kabul
+- Regresyon testi: değişiklikten sonra eski özelliklerin bozulmadığını otomatik doğrulamak
+
 ## S54-01 · Sıralama
 Konu: Test seviyeleri
 Soru: Test seviyelerini kapsamı en küçükten en büyüğe doğru sıralayın.
@@ -1945,6 +2319,13 @@ Verification ile validation arasındaki fark nedir?
 
 Nerede soruldu: HAVELSAN üzerinden TUSAŞ projelerine simülatör ilanı.
 
+Anahtar noktalar:
+- Verification: ürünü doğru mu yapıyoruz? Spesifikasyona uygunluk
+- Validation: doğru ürünü mü yapıyoruz? Kullanıcı ihtiyacına uygunluk
+- Verification yöntemleri: test, analiz, inceleme ve gösterim
+- Validation genellikle gerçek kullanım koşullarında ve kullanıcıyla yapılır
+- Örnek: bir simülatörün gerçek sisteme yeterince benzediğini göstermek
+
 ## S55-01 · Eşleştirme
 Konu: Verification ve validation
 Soru: Kavramları tanımlarıyla eşleştirin.
@@ -1978,6 +2359,13 @@ Alan: Test, süreç ve standartlar
 İyi bir gereksinim nasıl yazılır? İzlenebilirlik (traceability) nedir?
 
 Nerede soruldu: HAVELSAN iş analistliği ve simülatör ilanı.
+
+Anahtar noktalar:
+- İyi gereksinim tek anlamlı, ölçülebilir ve test edilebilirdir
+- Her gereksinim tek bir şeyi söyler; "-malıdır/-melidir" zorunluluk ifade eder
+- "Hızlı", "kolay" gibi kelimeler yerine ölçülebilir değerler
+- İzlenebilirlik: gereksinim, tasarım ve test arasında iki yönlü bağ
+- İzlenebilirlik matrisi test edilmemiş gereksinimleri ortaya çıkarır
 
 ## S56-01 · Tek seçim
 Konu: Gereksinimler
@@ -2016,6 +2404,13 @@ Yazılım yaşam döngüsünü anlatın. V-model ile Agile/Scrum arasındaki far
 
 Nerede soruldu: Roketsan ilanı (yazılım yaşam döngüsü).
 
+Anahtar noktalar:
+- Yaşam döngüsü: gereksinim, tasarım, gerçekleştirme, test ve bakım
+- Şelale: aşamalar sırayla yapılır; geri dönmek maliyetlidir
+- V-model: her geliştirme aşamasının karşısında bir test seviyesi
+- Agile/Scrum: kısa sprintler ve sık geri bildirim
+- Savunmada aşama geçitleri (SRR, PDR, CDR) ve dokümantasyon; Agile bu çerçevede uygulanabilir
+
 ## S57-01 · Eşleştirme
 Konu: Yaşam döngüsü modelleri
 Soru: Modelleri özellikleriyle eşleştirin.
@@ -2050,6 +2445,13 @@ Alan: Test, süreç ve standartlar
 DO-178C nedir? Yazılım seviyeleri neye göre belirlenir?
 
 Nerede soruldu: klasik aviyonik sorusu.
+
+Anahtar noktalar:
+- Havacılık yazılımı sertifikasyonu için rehber standart
+- Seviyeler arızanın sonucuna göre: A felaket, B tehlikeli, C büyük, D küçük, E etkisiz
+- Seviye yükseldikçe hedef sayısı ve bağımsız doğrulama şartı artar
+- Yapısal kapsama: C statement, B decision, A ayrıca MC/DC
+- Gereksinimden koda ve teste izlenebilirlik
 
 ## S58-01 · Eşleştirme
 Konu: DO-178C
@@ -2090,6 +2492,13 @@ MIL-STD-498 hangi dokümanları tanımlar?
 
 Nerede soruldu: klasik savunma yazılımı sorusu.
 
+Anahtar noktalar:
+- ABD askeri yazılım geliştirme ve dokümantasyon standardı (1994)
+- SRS gereksinimleri, SDD tasarımı; IRS ve IDD arayüzleri tanımlar
+- STP test planı, STD test tanımı, STR test raporudur
+- 1998'de yürürlükten kalktı ama doküman şablonları hâlâ yaygın
+- Türk savunma projelerinde doküman seti olarak sık kullanılır
+
 ## S59-01 · Eşleştirme
 Konu: MIL-STD-498
 Soru: MIL-STD-498 dokümanlarını içerikleriyle eşleştirin.
@@ -2125,6 +2534,13 @@ Alan: Test, süreç ve standartlar
 Git'te merge ile rebase arasındaki fark nedir? Conflict nasıl çözülür?
 
 Nerede soruldu: klasik yazılım geliştirme sorusu.
+
+Anahtar noktalar:
+- Merge geçmişi korur ve bir birleştirme commit'i oluşturur
+- Rebase commit'leri yeni tabanın üzerine yeniden yazar; doğrusal geçmiş verir
+- Paylaşılmış dalı rebase edip zorla push etmemek; gerekirse `--force-with-lease`
+- Conflict: dosyayı düzelt, `git add`, sonra commit ya da `git rebase --continue`
+- Küçük ve açıklayıcı commit'ler
 
 ## S60-01 · Tek seçim
 Konu: Git
@@ -2163,6 +2579,13 @@ Konfigürasyon yönetimi nedir? Baseline ve değişiklik kontrolü ne işe yarar
 
 Nerede soruldu: STM (PLM ve Konfigürasyon Mühendisliği alanı).
 
+Anahtar noktalar:
+- Neyin, hangi sürümle ve hangi onayla teslim edildiğini kayıt altına alır
+- Konfigürasyon öğeleri: kod, dokümanlar, araçlar ve donanım tanımları
+- Baseline: onaylanmış ve değişiklik kontrolü altındaki yapılandırma
+- Değişiklik talebi, etki analizi ve değişiklik kontrol kurulu (CCB)
+- Sahadaki her sistemin yazılımının yeniden üretilebilmesi
+
 ## S61-01 · Tek seçim
 Konu: Konfigürasyon yönetimi
 Soru: Konfigürasyon yönetiminde baseline nedir?
@@ -2186,6 +2609,13 @@ Alan: Test, süreç ve standartlar
 Code review'da nelere bakarsınız?
 
 Nerede soruldu: klasik yazılım geliştirme sorusu.
+
+Anahtar noktalar:
+- Doğruluk ve sınır durumları
+- Değişikliği kapsayan testler
+- Okunabilirlik, isimlendirme ve gereksiz karmaşıklık
+- Güvenlik ve hata yönetimi
+- Küçük değişiklikler, yapıcı ve somut yorumlar; biçim kontrolü araçlara bırakılır
 
 ## S62-01 · Çoklu seçim
 Konu: Code review
@@ -2215,6 +2645,13 @@ Alan: Davranışsal ve işe alım
 Kendinizi ve projelerinizi anlatın. Karşılaştığınız teknik bir problemi ve nasıl çözdüğünüzü anlatın.
 
 Nerede soruldu: TÜBİTAK SAGE, HAVELSAN, ASELSAN ve Baykar (aday beyanları).
+
+Anahtar noktalar:
+- STAR yapısı: durum, görev, eylem ve sonuç
+- Kendi rolünü takımın işinden ayırarak anlatmak
+- Teknik kararların gerekçesi ve değerlendirilen alternatifler
+- Ölçülebilir sonuç ve çıkarılan ders
+- CV'deki her konunun arkasında durabilmek; derin sorulara hazırlıklı olmak
 
 ## S63-01 · Eşleştirme
 Konu: STAR yapısı
@@ -2255,6 +2692,13 @@ Neden bizimle çalışmak istiyorsunuz? Şirketimiz hakkında neler biliyorsunuz
 
 Nerede soruldu: ASELSAN (Temmuz 2025) ve Baykar yüz yüze İK görüşmesi (aday beyanları).
 
+Anahtar noktalar:
+- Şirketin ürünlerini ve güncel projelerini somut olarak bilmek
+- Başvurulan birimin işini anlatabilmek
+- Kendi projelerini ve becerilerini bu işe bağlamak
+- Uzun vadeli hedef ve motivasyon
+- Her şirkete söylenebilecek genel cevaplardan kaçınmak
+
 ## S64-01 · Tek seçim
 Konu: Şirket motivasyonu
 Soru: Bu soruya hangisi en güçlü cevaptır?
@@ -2278,6 +2722,13 @@ Alan: Davranışsal ve işe alım
 Kişi Güvenlik Belgesi (KGB) nedir, süreç nasıl işler? Askerlik durumunuz nedir?
 
 Nerede soruldu: gizli projeler için genel şart; ASELSAN genel şartları.
+
+Anahtar noktalar:
+- Gizli projelere erişim için Kişi Güvenlik Belgesi gerekir
+- Başvuruyu şirket yapar; soruşturmayı MİT, Emniyet ve mülki amirlikler yürütür
+- Süreç aylar sürebilir; teklif ile işe başlama arası uzayabilir
+- Erkek adaylardan askerliğini yapmış ya da en az iki yıl tecilli olmaları beklenebilir
+- Askerlik durumunu net ve dürüst anlatmak
 
 ## S65-01 · Doğru / Yanlış
 Konu: Güvenlik belgesi

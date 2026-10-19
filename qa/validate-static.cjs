@@ -153,6 +153,17 @@ const mixedAreas = build.buildBank(areaDir);
 fs.rmSync(areaDir, { recursive: true, force: true });
 check(mixedAreas.errors.some((error) => error.includes('S99') && error.includes('Alan:')), 'Bir bölümde alanı olmayan soru derlemede hata vermeli.');
 
+// "Anahtar noktalar:" closes the source block and never leaks into the question text.
+const withPoints = areaSample('S98', 'Deneme alanı').replace('Deneme sorusu.\n', 'Deneme sorusu.\n\nAnahtar noktalar:\n- Birinci nokta\n- `kod` içeren ikinci nokta\n');
+const parsedPoints = build.parseFile(withPoints, 'deneme.md');
+check(!parsedPoints.errors.length && parsedPoints.sources[0].prompt === 'Deneme sorusu.' && JSON.stringify(parsedPoints.sources[0].keyPoints) === JSON.stringify(['Birinci nokta', '`kod` içeren ikinci nokta']), '"Anahtar noktalar:" listesi ayrıştırılıp soru metninden çıkarılmalı.');
+const badPoints = build.parseFile(withPoints.replace('- Birinci nokta', 'Birinci nokta'), 'deneme.md');
+check(badPoints.errors.some((error) => error.includes('"- " ile başlamalı')), '"Anahtar noktalar:" altındaki madde dışı satır hata vermeli.');
+for (const id of Object.keys(sources)) {
+  const points = sources[id].keyPoints;
+  check(points === undefined || (Array.isArray(points) && points.length && points.every((point) => typeof point === 'string' && point.trim())), `${id}: anahtar noktalar boş olmayan metinlerden oluşmalı.`);
+}
+
 const cardIds = new Set();
 const usedSources = new Set();
 const sectionCounts = {};

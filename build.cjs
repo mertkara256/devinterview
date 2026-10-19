@@ -99,20 +99,38 @@ function parseSource(block, file, errors) {
   const [, id, difficulty, kind] = match;
   if (!SECTIONS[id.replace(/\d+$/, '')]) errors.push(`${file}:${block.line + 1}: ${id}: kimlik ${SECTION_ORDER.join(', ')} harflerinden biriyle başlamalı.`);
   if (!DIFFICULTIES.includes(difficulty)) errors.push(`${file}:${block.line + 1}: ${id}: zorluk ${DIFFICULTIES.join(', ')} değerlerinden biri olmalı.`);
-  const lines = block.body.map((entry) => entry.text);
-  while (lines.length && !lines[0].trim()) lines.shift();
+  const body = block.body.slice();
+  while (body.length && !body[0].text.trim()) body.shift();
   // An optional "Alan:" first line groups the question under an area of its section.
   let area = '';
-  const areaLine = lines.length ? /^Alan:(.*)$/.exec(lines[0]) : null;
+  const areaLine = body.length ? /^Alan:(.*)$/.exec(body[0].text) : null;
   if (areaLine) {
     area = areaLine[1].trim();
-    if (!area) errors.push(`${file}:${block.line + 1}: ${id}: "Alan:" satırı boş.`);
-    lines.shift();
-    while (lines.length && !lines[0].trim()) lines.shift();
+    if (!area) errors.push(`${file}:${body[0].line + 1}: ${id}: "Alan:" satırı boş.`);
+    body.shift();
   }
+  // An optional "Anahtar noktalar:" list closes the block; interview mode uses it as its checklist.
+  const keyPoints = [];
+  let inFence = false;
+  const listAt = body.findIndex((entry) => {
+    if (FENCE.test(entry.text)) inFence = !inFence;
+    return !inFence && entry.text.trim() === 'Anahtar noktalar:';
+  });
+  if (listAt !== -1) {
+    body.slice(listAt + 1).forEach((entry) => {
+      if (!entry.text.trim()) return;
+      const point = /^- (.+)$/.exec(entry.text);
+      if (point) keyPoints.push(point[1].trim());
+      else errors.push(`${file}:${entry.line + 1}: ${id}: "Anahtar noktalar:" listesindeki her satır "- " ile başlamalı.`);
+    });
+    if (!keyPoints.length) errors.push(`${file}:${body[listAt].line + 1}: ${id}: "Anahtar noktalar:" listesi boş.`);
+    body.splice(listAt);
+  }
+  const lines = body.map((entry) => entry.text);
+  while (lines.length && !lines[0].trim()) lines.shift();
   while (lines.length && !lines[lines.length - 1].trim()) lines.pop();
   if (!lines.length) errors.push(`${file}:${block.line + 1}: ${id}: soru metni boş.`);
-  return { id, difficulty, kind: kind.trim(), area, prompt: lines.join('\n'), file, line: block.line };
+  return { id, difficulty, kind: kind.trim(), area, keyPoints, prompt: lines.join('\n'), file, line: block.line };
 }
 
 function parseCard(block, source, file, errors) {
@@ -417,6 +435,7 @@ function buildBank(dir) {
   sources.forEach((source) => {
     sourceQuestions[source.id] = { id: source.id, descriptor: `${source.difficulty} · ${source.kind}`, prompt: source.prompt };
     if (source.area) sourceQuestions[source.id].area = source.area;
+    if (source.keyPoints.length) sourceQuestions[source.id].keyPoints = source.keyPoints;
   });
   const digest = crypto.createHash('sha256').update(JSON.stringify({ sourceQuestions, cards })).digest('hex');
   const meta = { title: TITLE, version: digest.slice(0, 8), sourceSha256: digest, sourceQuestionCount: sources.length, cardCount: cards.length };
