@@ -286,9 +286,10 @@
     return bank.filter(function (card) {
       var progress = progressMap[card.sourceId] || {};
       var state = cardStateMap[card.id] || {};
-      if (filters.sections && filters.sections.length && filters.sections.indexOf(card.section) === -1) return false;
-      if (filters.difficulties && filters.difficulties.length && filters.difficulties.indexOf(card.difficulty) === -1) return false;
-      if (filters.types && filters.types.length && filters.types.indexOf(card.type) === -1) return false;
+      // A missing list means no filter; an empty list matches nothing, as in interview mode.
+      if (filters.sections && filters.sections.indexOf(card.section) === -1) return false;
+      if (filters.difficulties && filters.difficulties.indexOf(card.difficulty) === -1) return false;
+      if (filters.types && filters.types.indexOf(card.type) === -1) return false;
       if (!areaAllowed(filters, card.area)) return false;
       if (filters.topic && filters.topic !== 'all' && card.topic !== filters.topic) return false;
       if (progress.excluded && filters.status !== 'excluded') return false;

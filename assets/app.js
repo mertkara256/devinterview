@@ -587,6 +587,15 @@
     return previous && previous.areas ? previous.areas.slice() : allAreas();
   }
 
+  // Says why a start button is disabled: which choice group is empty, or that nothing matches.
+  function emptyPoolNote(filters, groups) {
+    var missing = groups.filter(function (group) { return filters[group[0]] && !filters[group[0]].length; }).map(function (group) { return group[1]; });
+    var text = missing.length
+      ? 'En az bir ' + (missing.length > 1 ? missing.slice(0, -1).join(', ') + ' ve ' + missing[missing.length - 1] : missing[0]) + ' seç.'
+      : 'Bu seçimlere uyan soru yok.';
+    return '<p class="tiny muted" role="status" style="margin:.75rem 0 0">' + text + '</p>';
+  }
+
   function builderFormDefaults() {
     return {
       mode: 'practice',
@@ -630,8 +639,7 @@
             '<label><input type="radio" name="path" value="mixed" ' + (defaults.path === 'mixed' ? 'checked' : '') + '><span>Karışık</span></label>' +
             '<label><input type="radio" name="path" value="learning" ' + (defaults.path === 'learning' ? 'checked' : '') + '><span>Kaynak sırası</span></label></div></section>' +
           '<section class="form-section"><span class="eyebrow">3 · KAPSAM</span><h2>Bölümler</h2>' + chips(state.sections, defaults.sections, 'sections') + '</section>' +
-          // An empty section list means every section in the builder.
-          areaChipsHtml(defaults.sections.length ? defaults.sections : state.sections, defaults.areas || allAreas()) +
+          areaChipsHtml(defaults.sections, defaults.areas || allAreas()) +
           '<section class="form-section"><h2>Zorluk</h2>' + chips(['Kolay', 'Orta', 'Zorlayıcı'], defaults.difficulties, 'difficulties') + '</section>' +
           '<section class="form-section"><h2>Soru türleri</h2>' + chips(Object.keys(E.TYPE_LABELS), defaults.types, 'types', E.TYPE_LABELS) + '</section>' +
           '<section class="form-section"><div class="check-grid"><label class="field"><span>Alt konu</span><select name="topic"><option value="all">Tüm konular</option>' + topics.map(function (topic) { return '<option value="' + E.escapeHtml(topic) + '" ' + (defaults.topic === topic ? 'selected' : '') + '>' + E.escapeHtml(topic) + '</option>'; }).join('') + '</select></label>' +
@@ -646,7 +654,8 @@
         '<aside class="card pad summary-panel"><span class="eyebrow">OTURUM ÖZETİ</span><h2>' + (defaults.mode === 'practice' ? 'Pratik oturumu' : 'Sınav denemesi') + '</h2>' +
           '<div class="summary-number">' + expected + '</div><p class="muted">ekran sorusu</p><div class="summary-list">' +
           '<div><span>Uygun havuz</span><strong>' + filtered.length + '</strong></div><div><span>Kaynak çeşitliliği</span><strong>Öncelikli</strong></div><div><span>Geri sayım</span><strong>Yok</strong></div><div><span>Kayıt</span><strong>Otomatik</strong></div></div>' +
-          '<button class="button primary full" type="submit" ' + (filtered.length ? '' : 'disabled') + '>Oturumu başlat</button><p class="tiny muted" style="margin:.75rem 0 0">Kısa testlerde aynı kaynak kimliği havuz izin verdiği sürece tekrarlanmaz.</p></aside>' +
+          '<button class="button primary full" type="submit" ' + (filtered.length ? '' : 'disabled') + '>Oturumu başlat</button>' +
+          (filtered.length ? '<p class="tiny muted" style="margin:.75rem 0 0">Kısa testlerde aynı kaynak kimliği havuz izin verdiği sürece tekrarlanmaz.</p>' : emptyPoolNote(defaults, [['sections', 'bölüm'], ['difficulties', 'zorluk'], ['types', 'soru türü']])) + '</aside>' +
       '</form>';
   }
 
@@ -1605,6 +1614,7 @@
             '<div><span>Tekrar bekleyen</span><strong>' + stats.due + '</strong></div>' +
             '<div><span>Rahat anlatılan</span><strong>' + stats.good + '</strong></div></div>' +
             '<button class="button primary full" type="submit" ' + (pool.length ? '' : 'disabled') + '>Mülakatı başlat</button>' +
+            (pool.length ? '' : emptyPoolNote(defaults, [['sections', 'bölüm'], ['difficulties', 'zorluk']])) +
             (unfinished ? '<p class="tiny muted" style="margin:.75rem 0 0">Yeni mülakat yarım olanın yerini alır; puanladığın sorular korunur.</p>' : '') + '</div>' +
         '</aside>' +
       '</form>';

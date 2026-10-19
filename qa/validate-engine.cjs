@@ -153,6 +153,7 @@ const areaIds = (filters) => E.filterBank(areaCards, filters, {}, {}).map((card)
 check(areaIds({ areas: ['Gömülü'] }) === 'S90-01,J90-01', 'Alan filtresi seçili alanı ve alanı olmayan kartları bırakmalı.');
 check(areaIds({}) === 'S90-01,S91-01,J90-01', 'Alan filtresi verilmezse hiçbir kart elenmemeli.');
 check(areaIds({ areas: [] }) === 'J90-01', 'Hiç alan seçilmezse alanı olan kartlar elenmeli.');
+check(areaIds({ sections: [] }) === '' && areaIds({ difficulties: [] }) === '' && areaIds({ types: [] }) === '', 'Boş bölüm, zorluk veya tür seçimi hiçbir kartla eşleşmemeli.');
 check(JSON.stringify(E.areasBySection(areaCards)) === JSON.stringify({ Savunma: ['Gömülü', 'Ağ'] }), 'Alanlar bölüme göre ve banka sırasıyla listelenmeli.');
 
 if (failures.length) {
