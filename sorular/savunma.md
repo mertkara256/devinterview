@@ -24,7 +24,7 @@ Soru: C/C++'ta memory leak'i önlemeye veya bulmaya yardımcı olan uygulamalar�
 - [x] b: Testleri Valgrind veya AddressSanitizer altında çalıştırmak
   Neden: Bu araçlar serbest bırakılmayan blokları çalışma sırasında raporlar.
 - [ ] c: Kullanılan bloğun işaretçisini `free` çağırmadan `NULL` yapmak
-  Neden: İşaretçiyi NULL yapmak bloğu serbest bırakmaz; free çağrılmazsa sızıntı tam da böyle oluşur.
+  Neden: İşaretçiyi `NULL` yapmak bloğu serbest bırakmaz; `free` çağrılmazsa sızıntı tam da böyle oluşur.
 - [x] d: Gömülü yazılımda başlangıçtan sonra dinamik bellek tahsisinden kaçınmak
   Neden: Tahsis yalnız başlangıçta yapılırsa çalışma sırasında sızıntı ve parçalanma riski ortadan kalkar.
 - [x] e: Hata dönüş yollarında da ayrılan belleği serbest bırakmak
@@ -69,12 +69,12 @@ Konu: volatile
 Soru: `volatile` tanımlanmış bir değişkende `count++` işlemi kesmelere karşı güvenli ve atomiktir.
 Şıklar:
 - [ ] Doğru
-  Neden: volatile yalnız her erişimin bellekten yapılmasını sağlar; artırma okuma, toplama ve yazma adımlarına bölünür.
+  Neden: `volatile` yalnız her erişimin bellekten yapılmasını sağlar; artırma okuma, toplama ve yazma adımlarına bölünür.
 - [x] Yanlış
   Neden: Doğru; atomiklik için kesmeleri kısa süre kapatmak veya atomik bir tip kullanmak gerekir.
-İpucu: count++ kaç ayrı adımdan oluşur?
-Kısa açıklama: volatile atomiklik sağlamaz.
-Açıklama: count++ değeri okur, bir ekler ve geri yazar. Bu adımların arasında bir kesme gelip aynı değişkeni değiştirirse güncelleme kaybolur. Çözüm kritik bölümde kesmeleri kısa süre kapatmak ya da atomik işlemler kullanmaktır.
+İpucu: `count++` kaç ayrı adımdan oluşur?
+Kısa açıklama: `volatile` atomiklik sağlamaz.
+Açıklama: `count++` değeri okur, bir ekler ve geri yazar. Bu adımların arasında bir kesme gelip aynı değişkeni değiştirirse güncelleme kaybolur. Çözüm kritik bölümde kesmeleri kısa süre kapatmak ya da atomik işlemler kullanmaktır.
 Etiketler: volatile, atomiklik
 
 # S03 · Orta · Teori
@@ -260,14 +260,14 @@ Soru: Ham bir işaretçiyle heap belleği sahiplenen bir C++ sınıfı için do�
 - [x] b: Yıkıcı, kopya kurucu ve kopya atama operatöründen biri gerekiyorsa genellikle üçü de gerekir
   Neden: Rule of three budur.
 - [ ] c: `std::move` nesneyi kendi başına taşır ve kaynak nesneyi siler
-  Neden: std::move yalnız bir rvalue dönüşümüdür; taşımayı move kurucusu veya move atama operatörü yapar.
+  Neden: `std::move` yalnız bir rvalue dönüşümüdür; taşımayı move kurucusu veya move atama operatörü yapar.
 - [x] d: Move kurucusu kaynağın işaretçisini devralıp kaynak nesnedeki işaretçiyi boşaltabilir
   Neden: Doğru; böylece derin kopya yapılmaz.
 - [ ] e: Yıkıcıyı yazmak kopyalamayı da güvenli hâle getirir
   Neden: Kopyalar yine aynı işaretçiyi paylaşır ve çift silme oluşur.
 İpucu: Varsayılan kopya işaretçinin kendisini mi, gösterdiği veriyi mi kopyalar?
 Kısa açıklama: Kaynak sahibi sınıflar kopya ve taşıma işlemlerini birlikte tanımlamalıdır.
-Açıklama: Varsayılan kopya üyeleri tek tek kopyalar; ham işaretçide bu iki nesnenin aynı belleği sahiplenmesi demektir. Rule of three yıkıcı, kopya kurucu ve kopya atamanın birlikte yazılmasını; rule of five buna move kurucu ve move atamayı ekler. En iyisi kaynağı unique_ptr gibi bir sınıfa bırakıp hiçbirini yazmamaktır (rule of zero).
+Açıklama: Varsayılan kopya üyeleri tek tek kopyalar; ham işaretçide bu iki nesnenin aynı belleği sahiplenmesi demektir. Rule of three yıkıcı, kopya kurucu ve kopya atamanın birlikte yazılmasını; rule of five buna move kurucu ve move atamayı ekler. En iyisi kaynağı `unique_ptr` gibi bir sınıfa bırakıp hiçbirini yazmamaktır (rule of zero).
 Etiketler: cpp, move, kopya
 
 # S07 · Kolay · Karşılaştırma
@@ -289,16 +289,16 @@ Anahtar noktalar:
 Konu: Dinamik bellek
 Soru: `malloc`/`free` ile `new`/`delete` arasındaki temel fark hangisidir?
 Şıklar:
-- [ ] a: malloc daha hızlı olduğu için C++'ta new yerine her zaman tercih edilmelidir
-  Neden: Hız bir ölçüt değildir; malloc kurucu çağırmadığı için C++ nesnelerinde yanlış kullanımdır.
+- [ ] a: `malloc` daha hızlı olduğu için C++'ta `new` yerine her zaman tercih edilmelidir
+  Neden: Hız bir ölçüt değildir; `malloc` kurucu çağırmadığı için C++ nesnelerinde yanlış kullanımdır.
 - [ ] b: İkisi de aynı şeyi yapar; yalnız yazımları farklıdır ve birbirleriyle karıştırılabilir
-  Neden: Kurucu/yıkıcı çağrısı ve tip güvenliği farklıdır; new ile alınan bellek free ile bırakılamaz.
-- [x] c: new kurucuyu, delete yıkıcıyı çağırır; malloc ve free çağırmaz
-- [ ] d: new başarısız olunca NULL döner
-  Neden: Varsayılan new başarısızlıkta std::bad_alloc fırlatır; NULL dönen malloc'tur.
+  Neden: Kurucu/yıkıcı çağrısı ve tip güvenliği farklıdır; `new` ile alınan bellek `free` ile bırakılamaz.
+- [x] c: `new` kurucuyu, `delete` yıkıcıyı çağırır; `malloc` ve `free` çağırmaz
+- [ ] d: `new` başarısız olunca `NULL` döner
+  Neden: Varsayılan `new` başarısızlıkta `std::bad_alloc` fırlatır; `NULL` dönen `malloc`'tur.
 İpucu: Nesnenin yaşam döngüsünü kim başlatıyor?
-Kısa açıklama: new/delete nesne yaşam döngüsünü yönetir; malloc/free yalnız ham bellek verir.
-Açıklama: new bellek ayırıp kurucuyu çağırır, doğru tipte işaretçi döndürür ve başarısızlıkta exception fırlatır. malloc yalnız boyut kadar ham bellek ayırır, void* döndürür ve başarısızlıkta NULL verir. Eşleşmeyen çiftler (new/free, malloc/delete) tanımsız davranıştır.
+Kısa açıklama: `new`/`delete` nesne yaşam döngüsünü yönetir; `malloc`/`free` yalnız ham bellek verir.
+Açıklama: `new` bellek ayırıp kurucuyu çağırır, doğru tipte işaretçi döndürür ve başarısızlıkta exception fırlatır. `malloc` yalnız boyut kadar ham bellek ayırır, `void*` döndürür ve başarısızlıkta `NULL` verir. Eşleşmeyen çiftler (`new`/`free`, `malloc`/`delete`) tanımsız davranıştır.
 Etiketler: cpp, bellek
 
 ## S07-02 · Doğru / Yanlış
@@ -556,12 +556,12 @@ Soru: C++11 ve sonrasında thread-safe bir Singleton başlatmanın en sade yolu 
   Neden: Çalışır ama her çağrıda kilit maliyeti öder; C++11'de buna gerek yoktur.
 - [x] b: `getInstance` içinde fonksiyon-yerel bir `static` nesne tanımlamak
 - [ ] c: Global bir işaretçiyi `volatile` yapmak
-  Neden: volatile thread güvenliği sağlamaz.
+  Neden: `volatile` thread güvenliği sağlamaz.
 - [ ] d: Kurucuyu public bırakmak
   Neden: Public kurucu birden fazla nesne oluşturulmasına izin verir.
-İpucu: C++11, fonksiyon içindeki static nesnelerin başlatılması için ne garanti eder?
-Kısa açıklama: C++11'den beri fonksiyon-yerel static nesnelerin ilk başlatılması thread-safe'tir.
-Açıklama: Fonksiyon içindeki static nesne ilk çağrıda bir kez başlatılır ve dil, eşzamanlı ilk çağrılarda başlatmanın yalnız bir kez yapılmasını garanti eder (magic statics). Bu yöntem çift kontrollü kilitleme gibi hataya açık desenlere gerek bırakmaz.
+İpucu: C++11, fonksiyon içindeki `static` nesnelerin başlatılması için ne garanti eder?
+Kısa açıklama: C++11'den beri fonksiyon-yerel `static` nesnelerin ilk başlatılması thread-safe'tir.
+Açıklama: Fonksiyon içindeki `static` nesne ilk çağrıda bir kez başlatılır ve dil, eşzamanlı ilk çağrılarda başlatmanın yalnız bir kez yapılmasını garanti eder (magic statics). Bu yöntem çift kontrollü kilitleme gibi hataya açık desenlere gerek bırakmaz.
 Etiketler: singleton, thread, cpp
 
 ## S11-02 · Çoklu seçim
@@ -767,14 +767,14 @@ Soru: Boyutu N olan, `head` yazma ve `tail` okuma indeksi olan ve bir slotu boş
 Şıklar:
 - [x] a: `(head + 1) % N == tail` olduğunda; yazılacak bir sonraki konum okuma konumuna denk gelir
 - [ ] b: `head == tail` olduğunda; okuma ve yazma indeksleri aynı yeri gösterir
-  Neden: Bu kurala göre head == tail kuyruğun boş olduğunu gösterir.
+  Neden: Bu kurala göre `head == tail` kuyruğun boş olduğunu gösterir.
 - [ ] c: `head == N` olduğunda
-  Neden: İndeksler mod N ile sarar; head hiçbir zaman N değerinde kalmaz.
+  Neden: İndeksler mod N ile sarar; `head` hiçbir zaman N değerinde kalmaz.
 - [ ] d: Eleman sayısı N'ye ulaştığında; tüm slotlar dolar
   Neden: Bu tasarımda bir slot boş kalır; en fazla N - 1 eleman tutulur.
 İpucu: Boş ve dolu durumları ayırt etmek için bir slot feda edilir.
-Kısa açıklama: head bir adım ilerleyince tail'e çarpıyorsa kuyruk doludur.
-Açıklama: head == tail boş durumu gösterdiği için dolu durum (head + 1) % N == tail ile tanımlanır ve kapasite N - 1 olur. Alternatif olarak ayrı bir eleman sayacı tutulabilir; ama sayaç hem ISR hem ana döngü tarafından değiştirileceği için korunması gerekir.
+Kısa açıklama: `head` bir adım ilerleyince `tail`'e çarpıyorsa kuyruk doludur.
+Açıklama: `head == tail` boş durumu gösterdiği için dolu durum `(head + 1) % N == tail` ile tanımlanır ve kapasite N - 1 olur. Alternatif olarak ayrı bir eleman sayacı tutulabilir; ama sayaç hem ISR hem ana döngü tarafından değiştirileceği için korunması gerekir.
 Etiketler: ring-buffer, gömülü, kuyruk
 
 ## S16-02 · Doğru / Yanlış
@@ -1562,25 +1562,25 @@ Etiketler: sql, join
 Konu: SQL GROUP BY
 Soru: `HAVING` ile `WHERE` arasındaki fark nedir?
 Şıklar:
-- [ ] a: WHERE yalnız SELECT sorgularında, HAVING ise yalnız UPDATE ve DELETE sorgularında kullanılabilir
-  Neden: HAVING gruplanmış sonuçları filtreler; UPDATE ve DELETE ile ilgisi yoktur.
-- [x] b: WHERE gruplamadan önce satırları, HAVING gruplamadan sonra grupları filtreler
+- [ ] a: `WHERE` yalnız `SELECT` sorgularında, `HAVING` ise yalnız `UPDATE` ve `DELETE` sorgularında kullanılabilir
+  Neden: `HAVING` gruplanmış sonuçları filtreler; `UPDATE` ve `DELETE` ile ilgisi yoktur.
+- [x] b: `WHERE` gruplamadan önce satırları, `HAVING` gruplamadan sonra grupları filtreler
 - [ ] c: İkisi aynıdır
-  Neden: Toplama fonksiyonlarıyla filtre, örneğin COUNT(*) > 5, yalnız HAVING'de yazılır.
-- [ ] d: HAVING daha hızlıdır
-  Neden: Hız değil uygulanma aşaması farklıdır; WHERE ile erken filtrelemek genellikle daha verimlidir.
-İpucu: COUNT(*) değeri hangi aşamada hesaplanır?
-Kısa açıklama: WHERE satırları gruplamadan önce, HAVING grupları gruplamadan sonra filtreler.
-Açıklama: Sorgunun mantıksal sırası FROM, WHERE, GROUP BY, HAVING, SELECT ve ORDER BY'dır. Bu yüzden toplama sonucuna göre filtre HAVING'de, tek tek satırlara göre filtre WHERE'de yazılır.
+  Neden: Toplama fonksiyonlarıyla filtre, örneğin `COUNT(*) > 5`, yalnız `HAVING`'de yazılır.
+- [ ] d: `HAVING` daha hızlıdır
+  Neden: Hız değil uygulanma aşaması farklıdır; `WHERE` ile erken filtrelemek genellikle daha verimlidir.
+İpucu: `COUNT(*)` değeri hangi aşamada hesaplanır?
+Kısa açıklama: `WHERE` satırları gruplamadan önce, `HAVING` grupları gruplamadan sonra filtreler.
+Açıklama: Sorgunun mantıksal sırası `FROM`, `WHERE`, `GROUP BY`, `HAVING`, `SELECT` ve `ORDER BY`'dır. Bu yüzden toplama sonucuna göre filtre `HAVING`'de, tek tek satırlara göre filtre `WHERE`'de yazılır.
 Etiketler: sql, group-by
 
 ## S34-03 · Boşluk doldurma
 Konu: SQL GROUP BY
 Soru: Her departmandaki çalışan sayısını bulan sorguyu tamamlayın: `SELECT dept_id, COUNT(*) FROM employees ____ dept_id;`
 Cevap: GROUP BY
-İpucu: Satırları aynı dept_id değerine göre toplamak gerekir.
-Kısa açıklama: Eksik ifade GROUP BY'dır.
-Açıklama: GROUP BY dept_id aynı departmandaki satırları tek grupta toplar ve COUNT(*) her grubun satır sayısını verir. SELECT listesindeki toplama dışı sütunlar GROUP BY'da yer almalıdır.
+İpucu: Satırları aynı `dept_id` değerine göre toplamak gerekir.
+Kısa açıklama: Eksik ifade `GROUP BY`'dır.
+Açıklama: `GROUP BY dept_id` aynı departmandaki satırları tek grupta toplar ve `COUNT(*)` her grubun satır sayısını verir. `SELECT` listesindeki toplama dışı sütunlar `GROUP BY`'da yer almalıdır.
 Etiketler: sql, group-by
 
 ## S34-04 · Tek seçim
@@ -1786,9 +1786,9 @@ Konu: Closure
 Soru: `function counter() { let n = 0; return () => ++n; } const next = counter(); next(); next();` sonrasında üçüncü `next()` çağrısı ne döndürür?
 Cevap: 3
 Kabul: üç
-İpucu: n her çağrıda aynı kapsamda yaşar.
-Kısa açıklama: Closure n değişkenini tuttuğu için üçüncü çağrı 3 döndürür.
-Açıklama: counter dönse de döndürdüğü fonksiyon n'yi yakaladığı için değişken yaşamaya devam eder. Her next() çağrısı aynı n'yi artırır: 1, 2 ve 3. counter() tekrar çağrılırsa yeni ve bağımsız bir n oluşur.
+İpucu: `n` her çağrıda aynı kapsamda yaşar.
+Kısa açıklama: Closure `n` değişkenini tuttuğu için üçüncü çağrı 3 döndürür.
+Açıklama: `counter` dönse de döndürdüğü fonksiyon `n`'yi yakaladığı için değişken yaşamaya devam eder. Her `next()` çağrısı aynı `n`'yi artırır: 1, 2 ve 3. `counter()` tekrar çağrılırsa yeni ve bağımsız bir `n` oluşur.
 Etiketler: javascript, closure
 
 ## S39-02 · Tek seçim
