@@ -1,6 +1,6 @@
-# DevInterview — Yerel Java Mülakat Sınavı
+# DevInterview — Yerel Teknik Mülakat Hazırlığı
 
-Tamamen çevrimdışı, Chrome içinde çalışan Java, OOP ve algoritma çalışma uygulamasıdır. Sunucu, hesap, kurulum veya internet bağlantısı gerekmez.
+Tamamen çevrimdışı, Chrome içinde çalışan Java, OOP, algoritma ve savunma sanayii mülakat çalışma uygulamasıdır. Sunucu, hesap, kurulum veya internet bağlantısı gerekmez.
 
 ## Açma
 
