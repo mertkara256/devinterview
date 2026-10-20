@@ -9,9 +9,9 @@ Konu: Karmaşıklık analizi
 Soru: Big O notasyonu bir algoritma için öncelikle neyi ifade eder?
 Şıklar:
 - [x] a: Girdi büyürken kaynak kullanımının asimptotik üst sınırını
-- [ ] b: Algoritmanın her makinedeki kesin çalışma süresini
+- [ ] b: Algoritmanın belirli bir makinedeki kesin çalışma süresini
   Neden: Donanım, JVM ve girdi ayrıntıları kesin süreyi değiştirir.
-- [ ] c: Yalnızca en iyi durumdaki işlem sayısını
+- [ ] c: En iyi durumdaki işlem sayısını
   Neden: En iyi durum ayrıca belirtilir; Big O yalnız ona özgü değildir.
 - [ ] d: Programın kaç satır kaynak kod içerdiğini
   Neden: Kod satırı sayısı asimptotik maliyet ölçüsü değildir.
@@ -190,9 +190,9 @@ Konu: Diziler
 Soru: Bir int[] dizisinde geçerli arr[i] erişiminin sıkı zaman maliyeti neden Θ(1)'dir?
 Şıklar:
 - [x] a: Adres doğrudan hesaplanır.
-- [ ] b: JVM her erişimde baştan başlayıp i. elemana kadar ilerler, ama bu adımlar sabit sayıldığı için toplam Θ(1)'dir
+- [ ] b: JVM erişimde baştan başlayıp i. elemana kadar ilerler, ama bu adımlar sabit sayıldığı için toplam Θ(1)'dir
   Neden: Baştan dolaşmak i ile büyür ve linked list erişimine özgüdür; dizi erişimi doğrudan adres hesabıdır.
-- [ ] c: Dizi her erişimde sıralanır
+- [ ] c: Dizi erişimden önce sıralanır
   Neden: Erişim sıralama yapmaz.
 - [ ] d: Hash tablosunda bucket aranır
   Neden: Dizi indekslemesi hash kullanmaz.
@@ -425,12 +425,12 @@ Etiketler: string, reverse, two-pointer
 Konu: String işlemleri
 Soru: BMP dışındaki Unicode karakterlerini de bozmadan String ters çevirmek için en güvenli yaklaşım hangisidir?
 Şıklar:
-- [ ] a: UTF-16 char değerlerini tek tek ters çevirmek; Java'da her Unicode karakteri tam olarak bir char ile temsil edilir
+- [ ] a: UTF-16 char değerlerini tek tek ters çevirmek; Java'da bir Unicode karakteri tam olarak bir char ile temsil edilir
   Neden: BMP dışındaki karakterler iki char'lık surrogate çiftidir; tek char tersleme çifti bozar.
 - [x] b: codePoints() ile Unicode kod noktalarını alıp sıralarını ters çevirmek
 - [ ] c: String.hashCode() değerini ters çevirmek
   Neden: Hash kodu metni geri üretmez.
-- [ ] d: Yalnız toLowerCase() çağırmak
+- [ ] d: Metni toLowerCase() ile küçük harfe çevirmek
   Neden: Harf dönüşümü sıralamayı değiştirmez.
 İpucu: Bir görünen karakter bazı durumlarda iki char ile temsil edilir.
 Kısa açıklama: Kod noktaları üzerinden ilerlemek surrogate çiftlerini parçalamaz.
@@ -821,9 +821,9 @@ Soru: İyi dağılan hash değerleri ve kontrollü yük faktörü altında arama
 - [x] a: Beklenen Θ(1), zincirli kötü durum Θ(n)
 - [ ] b: Beklenen Θ(log n), kötü durum Θ(1)
   Neden: Beklenen hash erişimi logaritmik değil sabittir.
-- [ ] c: Her durumda Θ(1)
+- [ ] c: Beklenen ve kötü durumda Θ(1)
   Neden: Çakışma çözümü kötü durumda ek karşılaştırmalar ister.
-- [ ] d: Her durumda Θ(n²)
+- [ ] d: Beklenen ve kötü durumda Θ(n²)
   Neden: Tek arama için kareli tarama gerekmez.
 İpucu: İyi dağılım kısa bucket, tam çakışma uzun zincir oluşturur.
 Kısa açıklama: Beklenen arama Θ(1), tek zincirli patolojik durumda Θ(n)'dir.
@@ -903,11 +903,11 @@ Konu: Binary search
 Soru: Her adımda kalan arama alanı yaklaşık yarıya indiriliyorsa en kötü sıkı zaman neden Θ(log n)'dir?
 Şıklar:
 - [x] a: n/2^k yaklaşık 1 olduğunda k yaklaşık log₂n olur
-- [ ] b: Her adım tam n eleman inceler
+- [ ] b: Adımlar arama alanındaki n elemanın tamamını inceler
   Neden: Her adım yalnız orta elemanı karşılaştırır.
-- [ ] c: Yalnız sabit boyutlu diziler aranabilir
+- [ ] c: Binary search sabit boyutlu dizilerle sınırlıdır
   Neden: Binary search değişken boyutlarda çalışır.
-- [ ] d: Logaritma yalnız recursive kodda oluşur
+- [ ] d: Logaritmik süre recursive koddan kaynaklanır
   Neden: İteratif binary search de aynı logaritmik adım sayısına sahiptir.
 İpucu: Kaç kez ikiye böldüğünüzde n'den 1'e ulaşırsınız?
 Kısa açıklama: Kalan boyut n/2^k olur; 1'e ulaşmak yaklaşık log₂n adım gerektirir.
@@ -1508,11 +1508,11 @@ Konu: Insertion sort
 Soru: Insertion sort neredeyse sıralı dizilerde neden avantajlı olabilir?
 Şıklar:
 - [x] a: Ters çift azsa süresi Θ(n)'e yaklaşır.
-- [ ] b: Her zaman tam n² swap yapmak zorundadır
+- [ ] b: Girdi sıralı olsa da n² swap yapar
   Neden: Sıralı girdide iç döngü hemen durur.
 - [ ] c: Sıralı kısmı ikili aramayla taradığı için her eleman Θ(log n) kaydırmayla yerine yerleşir
   Neden: Standart insertion sort doğrusal tarar; avantajı ters çift az olduğunda kaydırmanın az olmasıdır.
-- [ ] d: Yalnızca tüm elemanlar farklıysa çalışır
+- [ ] d: Eşit elemanlar olduğunda sıralama bozulur
   Neden: Eşit değerlerle de çalışır ve uygun karşılaştırmayla kararlı kalır.
 İpucu: İç döngü yalnız key'den büyük önceki elemanları kaydırır.
 Kısa açıklama: Maliyet terslik sayısıyla ilişkilidir; az terslik az kaydırma demektir.
@@ -1757,9 +1757,9 @@ Soru: Artan sıralı dizide toplam hedeften küçükse neden left artırılır?
 - [x] a: left artınca toplam büyür.
 - [ ] b: right artırılırsa dizi uzar
   Neden: İşaretçi hareketi dizinin boyutunu değiştirmez.
-- [ ] c: left her zaman hedefin indeksidir
+- [ ] c: left, hedef değerin indeksini gösterir
   Neden: left yalnız aday sınırdır.
-- [ ] d: Bu hareket yalnız tüm sayılar pozitifse doğrudur; dizide negatif sayı varsa onun yerine right azaltılmalıdır
+- [ ] d: Bu hareket pozitif sayılarda doğrudur; dizide negatif sayı varsa onun yerine right azaltılmalıdır
   Neden: Monotonluk pozitiflikten değil sıralı olmaktan gelir; negatif sayılarda da left artırılır.
 İpucu: Sıralılık altında sabit sol değerle sağ işaretçiyi sola çekmenin etkisini düşünün.
 Kısa açıklama: Mevcut en büyük sağ adayla toplam bile küçükse mevcut sol hiçbir çözümde kullanılamaz.

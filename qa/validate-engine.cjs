@@ -124,15 +124,19 @@ const trueShare = booleanCards.filter((card) => card.answer === true).length / b
 check(trueShare >= 0.35 && trueShare <= 0.65, `Doğru/Yanlış cevapları dengeli olmalı: Doğru oranı %${Math.round(trueShare * 100)}.`);
 check(E.getBank().filter((card) => card.type === 'match').every((card) => card.pairs.right.length > card.pairs.left.length), 'Her eşleştirmede son eşleşmeyi eleme ile bedava yapmayan en az bir yanıltıcı seçenek olmalı.');
 
-// In multi-choice cards, absolute wording must not mark the wrong options, and no correct-answer count may dominate.
-const multiCards = E.getBank().filter((card) => card.type === 'multi');
+// In choice cards, absolute wording must not mark the wrong options; in multi-choice no correct-answer count may dominate.
 const ABSOLUTE = /(?<!\p{L})(her zaman|hiçbir zaman|her durumda|her türlü|asla|daima|hiçbir|hiç|kesinlikle|tamamen|mutlaka|yalnızca|yalnız|sadece|tüm|bütün|hepsi|hep|her)(?!\p{L})/iu;
-const absoluteShare = (correct) => {
-  const options = multiCards.flatMap((card) => card.options.filter((option) => card.answer.includes(option.id) === correct));
-  return options.filter((option) => ABSOLUTE.test(option.text)).length / options.length;
-};
-const absoluteGap = absoluteShare(false) - absoluteShare(true);
-check(absoluteGap <= 0.10, `Çoklu seçimde kesin ifadeler ("her zaman", "yalnız" gibi) yanlış şıklarda yığılmamalı: fark ${Math.round(absoluteGap * 100)} puan.`);
+const isRightOption = (card, option) => (card.type === 'multi' ? card.answer.includes(option.id) : option.id === card.answer);
+[['single', 'Tek seçimde'], ['multi', 'Çoklu seçimde']].forEach(([type, label]) => {
+  const cards = E.getBank().filter((card) => card.type === type);
+  const absoluteShare = (right) => {
+    const options = cards.flatMap((card) => card.options.filter((option) => isRightOption(card, option) === right));
+    return options.filter((option) => ABSOLUTE.test(option.text)).length / options.length;
+  };
+  const absoluteGap = absoluteShare(false) - absoluteShare(true);
+  check(absoluteGap <= 0.10, `${label} kesin ifadeler ("her zaman", "yalnız" gibi) yanlış şıklarda yığılmamalı: fark ${Math.round(absoluteGap * 100)} puan.`);
+});
+const multiCards = E.getBank().filter((card) => card.type === 'multi');
 const correctCounts = {};
 multiCards.forEach((card) => { correctCounts[card.answer.length] = (correctCounts[card.answer.length] || 0) + 1; });
 check(Object.values(correctCounts).every((count) => count / multiCards.length <= 0.5), `Çoklu seçimde aynı doğru şık sayısı kartların yarısından fazlasında olmamalı: ${JSON.stringify(correctCounts)}.`);

@@ -1344,9 +1344,9 @@ Etiketler: hashset, equals, hashcode, output
 Konu: HashSet eşitliği
 Soru: Yalnız id alanı eşit Employee nesnelerinin HashSet'te tek öğe sayılması için ne yapılmalıdır?
 Şıklar:
-- [ ] a: Yalnız equals id'ye göre override edilmeli
+- [ ] a: equals id'ye göre override edilmeli, hashCode Object'ten geldiği gibi kalmalı
   Neden: Hash sözleşmesini bozabilir.
-- [ ] b: Yalnız hashCode id'ye göre override edilmeli; HashSet eşitliği yalnız hash değerine bakarak belirler
+- [ ] b: hashCode'u id'ye göre override etmek yeterlidir, çünkü HashSet eşitliği hash değerine bakarak belirler
   Neden: HashSet hash'i yalnız kovayı bulmak için kullanır; eşitliği equals belirler ve Object.equals ayrı nesneleri reddeder.
 - [x] c: equals ve hashCode birlikte, aynı id eşitlik ölçütüne göre override edilmeli
   Neden: Doğru sözleşmedir.
@@ -1726,9 +1726,9 @@ Soru: Liste yalnız String saklamalıysa en tip güvenli düzeltme hangisidir?
 Şıklar:
 - [x] a: `List<String> values = new ArrayList<>();` kullanıp 42 eklemesini kaldırmak veya metne çevirmek
   Neden: Doğru compile-time güvenliktir.
-- [ ] b: Raw List'i koruyup her `get` sonucunu String'e cast etmek
+- [ ] b: Raw List'i koruyup `get` sonuçlarını String'e cast etmek
   Neden: Raw type riskini sürdürür.
-- [ ] c: `List<Object>` kullanıp her `get` sonucunu `(String)` ile cast etmek; 42 eklenirse hata çalışma zamanında yakalanır
+- [ ] c: `List<Object>` kullanıp `get` sonuçlarını `(String)` ile cast etmek; 42 eklenirse hata çalışma zamanında yakalanır
   Neden: Tip güvenliği derleme zamanından çalışma zamanına kayar; gereksinim karşılanmaz.
 - [ ] d: `List<int>` kullanmak
   Neden: Primitive generic type argument geçersizdir.
@@ -1766,11 +1766,11 @@ for (String name : names) {
 }
 ```
 Şıklar:
-- [ ] a: Tüm öğeler güvenle silinir
+- [ ] a: Eşleşen öğeler hatasız silinir ve döngü normal biçimde biter
   Neden: Iterator protokolü ihlal edilir.
 - [x] b: Iterator dışından yapısal değişiklik nedeniyle ConcurrentModificationException oluşur
   Neden: Doğru standart fail-fast davranıştır.
-- [ ] c: Kod yalnız birden fazla thread listeyi aynı anda değiştirirse hata verir; tek thread'de güvenlidir
+- [ ] c: Bu hata birden fazla thread listeyi aynı anda değiştirdiğinde ortaya çıkar; tek thread'de kod güvenlidir
   Neden: Tek thread'de de for-each sırasında yapılan yapısal değişiklik ConcurrentModificationException tetikler.
 - [ ] d: String immutable olduğu için derlenmez
   Neden: Liste yapısı mutable'dır; sorun String mutability değildir.
@@ -2044,9 +2044,9 @@ Soru: HashMap anahtarında bu sorunu en sağlam biçimde önleyen tasarım hangi
   Neden: Doğru temel tasarım kuralıdır.
 - [ ] b: Anahtarı ekledikten sonra hashCode metodunu rastgele değer döndürecek biçimde değiştirmek
   Neden: Aramayı daha da kararsız yapar.
-- [ ] c: Her get öncesi id'yi artırmak
+- [ ] c: get çağrısından önce id'yi bir artırıp aramak
   Neden: Her aramada farklı bucket seçer.
-- [ ] d: equals'i kaldırıp yalnız mutable hashCode bırakmak
+- [ ] d: equals'i kaldırıp hashCode'u değişebilir alanlardan hesaplamaya devam etmek
   Neden: Sözleşmeyi ve değer eşitliğini bozabilir.
 İpucu: Anahtar map içindeyken hash/eşitlik durumu sabit kalmalı.
 Kısa açıklama: Eşitlikte kullanılan alanların immutable olması hash koleksiyonlarını güvenli kılar.
@@ -2179,9 +2179,9 @@ class Counter {
 Şıklar:
 - [x] a: `value++` atomik bir işlem değildir
   Neden: Doğru lost-update yarışıdır.
-- [ ] b: int yalnız tek thread'de kullanılabilen bir tiptir
+- [ ] b: int, birden fazla thread'in aynı anda erişebileceği bir tip değildir
   Neden: int thread'e bağlı değildir.
-- [ ] c: Her thread `increment` çağırırken Counter nesnesinin ayrı bir kopyasını alır; artışlar farklı kopyalara yazılır
+- [ ] c: Thread'ler `increment` çağırırken Counter nesnesinin ayrı kopyalarını alır; artışlar farklı kopyalara yazılır
   Neden: Thread'ler aynı nesne referansını paylaşır; Java metot çağrısında nesneyi kopyalamaz.
 - [ ] d: Metot void olduğu için artış uygulanmaz
   Neden: void yalnız dönüş değeri olmadığını belirtir.

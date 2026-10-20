@@ -10,11 +10,11 @@ Soru: Car örneğinde class ile object ayrımını doğru açıklayan seçenek h
 Şıklar:
 - [x] a: Car bir şablondur; new Car() ile çalışma zamanında oluşturulan değer bir object'tir.
   Neden: Doğru: şablon ve örnek ayrımı doğru kurulmuştur.
-- [ ] b: Car çalışma zamanındaki nesnedir; new Car() yalnızca bir metot çağrısıdır.
+- [ ] b: Car çalışma zamanındaki nesnedir; new Car() ise sıradan bir metot çağrısıdır.
   Neden: new Car() sıradan bir metot çağrısı değil, nesne oluşturma ifadesidir.
-- [ ] c: Class ve object aynı kavramdır; yalnızca yazım biçimleri farklıdır.
+- [ ] c: Class ve object aynı kavramdır; fark yazım biçimindedir.
   Neden: Class bir tür tanımı, object ise o türün örneğidir.
-- [ ] d: Bir referans değişkeni tanımlandığı anda mutlaka yeni bir object oluşur.
+- [ ] d: Car c; gibi bir referans değişkeni tanımlamak yeni bir object oluşturur.
   Neden: Referans tanımlamak tek başına nesne oluşturmaz.
 İpucu: Tanım ile bu tanımdan üretilen çalışma zamanı örneğini ayırın.
 Kısa açıklama: Class, nesnelerin yapısını ve davranışını tanımlar; object bu tanımın çalışma zamanındaki örneğidir.
@@ -254,11 +254,11 @@ Soru: Bir BankAccount sınıfında gerçek encapsulation'ı en iyi sağlayan tas
 Şıklar:
 - [x] a: balance private tutulur; deposit ve withdraw geçersiz tutarları reddedip invariant'ları korur.
   Neden: Doğru: veri gizleme ile iş kuralları birlikte korunur.
-- [ ] b: balance private tutulur; setBalance her double değeri doğrudan kabul eder.
+- [ ] b: balance private tutulur; setBalance gelen değeri kontrol etmeden doğrudan atar.
   Neden: Kuralsız setter invariant'ı korumaz.
 - [ ] c: balance public tutulur; çağıranların kurallara uyması beklenir.
   Neden: Public mutable alan dış müdahaleyi engellemez.
-- [ ] d: Tüm alanlar için kuralsız getter ve setter üretmek tek başına yeterlidir.
+- [ ] d: Alanlara kuralsız getter ve setter üretmek encapsulation için yeterlidir.
   Neden: Otomatik erişimciler tek başına davranış ve kural tasarımı değildir.
 İpucu: Amaç yalnızca veriyi gizlemek değil, nesnenin geçerli kalmasını sağlamaktır.
 Kısa açıklama: Encapsulation, state'e erişimi davranışlar üzerinden kontrol ederek sınıf kurallarını korur.
@@ -497,11 +497,11 @@ Soru: CheckoutService'in CardPayment, TransferPayment ve WalletPayment nesneleri
 Şıklar:
 - [x] a: İstemci ortak sözleşmeye bağlı kalır ve somut davranış çalışma zamanında seçilir.
   Neden: Doğru: ortak tip ve dinamik davranış seçimi polymorphism'in özüdür.
-- [ ] b: Tüm ödeme sınıflarının aynı alanlara sahip olması zorunlu olur.
+- [ ] b: Ödeme sınıflarının aynı alanlara sahip olması zorunlu hâle gelir.
   Neden: Interface ortak alan düzenini zorunlu kılmaz.
-- [ ] c: new kullanımı Java tarafından tamamen yasaklanır.
+- [ ] c: Ödeme nesneleri new ile oluşturulamaz hâle gelir.
   Neden: Polymorphism nesne oluşturmayı yasaklamaz.
-- [ ] d: Her ödeme türü için instanceof koşulu yazmak zorunlu hâle gelir.
+- [ ] d: Ödeme türünü ayırt etmek için instanceof koşulları yazmak gerekir.
   Neden: Amaç tür koşullarını azaltmaktır.
 İpucu: İstemcinin somut türleri bilmeden çalışabilmesini düşünün.
 Kısa açıklama: Polymorphism ortak sözleşme üzerinden farklı uygulamaları değiştirilebilir kılar.
@@ -520,11 +520,11 @@ Soru: Bir ödeme sistemi için abstraction ile encapsulation ayrımını doğru 
 Şıklar:
 - [x] a: pay ortak sözleşmeyi soyutlar; kart verisi CardPayment içinde korunur.
   Neden: Doğru: sözleşme ve iç durum koruması ayrılmıştır.
-- [ ] b: Abstraction tüm alanları public yapar; encapsulation her sınıfı abstract yapar.
+- [ ] b: Abstraction alanları public yapar; encapsulation sınıfları abstract yapar.
   Neden: Kavramların anlamları ters ve hatalı verilmiştir.
-- [ ] c: İki kavram tamamen aynıdır ve her zaman aynı Java anahtar sözcüğüyle uygulanır.
+- [ ] c: İki kavram aynıdır ve aynı Java anahtar sözcüğüyle uygulanır.
   Neden: Abstraction ile encapsulation farklı tasarım amaçlarıdır.
-- [ ] d: Encapsulation yalnızca interface'lerde, abstraction ise yalnızca private alanlarda kullanılabildiği için ikisi aynı sınıfta birlikte bulunamaz.
+- [ ] d: Encapsulation interface'lerle, abstraction private alanlarla uygulandığı için ikisi aynı sınıfta birlikte bulunamaz.
   Neden: Her iki kavram da farklı Java yapılarıyla ve aynı sınıfta birlikte uygulanabilir.
 İpucu: Bir kavram gereksiz ayrıntıyı gizleyen sözleşmeye, diğeri state ve kuralların sınırına odaklanır.
 Kısa açıklama: Abstraction gerekli sözleşmeyi sunar; encapsulation iç state'i ve invariant'ları korur.
@@ -543,9 +543,9 @@ Soru: Birbirine yakın alt sınıfların ortak protected state'i, constructor ma
 Şıklar:
 - [x] a: Abstract class
   Neden: Doğru: belirtilen üç ihtiyacı doğrudan karşılar.
-- [ ] b: Yalnızca marker interface
+- [ ] b: Metot içermeyen bir marker interface
   Neden: Marker interface state veya uygulama sağlamaz.
-- [ ] c: Her alt sınıfta kodu kopyalamak
+- [ ] c: Ortak kodu alt sınıflara kopyalamak
   Neden: Kod tekrarı bakım riskini artırır.
 - [ ] d: Global mutable değişkenler
   Neden: Global mutable state kapsüllemeyi ve testi zorlaştırır.
@@ -602,11 +602,11 @@ Soru: Student–Course çoktan çoğa ilişkisinde kayıt tarihi ve not da sakla
 Şıklar:
 - [x] a: Tarih ve notu taşıyan Enrollment ilişki sınıfı
   Neden: Doğru: ilişki ve ilişkiye ait veri birlikte modellenir.
-- [ ] b: Tüm öğrencileri Course adının içine metin olarak yazmak
+- [ ] b: Öğrenci adlarını Course adının içine metin olarak yazmak
   Neden: Metin içine gömmek kimlik ve kural yönetimini kaybettirir.
 - [ ] c: Student sınıfını Course'tan kalıtıp kayıt tarihini ve notu Student alanı olarak saklamak
   Neden: Student ile Course arasında is-a ilişkisi yoktur; ilişkiye ait veri öğrenciye gömülmemelidir.
-- [ ] d: Tek bir global String listesinde tüm verileri tutmak
+- [ ] d: Kayıt verilerini tek bir global String listesinde tutmak
   Neden: Global metin listesi tür güvenliği ve kapsülleme sağlamaz.
 İpucu: İlişkinin kendisine ait alanlar hangi nesnede yaşayabilir?
 Kısa açıklama: İlişkiye ait state bulunduğunda Enrollment ayrı bir ilişki nesnesi olmalıdır.
@@ -1003,11 +1003,11 @@ Soru: Object object = (String) null; sonrasında printer.print(object) çağrıs
 Şıklar:
 - [x] a: Derleyici bildirilen Object tipine bakar.
   Neden: Doğru: overload çözümlemesi statik tip üzerinden yapılır.
-- [ ] b: null yalnız Object parametresine aktarılabilir.
+- [ ] b: null değer String parametresine aktarılamaz.
   Neden: null her reference type'a aktarılabilir.
 - [ ] c: Overload seçimi çalışma zamanında yapılır; null değerinin gerçek tipi bilinmediği için JVM print(Object) metoduna düşer.
   Neden: Overload seçimi derleme zamanında yapılır; çalışma zamanındaki değer seçimi etkilemez.
-- [ ] d: Java her zaman kaynakta ilk yazılan overload'u seçer.
+- [ ] d: Java kaynakta ilk yazılan overload'u seçer.
   Neden: Kaynak sırası overload seçme kuralı değildir.
 İpucu: Overloading ile overriding'in seçim zamanlarını ayırın.
 Kısa açıklama: object değişkeninin bildirilen tipi Object olduğu için print(Object) derleme zamanında bağlanır.
@@ -1115,9 +1115,9 @@ Soru: Zaten başka bir sınıftan kalıtım alan Report sınıfına Exportable v
   Neden: Doğru: çoklu bağımsız yetenek sözleşmesi sağlar.
 - [ ] b: Java'da iki ek sınıftan daha extends etmek
   Neden: Java sınıflarda çoklu extends desteklemez.
-- [ ] c: Bütün davranışları Object sınıfına eklemek
+- [ ] c: Export ve print davranışlarını Object sınıfına eklemek
   Neden: Object'a alan davranışı eklenemez ve eklenmesi de doğru sorumluluk değildir.
-- [ ] d: Her çağrıda sınıf adını String olarak karşılaştırmak
+- [ ] d: Çağrılarda sınıf adını String olarak karşılaştırıp davranış seçmek
   Neden: String tür kontrolleri genişletilebilir bir nesne modeli değildir.
 İpucu: Java sınıflarda tek kalıtım, interface'lerde çoklu uygulama destekler.
 Kısa açıklama: Bağımsız yetenekler birden fazla interface ile ifade edilebilir.
@@ -1578,9 +1578,9 @@ class Penguin extends Bird {
 Şıklar:
 - [x] a: Penguin, Bird'ün sözleşmesini bozar.
   Neden: Doğru: alt tür üst türün davranış sözleşmesini karşılamaz.
-- [ ] b: Alt sınıflar hiçbir metodu override edemez.
+- [ ] b: Alt sınıfların metot override etmesi LSP'ye aykırıdır.
   Neden: Override yasak değildir; sözleşmeyle uyumlu olmalıdır.
-- [ ] c: Override edilen metotta unchecked exception fırlatmak Java derleyicisi tarafından her zaman engellenir.
+- [ ] c: Override edilen metotta unchecked exception fırlatmayı Java derleyicisi engeller.
   Neden: Override eden metot unchecked exception fırlatabilir; sorun derleme değil, beklenen davranışın reddedilmesidir.
 - [ ] d: Penguin sınıfında constructor bulunmadığı için.
   Neden: Derleyici parametresiz constructor sağlayabilir; LSP ile ilgisi yoktur.
@@ -1740,9 +1740,9 @@ Soru: Üst sınıf withdraw(1..balance) aralığındaki tüm tutarları kabul ed
 Şıklar:
 - [x] a: Alt sınıf önkoşulu güçlendirip LSP'yi bozar.
   Neden: Doğru: geçerli üst tür çağrısı alt türde reddedilir.
-- [ ] b: Alt sınıf yalnızca postcondition'ı güçlendirdiği için üst türün yerine her durumda güvenle kullanılabilir; sözleşme sorunu yoktur.
+- [ ] b: Alt sınıf postcondition'ı güçlendirdiği için üst türün yerine güvenle kullanılabilir; sözleşme sorunu yoktur.
   Neden: Burada güçlenen postcondition değil precondition'dır; küçük tutarlar artık reddedilir.
-- [ ] c: Yalnız performans sorunudur; davranış sözleşmesi etkilenmez.
+- [ ] c: Bu bir performans sorunudur; davranış sözleşmesi etkilenmez.
   Neden: İstemci davranışı exception ile değişir.
 - [ ] d: Overloading sorunudur çünkü parametre adı değişmiştir.
   Neden: Parametre adı metot imzasının parçası değildir.
@@ -1960,9 +1960,9 @@ Soru: Yer boyutları SMALL < MEDIUM < LARGE, araç gereksinimleri motosiklet=SMA
 Şıklar:
 - [x] a: Boş MEDIUM yer varsa MEDIUM yere
   Neden: Doğru: gereksinimi karşılayan en küçük boş boyuttur.
-- [ ] b: Her zaman SMALL yere
+- [ ] b: Boş SMALL yer varsa SMALL yere
   Neden: SMALL otomobil için yetersizdir.
-- [ ] c: MEDIUM boş olsa bile her zaman LARGE yere
+- [ ] c: MEDIUM boş olsa bile LARGE yere
   Neden: Verilen en küçük uygun yer politikasına aykırıdır.
 - [ ] d: Araç türünden bağımsız rastgele bir yere
   Neden: Politika rastgele seçim yapmaz.

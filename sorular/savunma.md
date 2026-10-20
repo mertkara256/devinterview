@@ -289,9 +289,9 @@ Anahtar noktalar:
 Konu: Dinamik bellek
 Soru: `malloc`/`free` ile `new`/`delete` arasındaki temel fark hangisidir?
 Şıklar:
-- [ ] a: `malloc` daha hızlı olduğu için C++'ta `new` yerine her zaman tercih edilmelidir
+- [ ] a: `malloc` daha hızlı olduğu için C++ nesnelerinde `new` yerine tercih edilmelidir
   Neden: Hız bir ölçüt değildir; `malloc` kurucu çağırmadığı için C++ nesnelerinde yanlış kullanımdır.
-- [ ] b: İkisi de aynı şeyi yapar; yalnız yazımları farklıdır ve birbirleriyle karıştırılabilir
+- [ ] b: İkisi de aynı şeyi yapar; yazımları farklıdır ve birbirleriyle karıştırılabilir
   Neden: Kurucu/yıkıcı çağrısı ve tip güvenliği farklıdır; `new` ile alınan bellek `free` ile bırakılamaz.
 - [x] c: `new` kurucuyu, `delete` yıkıcıyı çağırır; `malloc` ve `free` çağırmaz
 - [ ] d: `new` başarısız olunca `NULL` döner
@@ -735,11 +735,11 @@ Konu: Sıralama algoritmaları
 Soru: Her zaman ilk elemanı pivot seçen quicksort, zaten sıralı bir diziye uygulanırsa süre ne olur?
 Şıklar:
 - [x] a: Θ(n²)
-- [ ] b: Θ(n log n), çünkü her bölme dengeli olur
+- [ ] b: Θ(n log n), çünkü bölmeler dengeli olur
   Neden: Sıralı dizide ilk eleman pivot seçilince bölmeler 0 ve n-1 elemanlı olur.
 - [ ] c: Θ(n), çünkü dizi zaten sıralıdır
   Neden: Quicksort sıralılığı fark edip erken bitmez.
-- [ ] d: Θ(log n), çünkü pivot hep en küçük elemandır
+- [ ] d: Θ(log n), çünkü pivot en küçük eleman olduğu için bölme hızlı biter
   Neden: Her seviyede yalnız bir eleman ayrılır; n seviye ve toplamda n² mertebesinde karşılaştırma oluşur.
 İpucu: Her bölmede kaç eleman ayrılıyor?
 Kısa açıklama: Sıralı girdide ilk eleman pivotu en kötü bölmeyi üretir: Θ(n²).
@@ -1796,9 +1796,9 @@ Konu: Closure
 Soru: Closure nedir?
 Şıklar:
 - [x] a: Tanımlandığı kapsamdaki değişkenleri hatırlayan fonksiyon
-- [ ] b: Bir fonksiyonun çalışması bittiğinde tüm yerel değişkenlerinin bellekten silinmesini sağlayan mekanizma
+- [ ] b: Bir fonksiyonun çalışması bittiğinde yerel değişkenlerinin bellekten silinmesini sağlayan mekanizma
   Neden: Tersine, closure'ın yakaladığı değişkenler fonksiyon dönse de yaşamaya devam eder.
-- [ ] c: Bir nesnenin metotlarını dışarıdan erişime kapatan ve yalnız sınıf içinden çağrılmasını sağlayan erişim belirleyicisi
+- [ ] c: Bir nesnenin metotlarını dışarıdan erişime kapatıp sınıf içinden çağrılmasını sağlayan erişim belirleyicisi
   Neden: Closure bir erişim belirleyicisi değil, kapsam yakalamadır.
 - [ ] d: Bir döngüyü erken sonlandırmak için kullanılan ve break'e benzeyen bir anahtar kelime
   Neden: Closure bir anahtar kelime değildir.
@@ -2195,11 +2195,11 @@ Konu: Nesne tespiti
 Soru: YOLO ile Faster R-CNN arasındaki temel fark hangisidir?
 Şıklar:
 - [x] a: YOLO tek geçişte tahmin eder; Faster R-CNN önce bölge önerir
-- [ ] b: Faster R-CNN, görüntüyü tek seferde ızgaraya bölüp her hücre için kutu tahmin ettiği için daha hızlıdır
+- [ ] b: Faster R-CNN, görüntüyü tek seferde ızgaraya bölüp hücreler için kutu tahmin ettiği için daha hızlıdır
   Neden: Izgara tabanlı tek geçiş YOLO'nun yaklaşımıdır; iki aşamalı Faster R-CNN genellikle daha yavaştır.
 - [ ] c: YOLO sınıflandırma yapmaz
   Neden: YOLO kutularla birlikte sınıf olasılıklarını da tahmin eder.
-- [ ] d: İkisi de yalnız gri tonlamalı görüntülerde çalışır
+- [ ] d: İkisi de gri tonlamalı görüntü gerektirir; renkli görüntüyü işleyemez
   Neden: İkisi de renkli görüntülerle çalışır.
 İpucu: Kaç aşamada tahmin yapılıyor?
 Kısa açıklama: YOLO tek aşamalı, Faster R-CNN iki aşamalıdır.
@@ -2715,9 +2715,9 @@ Soru: Merge ile rebase arasındaki temel fark hangisidir?
 - [x] a: Merge geçmişi korur; rebase commit'leri yeni tabanın üzerine yeniden yazar
 - [ ] b: Rebase, iki dalı birleştiren bir merge commit'i oluşturur ve iki dalın geçmişini olduğu gibi korur
   Neden: Birleştirme commit'ini merge oluşturur; rebase commit'leri yeni tabanın üzerine yeniden uygular.
-- [ ] c: Merge yalnız uzak depoda, rebase yalnız yerel depoda çalışır ve ikisi aynı dalda kullanılamaz
+- [ ] c: Merge uzak depoda, rebase yerel depoda çalışır; ikisi aynı dalda kullanılamaz
   Neden: İkisi de yerel işlemlerdir ve aynı dalda kullanılabilir.
-- [ ] d: Merge conflict üretmez, rebase üretir; bu yüzden conflict yaşamamak için hep merge kullanılır
+- [ ] d: Merge conflict üretmez, rebase üretir; conflict yaşamamak için merge tercih edilir
   Neden: İkisi de çakışan değişikliklerde conflict üretebilir.
 İpucu: Hangisi commit kimliklerini değiştirir?
 Kısa açıklama: Merge geçmişi olduğu gibi birleştirir; rebase doğrusal bir geçmiş için commit'leri yeniden yazar.
@@ -2838,9 +2838,9 @@ Etiketler: star, davranışsal
 Konu: Proje anlatımı
 Soru: Bir projeyi mülakatta anlatırken hangi yaklaşım en güçlü izlenimi bırakır?
 Şıklar:
-- [ ] a: Takımın yaptığı her şeyi "biz yaptık" diye anlatıp kendi rolünü ayırmamak, böylece takım oyuncusu görünmek
+- [ ] a: Takımın yaptıklarını "biz yaptık" diye anlatıp kendi rolünü ayırmamak, böylece takım oyuncusu görünmek
   Neden: Görüşmeci senin katkını ölçmek ister; rolün belirsiz kalırsa değerlendirilemezsin.
-- [ ] b: CV'deki her teknolojiyi sayıp hiçbirinin nasıl kullanıldığına girmeden geniş bilgi izlenimi vermek
+- [ ] b: CV'deki teknolojileri sayıp nasıl kullanıldıklarına girmeden geniş bilgi izlenimi vermek
   Neden: Derin sorular geldiğinde yüzeysel bilgi ortaya çıkar; adaylar "sakın sallamayın" diye uyarıyor.
 - [x] c: Kendi rolünü, teknik kararların gerekçesini ve ölçülebilir sonucu anlatmak
 - [ ] d: Projeyi kısaca geçmek
