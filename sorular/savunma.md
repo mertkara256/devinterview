@@ -2908,3 +2908,331 @@ Soru: Kişi Güvenlik Belgesi başvurusunu aday kendisi yapar ve belge işe baş
 Kısa açıklama: KGB'yi şirket ister, soruşturma aylar sürebilir.
 Açıklama: Gizli projelere erişim için Kişi Güvenlik Belgesi gerekir; başvuru şirket üzerinden yapılır ve soruşturmayı devlet kurumları yürütür. ASELSAN gibi şirketler erkek adaylardan askerliğini yapmış veya en az iki yıl tecilli olmalarını bekliyor.
 Etiketler: kgb, işe-alım
+
+# S66 · Kolay · Kod yazma
+
+Alan: Veri yapıları ve algoritmalar
+
+Bir tamsayının palindrom olup olmadığını, sayıyı String'e çevirmeden bulun. Negatif sayıları, sonu 0 olan sayıları ve taşmayı nasıl ele alırsınız? Zaman ve bellek karmaşıklığı nedir?
+
+Nerede soruldu: ASELSAN gömülü yazılım (LeetCode palindrom sayı) ve HAVELSAN ("java ile palindrom problemi"); İşteMülakat aday beyanları.
+
+Anahtar noktalar:
+- Basamakları `% 10` ve `/ 10` ile alıp sayıyı String'e çevirmeden ters çevirmek
+- Negatif sayılar palindrom değildir; `-121` tersten `121-` okunur
+- Sonu 0 olan sayılar (0 hariç) palindrom olamaz
+- Sayının tamamını ters çevirmek `int` sınırında taşabilir; yalnız yarısını ters çevirmek bu riski kaldırır
+- Zaman O(log₁₀ n), yani basamak sayısı kadar; ek bellek O(1)
+
+## S66-01 · Kod çıktısı
+Konu: Palindrom sayı
+Soru: Kod 1230 için ne yazdırır?
+Kod:
+```java
+int x = 1230;
+int original = x;
+int reversed = 0;
+while (x > 0) {
+    reversed = reversed * 10 + x % 10;
+    x /= 10;
+}
+System.out.println(reversed + " " + (original == reversed));
+```
+Cevap: 321 false
+İpucu: Sondaki 0 ters çevrilince başa geçer ve sayının değerine katkı yapmaz.
+Kısa açıklama: Basamaklar ters çevrilince 321 elde edilir; 1230'a eşit olmadığı için sonuç false'tur.
+Açıklama: Döngü her turda son basamağı `x % 10` ile alıp `reversed` sonuna ekler ve `x /= 10` ile o basamağı atar: 0, 3, 32, 321. Sondaki 0 baştaki sıfıra dönüştüğü için kaybolur; bu yüzden sonu 0 olan pozitif sayılar palindrom olamaz ve bu durum döngüden önce kısa yoldan elenebilir.
+Etiketler: palindrom, java, basamak
+
+## S66-02 · Tek seçim
+Konu: Palindrom sayı
+Soru: Negatif sayılar için doğru davranış hangisidir?
+Şıklar:
+- [ ] a: Önce mutlak değer alınmalı; bu yüzden `-121` palindrom kabul edilir
+  Neden: Eksi işareti de sayının bir parçasıdır; `-121` tersten `121-` okunur.
+- [x] b: Negatif sayılar palindrom değildir; `-121` tersten `121-` okunur
+- [ ] c: `x % 10` negatif sayıda istisna fırlattığı için önce try-catch eklenmelidir
+  Neden: Java'da `%` negatif sayıda istisna fırlatmaz, negatif bir kalan döndürür.
+- [ ] d: Yalnız tek basamaklı negatif sayılar palindromdur
+  Neden: Tek basamaklı negatif sayıda da eksi işareti tersten okununca sona geçer.
+İpucu: Sayıyı yazı olarak tersten okumayı düşünün.
+Kısa açıklama: Eksi işareti tersten okunduğunda sona geçtiği için negatif sayılar palindrom değildir.
+Açıklama: Problemin standart tanımında `-121` tersten `121-` olarak okunur ve palindrom sayılmaz. Bu yüzden çözüm `x < 0` için hemen false döndürür; böylece negatif sayılarda `%` operatörünün negatif kalan üretmesi de sorun olmaktan çıkar.
+Etiketler: palindrom, negatif-sayı
+
+## S66-03 · Doğru / Yanlış
+Konu: Palindrom sayı
+Soru: Sayının tamamını ters çevirmek, `int` sınırına yakın girdilerde taşmaya yol açabilir; yalnız yarısını ters çevirip kalan yarıyla karşılaştırmak bu riski ortadan kaldırır.
+Şıklar:
+- [x] Doğru
+  Neden: Doğru; ters çevrilen yarı en fazla orijinal sayının yarısı kadar basamak taşır ve taşmaz.
+- [ ] Yanlış
+  Neden: Örneğin 2147483647'nin tersi `int` sınırını aşar; yarısını ters çevirmek bu durumu önler.
+İpucu: 2147483647 sayısının tersi `int`'e sığar mı?
+Kısa açıklama: Doğru. Yarısını ters çevirmek taşmayı önler ve işi yarı yarıya azaltır.
+Açıklama: Döngü, ters çevrilen kısım kalan kısımdan büyük ya da ona eşit olunca durur. Çift basamaklı sayılarda iki yarı eşit olmalı, tek basamaklı sayılarda ortadaki basamak `reversed / 10` ile atılır. Bu yöntem hem taşmayı önler hem de yalnız basamakların yarısını işler.
+Etiketler: palindrom, taşma, optimizasyon
+
+# S67 · Orta · Teori
+
+Alan: Veritabanı ve uygulama
+
+JVM'de nesil tabanlı (generational) çöp toplama nasıl çalışır? Java'da bellek sızıntısı olur mu? Bir örnek verin.
+
+Nerede soruldu: HAVELSAN, Java ağırlıklı teknik mülakat (İşteMülakat aday beyanı).
+
+Anahtar noktalar:
+- Heap genç nesil (Eden ve survivor alanları) ile yaşlı nesle ayrılır
+- Nesnelerin çoğu kısa ömürlüdür; genç nesildeki minor GC sık çalışır ve ucuzdur
+- Birkaç minor GC'den sağ çıkan nesne yaşlı nesle terfi eder; yaşlı nesil dolunca daha pahalı toplama çalışır
+- GC köklerden erişilebilirliğe bakar; erişilemeyen döngüleri de toplar
+- Java'da sızıntı: kullanılmadığı hâlde erişilebilir kalan nesneler (statik koleksiyon, kaldırılmayan listener, sınırsız önbellek)
+
+## S67-01 · Sıralama
+Konu: Nesil tabanlı GC
+Soru: Uzun yaşayan bir nesnenin nesil tabanlı GC içindeki yolculuğunu sıraya koyun.
+Sıra:
+1. eden: Nesne genç nesildeki Eden alanında oluşturulur
+2. minor: Minor GC'den sağ çıkınca survivor alanına taşınır
+3. promote: Birkaç minor GC'den daha sağ çıkınca yaşlı nesle terfi eder
+4. major: Yaşlı nesil dolduğunda daha pahalı bir toplama onu da inceler
+İpucu: Nesneler genç başlar, hayatta kaldıkça yaşlanır.
+Kısa açıklama: Eden, survivor, yaşlı nesil ve en sonda yaşlı nesil toplaması.
+Açıklama: Nesil tabanlı toplama, nesnelerin çoğunun genç öldüğü gözlemine dayanır. Genç nesil sık ve hızlı toplanır; hayatta kalan nesneler survivor alanları arasında kopyalanır ve belirli bir yaşa gelince yaşlı nesle terfi eder. Yaşlı nesil daha seyrek ama daha maliyetli toplanır.
+Etiketler: gc, jvm, generational
+
+## S67-02 · Çoklu seçim
+Konu: Java'da bellek sızıntısı
+Soru: Java'da bellek sızıntısına yol açabilecek durumları seçin.
+Şıklar:
+- [x] a: Statik bir koleksiyona eklenip hiç çıkarılmayan nesneler
+  Neden: Doğru; statik alan bir GC köküdür, eklenen nesneler erişilebilir kalır.
+- [x] b: Kaydedilip hiç kaldırılmayan dinleyiciler (listener) ve callback'ler
+  Neden: Doğru; olay kaynağı dinleyiciyi ve onun tuttuğu nesneleri yaşatır.
+- [x] c: Boyut sınırı veya süre aşımı olmayan bir önbellek
+  Neden: Doğru; önbellek büyüdükçe kullanılmayan girdiler de tutulur.
+- [ ] d: Bir metodun yerel değişkeninde oluşturulan ve metot dönünce erişilemeyen nesneler
+  Neden: Metot dönünce nesneye giden referans kalmaz; GC onu toplayabilir.
+- [ ] e: Birbirini gösteren ama köklerden erişilemeyen iki nesne
+  Neden: Java'nın GC'si erişilebilirliğe bakar; erişilemeyen döngüler de toplanır.
+- [ ] f: `System.gc()` çağrılmadığı için toplanmayan nesneler
+  Neden: GC kendiliğinden çalışır; `System.gc()` yalnız bir öneridir ve sızıntının nedeni değildir.
+İpucu: GC neyi toplayamaz: kullanılmayan nesneyi mi, erişilebilir nesneyi mi?
+Kısa açıklama: Java'da sızıntı, artık kullanılmayan ama hâlâ erişilebilir kalan nesnelerdir.
+Açıklama: Java'nın GC'si referans sayısına değil, köklerden (stack'teki referanslar, statik alanlar, aktif thread'ler) erişilebilirliğe bakar. Bu yüzden döngüsel referanslar sorun değildir; asıl sızıntı, unutulan referansların nesneleri erişilebilir tutmasıdır. Heap dump ve profil araçlarıyla hangi kökün nesneleri tuttuğu bulunur.
+Etiketler: gc, memory-leak, jvm
+
+## S67-03 · Doğru / Yanlış
+Konu: Java'da bellek sızıntısı
+Soru: Java'da iki nesne birbirini referans ediyorsa, köklerden erişilemez olsalar bile çöp toplayıcı onları toplayamaz.
+Şıklar:
+- [ ] Doğru
+  Neden: Java'nın GC'si referans sayısına bakmaz; köklerden erişilemeyen döngüler de toplanır.
+- [x] Yanlış
+  Neden: Doğru; erişilebilirlik esas alındığı için döngüsel referans sızıntı yaratmaz.
+İpucu: GC referans mı sayıyor, yoksa köklerden başlayıp erişilebilir nesneleri mi işaretliyor?
+Kısa açıklama: Yanlış. Erişilemeyen döngüler de toplanır; Java'nın GC'si erişilebilirliğe bakar.
+Açıklama: Referans sayan sistemlerde (ör. C++ `shared_ptr`) döngüler sızıntıya yol açar. Java ise köklerden başlayıp erişilebilir nesneleri işaretler; işaretlenmeyen her şey, döngü içinde olsa bile toplanabilir.
+Etiketler: gc, reachability
+
+# S68 · Kolay · Karşılaştırma
+
+Alan: C/C++
+
+C'de değerle ve adresle geçirme arasındaki fark nedir? C'de "call by reference" var mı? C++'taki referans bu durumu nasıl değiştirir?
+
+Nerede soruldu: Baykar gömülü yazılım (Glassdoor aday beyanı).
+
+Anahtar noktalar:
+- C'de her argüman değerle geçer; fonksiyon kopyayla çalışır
+- İşaretçi geçirmek adresin kopyasını verir; `*p` ile çağıranın değişkeni değiştirilebilir
+- Dizi parametresi ilk elemanın işaretçisine dönüşür; boyut bilgisi kaybolur
+- C++ referansı (`int&`) çağıranın değişkenine doğrudan bağlanır, null olamaz ve yeniden bağlanamaz
+- Büyük nesneler kopyalanmadan okunmak için `const T&` ile geçirilir
+
+## S68-01 · Kod çıktısı
+Konu: Değerle ve adresle geçirme
+Soru: Programın çıktısını satır sırasıyla yazın.
+Kod:
+```c
+#include <stdio.h>
+
+void by_value(int n) {
+    n = 10;
+}
+
+void by_pointer(int *n) {
+    *n = 20;
+}
+
+int main(void) {
+    int a = 1;
+    by_value(a);
+    printf("%d\n", a);
+    by_pointer(&a);
+    printf("%d\n", a);
+    return 0;
+}
+```
+Cevap:
+```
+1
+20
+```
+İpucu: Hangi fonksiyon `a`'nın kendisine, hangisi yalnız kopyasına erişiyor?
+Kısa açıklama: `by_value` kopyayı değiştirir ve `a` 1 kalır; `by_pointer` adres üzerinden `a`'yı 20 yapar.
+Açıklama: `by_value(a)` çağrısında `n`, `a`'nın kopyasıdır; ona atama çağıranı etkilemez. `by_pointer(&a)` ise `a`'nın adresini geçirir; adres de kopyalanır ama `*n = 20` bu adresteki değişkeni, yani `a`'yı değiştirir.
+Etiketler: c, işaretçi, parametre
+
+## S68-02 · Tek seçim
+Konu: Değerle ve adresle geçirme
+Soru: C'de "call by reference" var mıdır?
+Şıklar:
+- [x] a: Hayır; her argüman değerle geçer, işaretçi geçirmek adresin kopyasını vererek aynı etkiyi sağlar
+- [ ] b: Evet; dizi parametreleri referansla geçer ve fonksiyon dizinin kendisini, boyutuyla birlikte alır
+  Neden: Dizi parametresi ilk elemanın işaretçisine dönüşür; işaretçi de değerle geçer ve boyut bilgisi kaybolur.
+- [ ] c: Evet; parametre `int &x` biçiminde bildirilirse referansla geçer
+  Neden: `&` ile referans parametresi C++ özelliğidir; C'de derlenmez.
+- [ ] d: Hayır; C'de bir fonksiyon çağıranın değişkenini hiçbir yolla değiştiremez
+  Neden: Değişkenin adresi geçirilirse fonksiyon `*p` ile onu değiştirebilir.
+İpucu: İşaretçi parametresinin kendisi nasıl geçirilir?
+Kısa açıklama: C'de yalnız değerle geçirme vardır; referans etkisi işaretçinin değerle geçirilmesiyle elde edilir.
+Açıklama: C standardında bütün argümanlar değerle geçer. Bir fonksiyonun çağıranın değişkenini değiştirmesi için o değişkenin adresi geçirilir; adres kopyalanır ama gösterdiği yer aynıdır. Gerçek referans parametreleri C++ ile gelir.
+Etiketler: c, cpp, parametre
+
+## S68-03 · Eşleştirme
+Konu: Parametre geçirme biçimleri
+Soru: C/C++ parametre bildirimlerini anlamlarıyla eşleştirin.
+Eşleşmeler:
+- value: `void f(int x)` => copy: Kopya alır; çağıranın değişkeni değişmez
+- pointer: `void f(int *x)` => address: Adresin kopyasını alır; `*x` ile çağıranın değişkeni değişebilir ve `x` null olabilir
+- reference: `void f(int &x)` => alias: C++ referansı; çağıranın değişkenine doğrudan bağlanır ve null olamaz
+- constRef: `void f(const std::string &s)` => readOnly: Büyük nesneyi kopyalamadan ve değiştirmeden okur
+Fazladan seçenekler:
+- constant: Argümanı derleme zamanında sabit bir değere çevirir
+İpucu: Kopya, adres, takma ad ve salt okunur takma ad.
+Kısa açıklama: Değerle kopya, işaretçiyle adres, referansla takma ad, const referansla kopyasız okuma.
+Açıklama: İşaretçi ile referans arasındaki temel farklar: referans null olamaz, tanımlanınca başka değişkene bağlanamaz ve sözdiziminde `*` gerektirmez. `const T&` kopyalama maliyetinden kaçınırken fonksiyonun nesneyi değiştirmeyeceğini de garanti eder.
+Etiketler: cpp, referans, işaretçi
+
+# S69 · Orta · Teori
+
+Alan: Veritabanı ve uygulama
+
+Spring'de IoC ve Dependency Injection nedir? Bean scope'ları nelerdir ve varsayılan scope uygulamayı nasıl etkiler?
+
+Nerede soruldu: HAVELSAN (Glassdoor aday beyanı).
+
+Anahtar noktalar:
+- IoC: nesneleri oluşturma ve birbirine bağlama işini Spring konteynerine bırakmak
+- DI: bağımlılık sınıfa dışarıdan verilir; constructor injection önerilir
+- Bean tanımlama: `@Component`, `@Service`, `@Repository` veya `@Configuration` içinde `@Bean`
+- Scope'lar: singleton (varsayılan), prototype, request, session
+- Singleton bean'ler eşzamanlı isteklerde paylaşılır; durumsuz ve thread-safe tutulmalıdır
+
+## S69-01 · Eşleştirme
+Konu: Bean scope
+Soru: Spring bean scope'larını davranışlarıyla eşleştirin.
+Eşleşmeler:
+- singleton: singleton => one: Varsayılan; konteyner başına tek örnek
+- prototype: prototype => each: Konteynerden her istendiğinde yeni örnek
+- request: request => perRequest: Her HTTP isteği için bir örnek
+- session: session => perSession: Her HTTP oturumu için bir örnek
+Fazladan seçenekler:
+- persisted: Uygulama yeniden başlatılsa da diskte saklanıp geri yüklenen örnek
+İpucu: Örnek kaç kez ve hangi kapsamda oluşturuluyor?
+Kısa açıklama: Singleton tek, prototype her istekte yeni; request ve session web isteği ve oturumu başına bir örnektir.
+Açıklama: Scope, konteynerin bir bean'den kaç örnek oluşturacağını belirler. Varsayılan singleton'dır. Prototype her enjeksiyonda veya `getBean` çağrısında yeni örnek üretir. Request ve session scope'ları yalnız web uygulamalarında anlamlıdır.
+Etiketler: spring, bean, scope
+
+## S69-02 · Tek seçim
+Konu: Dependency Injection
+Soru: Constructor injection'ın alana `@Autowired` yazmaya (field injection) göre temel avantajı nedir?
+Şıklar:
+- [x] a: Bağımlılıklar `final` olabilir ve sınıf testte Spring olmadan elle oluşturulabilir
+- [ ] b: Daha az kod gerektirir ve döngüsel bağımlılıkları kendiliğinden çözer
+  Neden: Daha az kod field injection'ın özelliğidir; constructor injection döngüsel bağımlılığı çözmez, açılışta görünür kılar.
+- [ ] c: Uygulamanın açılışını belirgin biçimde hızlandırır, çünkü bean'ler daha geç oluşturulur
+  Neden: Enjeksiyon yönteminin açılış hızına anlamlı bir etkisi yoktur.
+- [ ] d: Bean'lerin singleton olabilmesi için constructor injection gerekir
+  Neden: Scope, enjeksiyon yönteminden bağımsızdır.
+İpucu: Sınıfı birim testinde `new` ile oluşturmak isteseniz hangisi kolaylaştırır?
+Kısa açıklama: Constructor injection bağımlılıkları açık ve değiştirilemez yapar; test etmeyi kolaylaştırır.
+Açıklama: Bağımlılıklar kurucu parametresi olunca sınıfın neye ihtiyaç duyduğu imzasından görünür, alanlar `final` olabilir ve nesne her zaman tam kurulmuş hâlde oluşur. Testte sahte bağımlılıklar kurucuya verilerek sınıf Spring konteyneri olmadan oluşturulabilir.
+Etiketler: spring, di, test
+
+## S69-03 · Doğru / Yanlış
+Konu: Bean scope
+Soru: Spring'de varsayılan scope singleton olduğu için bir bean içinde isteğe özel, değişebilir bir alan tutmak eşzamanlı isteklerde hatalı sonuçlara yol açabilir.
+Şıklar:
+- [x] Doğru
+  Neden: Doğru; aynı singleton örneği bütün isteklerde paylaşılır ve alan thread'ler arasında karışır.
+- [ ] Yanlış
+  Neden: Singleton bean tek örnektir; isteğe özel durum yerel değişkenlerde veya uygun scope'lu bean'lerde tutulmalıdır.
+İpucu: Aynı anda gelen iki istek aynı bean örneğini mi kullanır?
+Kısa açıklama: Doğru. Singleton bean'ler paylaşılır; durumsuz ve thread-safe tutulmalıdır.
+Açıklama: Web uygulamasında her istek ayrı bir thread'de işlenir ama singleton bean tek örnektir. İsteğe özel veri bir alanda tutulursa bir isteğin verisi diğerine karışabilir. Durum yerel değişkenlerde, parametrelerde veya request scope'lu bean'lerde tutulmalıdır.
+Etiketler: spring, singleton, thread-safety
+
+# S70 · Orta · Karşılaştırma
+
+Alan: Veritabanı ve uygulama
+
+Java'da `synchronized` ne yapar? `HashMap`, `Collections.synchronizedMap` ve `ConcurrentHashMap` arasındaki farklar nelerdir?
+
+Nerede soruldu: HAVELSAN (Glassdoor aday beyanı).
+
+Anahtar noktalar:
+- `synchronized`, nesnenin monitor kilidini alır; aynı kilit için tek thread girer ve görünürlük sağlanır
+- `HashMap` thread-safe değildir; eşzamanlı yazmalarda güncellemeler kaybolabilir
+- `Collections.synchronizedMap` her işlemi tek bir kilitle korur; basit ama yoğun erişimde darboğaz olur
+- `ConcurrentHashMap` okumaları çoğunlukla kilitsiz yapar, yazmalarda yalnız ilgili bucket'ı kilitler
+- `ConcurrentHashMap` null anahtar ve değer kabul etmez; `computeIfAbsent` gibi atomik işlemler sunar
+
+## S70-01 · Çoklu seçim
+Konu: ConcurrentHashMap
+Soru: `ConcurrentHashMap` için doğru ifadeleri seçin.
+Şıklar:
+- [x] a: Okumalar çoğunlukla kilitsiz yapılır; yazmalar yalnız ilgili bucket'ı kilitler
+  Neden: Doğru; bu yüzden eşzamanlı erişimde tek kilitli map'ten çok daha iyi ölçeklenir.
+- [ ] b: `null` anahtar ve `null` değer kabul eder
+  Neden: `ConcurrentHashMap` null anahtar ve değeri reddeder; null, "anahtar yok" sonucuyla karışırdı.
+- [x] c: `putIfAbsent`, `computeIfAbsent` ve `merge` gibi atomik bileşik işlemler sunar
+  Neden: Doğru; "yoksa ekle" gibi işlemler ayrı `get` ve `put` çağrılarına bölünmeden atomik yapılır.
+- [ ] d: Her işlemde bütün map'i tek bir kilitle korur
+  Neden: Bu `Collections.synchronizedMap` davranışıdır.
+- [ ] e: Elemanları eklenme sırasıyla dolaşır
+  Neden: Sıra garantisi yoktur; eklenme sırası için `LinkedHashMap` kullanılır.
+İpucu: Eşzamanlılıkta ölçeklenmek için kilit ne kadar küçük olmalı?
+Kısa açıklama: `ConcurrentHashMap` ince taneli kilitleme ve atomik bileşik işlemler sunar; null kabul etmez.
+Açıklama: Java 8'den itibaren `ConcurrentHashMap` boş bucket'lara CAS ile yazar, dolu bucket'ın yalnız ilk düğümünü kilitler; okumalar kilit almaz. Iterator'ları zayıf tutarlıdır ve `ConcurrentModificationException` fırlatmaz. `get` ardından `put` yazmak yerine `computeIfAbsent` kullanmak yarış durumunu önler.
+Etiketler: concurrenthashmap, concurrency, java
+
+## S70-02 · Tek seçim
+Konu: HashMap ve thread güvenliği
+Soru: İki thread aynı `HashMap`'e senkronizasyon olmadan aynı anda yazıyor. Ne olabilir?
+Şıklar:
+- [x] a: Güncellemeler kaybolabilir ve yeniden boyutlandırma sırasında map tutarsız hâle gelebilir
+- [ ] b: Java, `HashMap` erişimlerini arka planda kendisi senkronize ettiği için sorun çıkmaz
+  Neden: `HashMap` hiçbir senkronizasyon yapmaz; thread güvenliği çağırana bırakılmıştır.
+- [ ] c: Derleyici, birden fazla thread'in eriştiği bir `HashMap` için derleme hatası verir
+  Neden: Derleyici çalışma zamanındaki thread erişimini bilemez; kod derlenir.
+- [ ] d: İkinci thread, ilk thread map ile işini bitirene kadar beklemeye alınır
+  Neden: Böyle bir bekleme yalnız bir kilit kullanılırsa olur; `HashMap` kilit almaz.
+İpucu: `HashMap` hangi senkronizasyonu yapar?
+Kısa açıklama: `HashMap` thread-safe değildir; eşzamanlı yazmalar veri kaybına ve tutarsız yapıya yol açar.
+Açıklama: İki thread aynı bucket'a aynı anda yazarsa birinin girdisi kaybolabilir; yeniden boyutlandırma sırasında yapı tutarsız kalabilir. Paylaşılan map için `ConcurrentHashMap` kullanılır ya da erişim bir kilitle korunur.
+Etiketler: hashmap, race-condition, concurrency
+
+## S70-03 · Doğru / Yanlış
+Konu: synchronized
+Soru: Bir nesnenin `synchronized` örnek metotlarını aynı anda yalnız bir thread çalıştırabilir; diğer thread'ler o nesnenin kilidini bekler.
+Şıklar:
+- [x] Doğru
+  Neden: Doğru; `synchronized` örnek metotları aynı nesnenin monitor kilidini paylaşır.
+- [ ] Yanlış
+  Neden: Aynı nesnenin `synchronized` örnek metotları aynı kilidi kullandığı için birbirini dışlar.
+İpucu: `synchronized` örnek metodu hangi nesnenin kilidini alır?
+Kısa açıklama: Doğru. Aynı nesnenin `synchronized` örnek metotları aynı monitor kilidiyle birbirini dışlar.
+Açıklama: `synchronized` örnek metodu `this` nesnesinin kilidini, `static synchronized` metot ise sınıf nesnesinin kilidini alır. Kilit karşılıklı dışlamanın yanında görünürlük de sağlar: kilidi bırakan thread'in yazdıkları, aynı kilidi sonra alan thread tarafından görülür. Kilitsiz (`synchronized` olmayan) metotlar bu kilidi beklemez.
+Etiketler: synchronized, monitor, concurrency
