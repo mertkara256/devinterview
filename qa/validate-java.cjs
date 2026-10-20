@@ -114,6 +114,8 @@ function specialParts(card) {
     return parts;
   }
   if (card.id === 'A16-01' || card.id === 'A18-01') return splitAt(card.code, '\nSystem.out.print', card.id);
+  // Java 8 has no local enums, so the enum goes to class level.
+  if (card.id === 'J50-01') return splitAt(card.code, '\n\nSystem.out', card.id);
   if (card.id === 'A28-01') return { members: `static int probe(int[] arr, int target) {\n${card.code}\nreturn -1;\n}`, main: '' };
   if (card.id === 'A34-01') return { members: `static Node probe(Node head) {\n${card.code}\n}`, main: '' };
   if (card.id === 'A43-01') return { members: `static int fib(int n) {\n${card.code}\n}`, main: '' };
@@ -142,7 +144,7 @@ function sourceFor(card, overrideMode) {
   return {
     className: className(card.id),
     main: parts.main,
-    source: `import java.io.*;\nimport java.util.*;\n\npublic class ${className(card.id)} {\n${helperMembers}\n${parts.members}\npublic static void main(String[] args) throws Exception {\n${parts.main}\n}\n}\n`
+    source: `import java.io.*;\nimport java.util.*;\nimport java.util.function.*;\nimport java.util.stream.*;\n\npublic class ${className(card.id)} {\n${helperMembers}\n${parts.members}\npublic static void main(String[] args) throws Exception {\n${parts.main}\n}\n}\n`
   };
 }
 

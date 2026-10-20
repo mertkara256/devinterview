@@ -2291,3 +2291,364 @@ Kısa açıklama: Tutarlı sıra, tek kilit veya kontrollü tryLock stratejisi g
 Açıklama: Global sıra cycle'ı kırar. Tek kilit iç içe edinmeyi ortadan kaldırır fakat concurrency'yi azaltabilir. tryLock timeout ile ikinci kilit alınamazsa ilk kilit finally'da bırakılabilir; livelock/backoff da tasarlanmalıdır. sleep doğruluk sağlamaz, kilit altında dış/bloklayan çağrı riski artırır.
 Varsayım: tryLock yaklaşımında edinilmiş her kilit finally ile bırakılır ve timeout/backoff sonsuz aktif döngü yaratmayacak biçimde tasarlanır.
 Etiketler: deadlock, trylock, lock-ordering, concurrency
+
+# J46 · Orta · Teori
+
+Lambda ifadesi nedir? Fonksiyonel arayüz ne demektir? `Predicate`, `Function`, `Consumer` ve `Supplier` arayüzlerini birer örnekle açıklayın.
+
+## J46-01 · Eşleştirme
+Konu: Fonksiyonel arayüzler
+Soru: `java.util.function` arayüzlerini imzalarıyla eşleştirin.
+Eşleşmeler:
+- predicate: `Predicate<T>` => test: `T` alır, `boolean` döndürür
+- function: `Function<T, R>` => apply: `T` alır, `R` döndürür
+- consumer: `Consumer<T>` => accept: `T` alır, sonuç döndürmez
+- supplier: `Supplier<T>` => get: Parametre almaz, `T` döndürür
+Fazladan seçenekler:
+- compare: İki `T` alır, `int` döndürür
+İpucu: Arayüzün adı, tek soyut metodunun ne yaptığını anlatır: test, apply, accept, get.
+Kısa açıklama: `Predicate` sınar, `Function` dönüştürür, `Consumer` tüketir, `Supplier` üretir.
+Açıklama: Fonksiyonel arayüz, tek soyut metodu olan arayüzdür; lambda ifadesi bu metodun gövdesini kısa yoldan yazar. `Predicate<T>` filtrelemede (`filter`), `Function<T, R>` dönüştürmede (`map`), `Consumer<T>` yan etkili işlemlerde (`forEach`), `Supplier<T>` gecikmeli değer üretmede (`orElseGet`) kullanılır. Fazladan seçenek `Comparator<T>` arayüzünü anlatır.
+Etiketler: lambda, functional-interface, java8
+
+## J46-02 · Doğru / Yanlış
+Konu: Fonksiyonel arayüzler
+Soru: Tek soyut metodu olan bir arayüz, `@FunctionalInterface` notu taşımasa da lambda ifadesiyle kullanılabilir.
+Şıklar:
+- [x] Doğru
+  Neden: Doğru; lambda için tek soyut metot yeterlidir. Not yalnız derleyicinin bu kuralı denetlemesini sağlar.
+- [ ] Yanlış
+  Neden: `@FunctionalInterface` isteğe bağlıdır; örneğin `Runnable` ve `Comparator` da tek soyut metotları sayesinde lambda ile kullanılır.
+İpucu: Notun görevi kuralı koymak mı, kuralı denetlemek mi?
+Kısa açıklama: Doğru. Lambda için tek soyut metot yeterlidir; not yalnız derleyici denetimi ekler.
+Açıklama: `@FunctionalInterface`, arayüze ikinci bir soyut metot eklenirse derleme hatası verdirir; böylece arayüzün lambda ile kullanılabilirliği yanlışlıkla bozulmaz. Notu olmayan ama tek soyut metodu olan arayüzler de lambda hedefi olabilir. `default` ve `static` metotlar bu sayıya dahil değildir.
+Etiketler: lambda, functional-interface
+
+## J46-03 · Kod çıktısı
+Konu: Fonksiyon birleştirme
+Soru: Kodun çıktısını satır sırasıyla yazın.
+Kod:
+```java
+Function<Integer, Integer> doubleIt = x -> x * 2;
+Function<Integer, Integer> plusThree = x -> x + 3;
+System.out.println(doubleIt.andThen(plusThree).apply(5));
+System.out.println(doubleIt.compose(plusThree).apply(5));
+```
+Cevap:
+```
+13
+16
+```
+İpucu: `andThen` önce kendisini, `compose` önce argümanını çalıştırır.
+Kısa açıklama: `andThen` ile (5 × 2) + 3 = 13, `compose` ile (5 + 3) × 2 = 16 olur.
+Açıklama: `f.andThen(g)` önce `f`'yi, sonra sonucuna `g`'yi uygular: `doubleIt` 10 üretir, `plusThree` 13 yapar. `f.compose(g)` ise önce `g`'yi, sonra `f`'yi uygular: `plusThree` 8 üretir, `doubleIt` 16 yapar.
+Etiketler: lambda, function, compose
+
+# J47 · Orta · Kod okuma
+
+Bir stream zincirinin çıktısını adım adım bulun. Ara (intermediate) ve sonlandırıcı (terminal) işlemler arasındaki farkı ve stream'lerin tembel (lazy) çalışmasını açıklayın.
+
+## J47-01 · Kod çıktısı
+Konu: Stream API
+Soru: Kodun çıktısını yazın.
+Kod:
+```java
+List<String> names = Arrays.asList("ozan", "Ece", "emre", "Ada", "berk");
+List<String> result = names.stream()
+        .filter(n -> n.length() > 3)
+        .map(String::toUpperCase)
+        .sorted()
+        .collect(Collectors.toList());
+System.out.println(result);
+```
+Cevap: [BERK, EMRE, OZAN]
+İpucu: Önce uzunluğu 3'ten büyük olanlar kalır, sonra büyük harfe çevrilip sıralanır.
+Kısa açıklama: Dört harfli üç isim kalır, büyük harfe çevrilir ve alfabetik sıralanır: [BERK, EMRE, OZAN].
+Açıklama: `filter` uzunluğu 3 olan "Ece" ve "Ada"yı eler. `map(String::toUpperCase)` kalanları büyük harfe çevirir, `sorted` doğal sırayla dizer, `collect(Collectors.toList())` sonucu listeye toplar. Listenin `toString` çıktısı köşeli parantez ve virgüllerle yazılır.
+Etiketler: stream, filter, map, collect
+
+## J47-02 · Tek seçim
+Konu: Stream API
+Soru: Kod çalıştırıldığında ne yazdırılır?
+Kod:
+```java
+Stream<String> letters = Stream.of("a", "b", "c")
+        .peek(x -> System.out.println("peek " + x))
+        .filter(x -> !x.equals("b"));
+System.out.println("bitti");
+```
+Şıklar:
+- [ ] a: Önce `peek a`, `peek b`, `peek c` satırları, ardından `bitti` yazdırılır
+  Neden: Sonlandırıcı işlem olmadığı için `peek` ve `filter` hiç çalışmaz.
+- [ ] b: Önce `peek a` ve `peek c` satırları, ardından `bitti` yazdırılır
+  Neden: `filter` de `peek` de çalışmaz; sonlandırıcı işlem olmadan zincir yalnız tanımlanır.
+- [x] c: Yalnız `bitti`
+- [ ] d: Derleme hatası; stream sonlandırıcı işlem olmadan bir değişkene atanamaz
+  Neden: Ara işlemlerden dönen `Stream` bir değişkene atanabilir; kod derlenir.
+İpucu: Ara işlemler ne zaman çalışır?
+Kısa açıklama: Ara işlemler tembeldir; sonlandırıcı işlem çağrılmadığı için hiçbiri çalışmaz.
+Açıklama: `peek`, `filter` ve `map` gibi ara işlemler yalnız bir işlem zinciri kurar. Zincir `collect`, `forEach` veya `count` gibi bir sonlandırıcı işlem çağrılınca çalışır. Bu örnekte sonlandırıcı işlem yoktur; yalnız `bitti` yazdırılır.
+Etiketler: stream, lazy, peek
+
+## J47-03 · Doğru / Yanlış
+Konu: Stream API
+Soru: Bir stream'de sonlandırıcı işlem çalıştıktan sonra aynı stream nesnesi üzerinde ikinci bir sonlandırıcı işlem çağrılabilir.
+Şıklar:
+- [ ] Doğru
+  Neden: Stream tek kullanımlıktır; ikinci çağrı `IllegalStateException` fırlatır.
+- [x] Yanlış
+  Neden: Doğru; tüketilmiş bir stream yeniden kullanılamaz, gerekirse kaynaktan yeni bir stream açılır.
+İpucu: Stream bir koleksiyon mu, yoksa veriyi bir kez akıtan bir boru hattı mı?
+Kısa açıklama: Yanlış. Stream bir kez tüketilir; ikinci kullanım `IllegalStateException` verir.
+Açıklama: Stream veri tutan bir yapı değil, kaynaktan bir kez akan bir işlem hattıdır. Aynı veriyi iki kez işlemek için koleksiyondan iki ayrı stream açılır ya da sonuç önce bir koleksiyona toplanır.
+Etiketler: stream, illegalstateexception
+
+# J48 · Orta · Kod yazma
+
+`Employee` nesnelerini önce departmana göre artan, aynı departmandakileri maaşa göre azalan sırada dizin. `Comparable` ile `Comparator` arasındaki farkı açıklayın.
+
+## J48-01 · Tek seçim
+Konu: Comparator
+Soru: Departmana göre artan, aynı departmanda maaşa göre azalan sıralayan comparator hangisidir?
+Şıklar:
+- [x] a: `Comparator.comparing(Employee::getDept).thenComparing(Employee::getSalary, Comparator.reverseOrder())`
+- [ ] b: `Comparator.comparing(Employee::getDept).thenComparing(Employee::getSalary).reversed()` ile iki ölçütü birlikte ters çevirmek
+  Neden: `reversed()` bütün sıralamayı ters çevirir; departmanlar da azalan sıraya geçer.
+- [ ] c: `Comparator.comparing(Employee::getSalary).reversed().thenComparing(Employee::getDept)`
+  Neden: Birincil ölçüt maaş olur; departman yalnız eşit maaşlarda devreye girer.
+- [ ] d: `Comparator.comparing(Employee::getDept).reversed().thenComparing(Employee::getSalary)`
+  Neden: Departmanlar azalan, maaşlar artan sıralanır; istenenin tersidir.
+İpucu: Ters çevirme yalnız ikinci ölçüte uygulanmalı.
+Kısa açıklama: İkinci ölçütü `thenComparing(..., Comparator.reverseOrder())` ile yalnız kendi içinde ters çevirmek gerekir.
+Açıklama: `comparing` birincil ölçütü, `thenComparing` eşitlik durumundaki ikincil ölçütü tanımlar. Zincirin sonuna eklenen `reversed()` o ana kadar kurulan bütün sıralamayı ters çevirir. Yalnız maaşı azalan yapmak için ikinci ölçüte ayrı bir comparator (`Comparator.reverseOrder()`) verilir.
+Etiketler: comparator, sorting, java8
+
+## J48-02 · Kod çıktısı
+Konu: Comparator
+Soru: Kodun çıktısını yazın.
+Kod:
+```java
+class Employee {
+    String name;
+    String dept;
+    int salary;
+
+    Employee(String name, String dept, int salary) {
+        this.name = name;
+        this.dept = dept;
+        this.salary = salary;
+    }
+}
+
+List<Employee> staff = new ArrayList<>(Arrays.asList(
+        new Employee("Ece", "Test", 50),
+        new Employee("Ozan", "Ar-Ge", 40),
+        new Employee("Berk", "Test", 70),
+        new Employee("Ada", "Ar-Ge", 60)));
+staff.sort(Comparator.comparing((Employee e) -> e.dept)
+        .thenComparing(e -> e.salary, Comparator.reverseOrder()));
+System.out.println(staff.stream().map(e -> e.name).collect(Collectors.joining(" ")));
+```
+Cevap: Ada Ozan Berk Ece
+İpucu: "Ar-Ge" alfabetik olarak "Test"ten önce gelir.
+Kısa açıklama: Önce Ar-Ge (60, 40), sonra Test (70, 50) çalışanları maaşı azalan sırayla yazılır.
+Açıklama: Birincil ölçüt departman adıdır; "Ar-Ge" "Test"ten önce gelir. Aynı departmanda maaş azalan sıralanır: Ar-Ge'de Ada (60) ve Ozan (40), Test'te Berk (70) ve Ece (50). `Collectors.joining(" ")` isimleri boşlukla birleştirir.
+Etiketler: comparator, sorting, stream
+
+## J48-03 · Doğru / Yanlış
+Konu: Comparable
+Soru: `compareTo` iki nesne için 0 döndürüyor ama `equals` bu nesneleri farklı sayıyorsa, `TreeSet` bu iki nesneden yalnız birini saklar.
+Şıklar:
+- [x] Doğru
+  Neden: Doğru; `TreeSet` eşitliğe `equals` ile değil, karşılaştırmanın 0 sonucuna göre karar verir.
+- [ ] Yanlış
+  Neden: Sıralı koleksiyonlar tekrarı `compareTo` veya comparator ile belirler; 0 sonucu "aynı eleman" demektir.
+İpucu: `TreeSet` elemanları hangi metotla karşılaştırarak yerleştirir?
+Kısa açıklama: Doğru. `TreeSet` için `compareTo` sonucu 0 olan iki nesne aynı elemandır.
+Açıklama: `Comparable` sınıfın doğal sıralamasını tanımlar; `Comparator` ise sınıfın dışında farklı sıralamalar kurar. Sıralı koleksiyonlar (`TreeSet`, `TreeMap`) tekrarı karşılaştırma sonucuyla belirler. Bu yüzden `compareTo` ile `equals` tutarlı tutulmalıdır; tutarsızlık, `HashSet` ile `TreeSet` arasında farklı davranışa yol açar.
+Etiketler: comparable, treeset, equals
+
+# J49 · Kolay · Teori
+
+`Optional` ne amaçla kullanılır? `orElse` ile `orElseGet` arasındaki fark nedir ve `Optional` nerelerde kullanılmamalıdır?
+
+## J49-01 · Kod çıktısı
+Konu: Optional
+Soru: Kodun çıktısını satır sırasıyla yazın.
+Kod:
+```java
+Supplier<String> load = () -> {
+    System.out.println("load");
+    return "varsayilan";
+};
+Optional<String> name = Optional.of("Ece");
+System.out.println(name.orElse(load.get()));
+System.out.println(name.orElseGet(load));
+```
+Cevap:
+```
+load
+Ece
+Ece
+```
+İpucu: `orElse` argümanı metoda girmeden önce hesaplanır.
+Kısa açıklama: `orElse(load.get())` değer olsa bile `load` çağrısını yapar; `orElseGet(load)` yalnız değer yoksa çağırır.
+Açıklama: Java argümanları metot çağrılmadan önce değerlendirir; `orElse(load.get())` satırında önce `load` yazdırılır, sonra `Optional` dolu olduğu için "Ece" döner. `orElseGet` ise bir `Supplier` alır ve onu yalnız değer yoksa çağırır. Varsayılan değeri üretmek pahalıysa veya yan etkisi varsa `orElseGet` tercih edilir.
+Etiketler: optional, orelse, orelseget
+
+## J49-02 · Çoklu seçim
+Konu: Optional
+Soru: `Optional` için önerilen kullanımları seçin.
+Şıklar:
+- [x] a: Sonucun bulunmayabileceğini göstermek için metodun dönüş tipi olarak kullanmak
+  Neden: Doğru; `Optional` bu amaçla tasarlanmıştır.
+- [x] b: `isPresent()` ile kontrol edip `get()` çağırmak yerine `map`, `orElse` veya `ifPresent` kullanmak
+  Neden: Doğru; bu metotlar boş durumu açıkça ele alır.
+- [ ] c: Sınıf alanlarını ve metot parametrelerini `Optional` tipinde tanımlamak
+  Neden: `Optional` dönüş değerleri için tasarlanmıştır; alan ve parametrede gereksiz sarmalama yaratır ve serileştirilemez.
+- [ ] d: Boş liste döndürmek yerine `Optional<List<T>>` döndürmek
+  Neden: Boş liste zaten "sonuç yok" anlamını taşır; ikinci bir boşluk katmanı gerekmez.
+- [ ] e: Boş bir `Optional` oluşturmak için `Optional.of(null)` çağırmak
+  Neden: `Optional.of` null alırsa `NullPointerException` fırlatır; boş değer için `Optional.empty()` veya `Optional.ofNullable` kullanılır.
+İpucu: `Optional` hangi soruya cevap vermek için eklendi: "bu metot sonuç döndürmeyebilir mi?"
+Kısa açıklama: `Optional` dönüş tipinde ve boş durumu açıkça ele alan metotlarla kullanılır.
+Açıklama: `Optional`, null dönebilecek metotlarda çağırana "sonuç olmayabilir" bilgisini tipte verir. `get()` değer yoksa `NoSuchElementException` fırlattığı için `map`, `filter`, `orElse`, `orElseGet` ve `ifPresent` daha güvenlidir. Alanlarda, parametrelerde ve koleksiyon dönüşlerinde kullanmak karmaşıklığı artırır.
+Etiketler: optional, null-safety
+
+## J49-03 · Doğru / Yanlış
+Konu: Optional
+Soru: `Optional.ofNullable(null)` çağrısı `NullPointerException` fırlatır.
+Şıklar:
+- [ ] Doğru
+  Neden: `ofNullable` null için boş bir `Optional` döndürür; NPE fırlatan `Optional.of(null)`'dır.
+- [x] Yanlış
+  Neden: Doğru; `Optional.ofNullable(null)`, `Optional.empty()` ile aynı sonucu verir.
+İpucu: `of` ile `ofNullable` arasındaki fark null girdide ortaya çıkar.
+Kısa açıklama: Yanlış. `ofNullable(null)` boş bir `Optional` döndürür.
+Açıklama: `Optional.of(value)` değerin null olmadığını varsayar ve null gelirse hemen NPE fırlatır. `Optional.ofNullable(value)` ise null değeri boş `Optional`'a çevirir; null dönebilecek eski API'leri sarmalarken kullanılır.
+Etiketler: optional, ofnullable
+
+# J50 · Kolay · Teori
+
+Java'da `enum` nedir? Sabit `int` değerlerine göre avantajları nelerdir? Alan, kurucu ve metot içeren bir enum örneği verin.
+
+## J50-01 · Kod çıktısı
+Konu: enum
+Soru: Kodun çıktısını satır sırasıyla yazın.
+Kod:
+```java
+enum Level {
+    LOW(1), MEDIUM(5), HIGH(10);
+
+    private final int weight;
+
+    Level(int weight) {
+        this.weight = weight;
+    }
+
+    int weight() {
+        return weight;
+    }
+}
+
+System.out.println(Level.valueOf("MEDIUM").weight());
+System.out.println(Level.HIGH.ordinal());
+System.out.println(Level.values().length);
+```
+Cevap:
+```
+5
+2
+3
+```
+İpucu: `ordinal()` sıfırdan başlar.
+Kısa açıklama: MEDIUM'un ağırlığı 5, HIGH'ın sırası 2 ve toplam sabit sayısı 3'tür.
+Açıklama: `valueOf("MEDIUM")` adı verilen sabiti döndürür; onun `weight()` değeri kurucuda atanan 5'tir. `ordinal()` sabitin tanımlanma sırasını 0'dan başlayarak verir; HIGH üçüncü sabit olduğu için 2'dir. `values()` bütün sabitleri tanım sırasıyla dizi olarak döndürür.
+Etiketler: enum, ordinal, valueof
+
+## J50-02 · Çoklu seçim
+Konu: enum
+Soru: Sabit `int` değerleri yerine `enum` kullanmanın avantajlarını seçin.
+Şıklar:
+- [x] a: Derleyici yalnız tanımlı sabitlerin kullanılmasına izin verir; tip güvenliği sağlar
+  Neden: Doğru; geçersiz bir değer derleme zamanında yakalanır.
+- [x] b: Her sabit kendi alanlarını, kurucu argümanlarını ve metotlarını taşıyabilir
+  Neden: Doğru; enum tam bir sınıftır.
+- [x] c: Enum değerleri `switch` içinde doğrudan kullanılabilir
+  Neden: Doğru; `case LOW:` gibi okunaklı dallar yazılır.
+- [ ] d: Çalışma zamanında `new Level(3)` ile yeni bir sabit eklenebilir
+  Neden: Enum kurucusu dışarıdan çağrılamaz; sabitler derleme zamanında belirlenir.
+- [ ] e: Enum sabitleri `==` ile karşılaştırılınca yanlış sonuç verebilir, bu yüzden `equals` kullanılmalıdır
+  Neden: Her sabitin tek bir örneği vardır; `==` güvenle ve null güvenli biçimde kullanılır.
+İpucu: Enum sabitleri tekil nesnelerdir ve derleme zamanında bilinir.
+Kısa açıklama: Enum tip güvenliği verir, davranış taşıyabilir ve `switch` ile doğal kullanılır.
+Açıklama: `int` sabitlerde herhangi bir sayı geçirilebilir ve hata çalışma zamanına kalır. Enum ise yalnız tanımlı sabitleri kabul eder, alan ve metot taşıyabilir, `values()` ve `valueOf()` gibi yardımcılar sunar. Her sabit tek örnek olduğundan `==` ile karşılaştırma doğrudur; bu özellik enum'u tekil nesne (singleton) yazmak için de uygun kılar.
+Etiketler: enum, type-safety, switch
+
+# J51 · Orta · Kod okuma
+
+try-with-resources nasıl çalışır? Birden fazla kaynak hangi sırayla kapatılır? `close` sırasında oluşan bir istisnaya ne olur?
+
+## J51-01 · Kod çıktısı
+Konu: try-with-resources
+Soru: Kodun çıktısını satır sırasıyla yazın.
+Kod:
+```java
+class Res implements AutoCloseable {
+    private final String name;
+
+    Res(String name) {
+        this.name = name;
+        System.out.println("open " + name);
+    }
+
+    public void close() {
+        System.out.println("close " + name);
+    }
+}
+
+try (Res a = new Res("A"); Res b = new Res("B")) {
+    System.out.println("body");
+}
+```
+Cevap:
+```
+open A
+open B
+body
+close B
+close A
+```
+İpucu: Kaynaklar açılma sırasının tersiyle kapatılır.
+Kısa açıklama: Kaynaklar sırayla açılır, gövde çalışır ve kaynaklar ters sırayla kapanır.
+Açıklama: try-with-resources, parantez içindeki kaynakları soldan sağa oluşturur. Gövde bittiğinde (istisna olsa bile) `close` metotları ters sırayla çağrılır; böylece sonradan açılan ve öncekine bağlı olabilecek kaynak önce kapanır. Kaynak sınıfı `AutoCloseable` arayüzünü uygulamalıdır.
+Etiketler: try-with-resources, autocloseable
+
+## J51-02 · Tek seçim
+Konu: try-with-resources
+Soru: try-with-resources gövdesi `IllegalStateException` fırlatıyor, ardından kaynağın `close` metodu da `IOException` fırlatıyor. Çağırana hangi istisna ulaşır?
+Şıklar:
+- [x] a: `IllegalStateException`; `close` istisnası ona suppressed olarak eklenir
+- [ ] b: `IOException`; tıpkı klasik try-finally bloğunda olduğu gibi son fırlayan istisna öncekinin yerini alır
+  Neden: Bu klasik try-finally davranışıdır; try-with-resources ilk istisnayı korur.
+- [ ] c: İkisi birlikte yeni bir `RuntimeException` içine sarılarak fırlatılır
+  Neden: Yeni bir istisna oluşturulmaz; gövdedeki istisna olduğu gibi fırlatılır.
+- [ ] d: Hiçbiri; `close` sırasında istisna oluşunca ikisi de yutulur
+  Neden: Gövdedeki istisna çağırana ulaşır; `close` istisnası da kaybolmaz, suppressed olarak eklenir.
+İpucu: try-with-resources, asıl hatayı kaybetmemek için tasarlandı.
+Kısa açıklama: Gövdedeki istisna fırlatılır; `close` istisnası `getSuppressed()` ile okunabilir.
+Açıklama: Klasik try-finally'de `finally` içinde fırlayan istisna, gövdedeki asıl istisnanın yerini alır ve hata ayıklamayı zorlaştırır. try-with-resources gövdedeki istisnayı korur, `close` sırasında oluşan istisnaları da `Throwable.addSuppressed` ile ona ekler. Çağıran `getSuppressed()` ile bunlara ulaşabilir.
+Etiketler: try-with-resources, suppressed-exception
+
+## J51-03 · Doğru / Yanlış
+Konu: try-with-resources
+Soru: try-with-resources içinde kaynak olarak kullanılacak bir sınıfın `AutoCloseable` (veya onu genişleten `Closeable`) arayüzünü uygulaması gerekir.
+Şıklar:
+- [x] Doğru
+  Neden: Doğru; derleyici kaynağın `close` metodunu bu arayüz üzerinden çağırır.
+- [ ] Yanlış
+  Neden: `AutoCloseable` uygulamayan bir tip try-with-resources parantezinde kullanılırsa kod derlenmez.
+İpucu: Derleyici, bloğun sonunda hangi metodu çağıracağını nereden bilir?
+Kısa açıklama: Doğru. Kaynak tipi `AutoCloseable` olmalıdır; aksi hâlde kod derlenmez.
+Açıklama: try-with-resources, bloğun sonunda her kaynağın `close()` metodunu çağırır; bunun için kaynağın tipi `AutoCloseable` olmalıdır. `java.io.Closeable` bu arayüzü genişletir; dosya, soket ve akış sınıflarının çoğu onu uygular.
+Etiketler: try-with-resources, autocloseable

@@ -77,12 +77,14 @@ check(E.isLearned({ known: true }) && E.isLearned({ mastered: true }) && !E.isLe
 check(E.skipsReview({ known: true }) && E.skipsReview({ excluded: true }) && !E.skipsReview({ mastered: true }), 'Bilinen ve hariç tutulan kaynaklar tekrar kuyruğuna girmemeli.');
 const knownProgress = { J01: { known: true } };
 const javaCards = E.getBank().filter((card) => card.section === 'Java');
-const mixedPick = E.selectCards(javaCards, 44, 'mixed', 'known-seed', knownProgress, {});
-check(mixedPick.length === 44 && mixedPick.every((card) => card.sourceId !== 'J01'), 'Bilinen kaynak, havuzda başka kaynak varken karışık teste seçilmemeli.');
+// One fewer than the number of Java sources fits without J01; one more needs it.
+const javaSourceCount = new Set(javaCards.map((card) => card.sourceId)).size;
+const mixedPick = E.selectCards(javaCards, javaSourceCount - 1, 'mixed', 'known-seed', knownProgress, {});
+check(mixedPick.length === javaSourceCount - 1 && mixedPick.every((card) => card.sourceId !== 'J01'), 'Bilinen kaynak, havuzda başka kaynak varken karışık teste seçilmemeli.');
 const learningPick = E.selectCards(javaCards, 3, 'learning', 'known-seed', knownProgress, {});
 check(learningPick.map((card) => card.sourceId).join(',') === 'J02,J03,J04', 'Bilinen kaynak kaynak sırasında da en sona kalmalı.');
-const fullPick = E.selectCards(javaCards, 46, 'mixed', 'known-seed', knownProgress, {});
-check(fullPick.some((card) => card.sourceId === 'J01') && fullPick.slice(0, 44).every((card) => card.sourceId !== 'J01'), 'Havuz yetmediğinde bilinen kaynak en sonda kullanılabilmeli.');
+const fullPick = E.selectCards(javaCards, javaSourceCount + 1, 'mixed', 'known-seed', knownProgress, {});
+check(fullPick.some((card) => card.sourceId === 'J01') && fullPick.slice(0, javaSourceCount - 1).every((card) => card.sourceId !== 'J01'), 'Havuz yetmediğinde bilinen kaynak en sonda kullanılabilmeli.');
 const pastDue = {};
 javaCards.filter((card) => card.sourceId === 'J01' || card.sourceId === 'J02').forEach((card) => { pastDue[card.id] = { dueAt: '2000-01-01T00:00:00.000Z', timesSeen: 1 }; });
 check(E.filterBank(javaCards, { status: 'due' }, knownProgress, pastDue).every((card) => card.sourceId === 'J02'), 'Bilinen kaynak "Tekrar zamanı gelen" filtresine girmemeli.');
