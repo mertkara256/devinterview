@@ -177,10 +177,10 @@ Soru: Primitive ve reference tipler hakkında doğru ifadeleri seçin.
   Neden: Doğru; null bir reference değeridir.
 - [x] c: Primitive bir değerde örnek metodu doğrudan çağrılamaz
   Neden: Doğru; autoboxing ayrı bir dönüşüm bağlamıdır.
-- [ ] d: İki reference değişkeni `==` ile karşılaştırmak her zaman içerik eşitliğini sınar
+- [ ] d: İki reference değişkenini `==` ile karşılaştırmak, gösterdikleri nesnelerin içeriğini karşılaştırır
   Neden: Yanlış; `==` nesne kimliğini karşılaştırır.
-- [ ] e: Her reference ataması nesnenin bağımsız kopyasını üretir
-  Neden: Yanlış; yalnız referans değeri kopyalanır.
+- [x] e: Reference ataması nesneyi değil, referans değerini kopyalar
+  Neden: Doğru; iki değişken aynı nesneyi gösterir.
 İpucu: `==` operatörünün reference operandlarda hangi değeri karşılaştırdığını düşünün.
 Kısa açıklama: Primitive değer doğrudan tutulur; reference null olabilir ve bir nesneye erişim değeridir.
 Açıklama: Primitive tipler dilce tanımlı yalın değerlerdir. Reference değişken, nesneye/diziye erişen bir referans veya null tutar. Reference operandlarda `==` çoğunlukla aynı nesne kimliğini sorgular; içerik semantiği uygun `equals` uygulamasına bağlıdır. Atama nesneyi kopyalamaz.
@@ -779,12 +779,12 @@ Soru: String karşılaştırması hakkında doğru ifadeleri seçin.
   Neden: Doğru reference kimliği semantiğidir.
 - [x] b: `a.equals(b)`, `a` null değilse içerik eşitliğini sınar
   Neden: Doğru; alıcı null değil varsayımı önemlidir.
-- [ ] c: String literal pool nedeniyle String içerikleri her zaman `==` ile güvenle karşılaştırılabilir
-  Neden: Yanlış; `new String` ve runtime üretimleri özdeş olmayabilir.
+- [ ] c: String literal pool sayesinde `new String("java") == "java"` ifadesi true döner
+  Neden: Yanlış; `new String` havuz dışında yeni bir nesne üretir ve ifade false olur.
 - [x] d: `Objects.equals(a, b)` null-safe içerik eşitliği sağlayabilir
   Neden: Doğru null-safe yardımcıdır.
-- [ ] e: `equals` her sınıfta otomatik olarak alan bazlı derin karşılaştırma yapar
-  Neden: `Object.equals` varsayılanı kimliktir; sınıflar override etmelidir.
+- [x] e: `equals` metodunu override etmeyen bir sınıfta `equals`, `==` gibi referans kimliğini karşılaştırır
+  Neden: Doğru; `Object.equals` varsayılanı kimlik karşılaştırmasıdır.
 İpucu: String pool bir optimizasyon/özdeşleştirme ayrıntısıdır; genel içerik sözleşmesi değildir.
 Kısa açıklama: Kimlik için `==`, String içeriği için `equals`; null güvenliği için `Objects.equals` kullanılabilir.
 Açıklama: `String.equals` içerik karşılaştıracak şekilde override edilmiştir. Ancak `a.equals(b)` a null ise NPE verir; `Objects.equals` bunu güvenli ele alır. `==` yalnız aynı referans değerini sınar ve literal intern durumuna güvenmek hatalıdır.
@@ -916,8 +916,8 @@ Soru: `Base` sınıfındaki protected bir instance üye için doğru ifadeleri s
   Neden: Doğru; alt sınıf korumalı erişim bağlamıdır.
 - [ ] c: Farklı paketteki herhangi bir sınıf üyeye erişebilir
   Neden: Yanlış; public değildir.
-- [ ] d: protected, private ile tamamen aynıdır
-  Neden: Yanlış; kapsamı private'dan geniştir.
+- [x] d: `protected` üye, aynı paketteki sınıflara package-private bir üye kadar açıktır
+  Neden: Doğru; protected erişim paket erişimini de kapsar.
 - [x] e: Aynı Base sınıfı içinden üyeye erişilebilir
   Neden: Doğru; bildiren sınıf kendi üyesine erişir.
 İpucu: protected iki kapı açar: aynı paket veya uygun alt sınıf bağlamı.
@@ -1286,12 +1286,12 @@ Soru: Gerçek uygulama performansı açısından doğru ifadeleri seçin.
   Neden: Doğru; traversal gerekir.
 - [x] b: ArrayList bitişik referans dizisi sayesinde genellikle iyi cache locality sunar
   Neden: Doğru tipik donanım etkisidir.
-- [ ] c: LinkedList her türlü ekleme ve silmede daima ArrayList'ten hızlıdır
-  Neden: Yanlış mutlak genellemedir.
+- [ ] c: LinkedList, listenin ortasına indeksle eklemede eleman kaydırmadığı için ArrayList'ten belirgin biçimde hızlıdır
+  Neden: Yanlış; önce indekse kadar düğümleri dolaşması gerekir ve ArrayList'in bitişik bellekte kaydırması pratikte çoğu zaman daha hızlıdır.
 - [x] d: ArrayList ortasına ekleme eleman kaydırmayı gerektirebilir
   Neden: Doğru; sonraki elemanlar kayar.
-- [ ] e: LinkedList `get(i)` her `i` için O(1)'dir
-  Neden: Yanlış; bağlantılar boyunca yürünür.
+- [x] e: LinkedList'te `get(i)`, indekse kadar düğümleri dolaştığı için O(n)'dir
+  Neden: Doğru; bağlantılar boyunca yürünür.
 İpucu: Asimptotik maliyetin yanında indeks arama ve bellek yerelliğini düşünün.
 Kısa açıklama: İndeks bulma LinkedList'i O(n) yapar; ArrayList kaydırabilir fakat bellek yerelliği güçlüdür.
 Açıklama: LinkedList yalnız konum iterator/düğüm olarak zaten eldeyse bağlantı değişimini O(1) yapar. İndeksli API önce düğümü arar. ArrayList orta eklemede `System.arraycopy` benzeri kaydırma yapar, fakat kompakt düzen ve düşük allocation maliyeti pratikte çoğu kullanımda avantajlıdır.
@@ -1433,14 +1433,14 @@ Soru: HashMap hakkında doğru ifadeleri seçin.
 Şıklar:
 - [x] a: Collision, farklı anahtarların aynı bucket'a düşebilmesidir
   Neden: Doğru collision tanımıdır.
-- [ ] b: Aynı hashCode üreten iki anahtar mutlaka equals ile eşittir
-  Neden: Yanlış; farklı anahtarlar aynı hash'i paylaşabilir.
+- [x] b: Aynı hashCode'u üreten iki anahtar `equals` ile farklı olabilir
+  Neden: Doğru; farklı anahtarlar aynı hash'i paylaşabilir ve `equals` ile ayırt edilir.
 - [x] c: Eş anahtarlar aynı hashCode'u üretmelidir
   Neden: Doğru equals/hashCode sözleşmesidir.
 - [x] d: Kapasite/yük eşiği aşılınca resize maliyetli olabilir
   Neden: Doğru; tablo yeniden düzenlenir.
-- [ ] e: HashMap araması her koşulda kesin O(1)'dir
-  Neden: Yanlış; ortalama/amortize beklentidir.
+- [ ] e: Aynı bucket'ta çakışan anahtarlar çoğaldıkça HashMap araması hızlanır
+  Neden: Yanlış; aynı bucket'ta zincir uzadıkça arama yavaşlar; O(1) yalnız ortalama beklentidir.
 İpucu: Hash aynı olması yalnız adaylığı gösterir; eşitliğin tersi yönlü sözleşmesini düşünün.
 Kısa açıklama: Collision normaldir; equals eşitliği aynı hash gerektirir; resize maliyetlidir ve O(1) garanti değildir.
 Açıklama: hashCode eşitliği equals eşitliği için yeterli değildir. Ancak equals true ise hashCode aynı olmalıdır. İyi dağılımda get/put ortalama O(1) kabul edilir; kötü collision veya saldırgan anahtarlarda maliyet artar. Java 8 bazı uzun bucket'ları tree'leştirerek en kötü durumu iyileştirebilir.
@@ -1792,8 +1792,8 @@ Soru: `startsWith("A")` olan adları ArrayList'ten güvenle silen yaklaşımlar�
   Neden: Fail-fast ihlaldir.
 - [x] d: İndeksle sondan başa dolaşıp eşleşen indeksi silmek
   Neden: Doğru indeks kayması kontrolüdür.
-- [ ] e: Her turda listeyi null yapmak
-  Neden: Gereksinimi karşılamaz ve sonraki erişimleri bozar.
+- [ ] e: İndeksle baştan sona dolaşıp eşleşeni sildikten sonra indeksi yine bir artırmak
+  Neden: Silmeden sonra sonraki eleman sola kayar; indeksi artırmak onu atlar.
 İpucu: Silme işlemi iterator protokolüyle veya indeks kaymasını kontrol eden bir yönle yapılmalı.
 Kısa açıklama: removeIf, Iterator.remove ve sondan indeksli silme güvenli kalıplardır.
 Açıklama: removeIf koleksiyonun kendi toplu işlemini kullanır. Iterator.remove son dönen öğeyi iterator ile uyumlu siler. Sondan başa indeksleme, silmenin henüz ziyaret edilmemiş daha küçük indeksleri kaydırmamasını sağlar.
@@ -2201,12 +2201,12 @@ Soru: Paylaşılan sayacı thread-safe artırabilecek temel çözümleri seçin.
   Neden: Doğru atomik API'dir.
 - [x] c: Tüm erişimleri aynı `ReentrantLock` ile korumak ve finally'da unlock yapmak
   Neden: Doğru, aynı lock disipliniyle.
-- [ ] d: Alanı yalnız `volatile int` yapmak ve `value++` kullanmaya devam etmek
+- [ ] d: Alanı `volatile int` yapıp `value++` kullanmaya devam etmek
   Neden: Yetersiz; ++ atomik olmaz.
-- [ ] e: Thread'lere rastgele sleep eklemek
-  Neden: Zamanlamayı değiştirir ama doğruluk garantisi vermez.
+- [x] e: Sayacı `LongAdder` ile tutup `increment()` çağırmak
+  Neden: Doğru; yüksek çekişmede iyi ölçeklenen thread-safe bir sayaçtır.
 İpucu: Çözüm tüm read-modify-write işlemini tek kritik işlem yapmalı.
-Kısa açıklama: synchronized, AtomicInteger veya doğru Lock kullanımı atomikliği sağlar; volatile tek başına ++ için yetmez.
+Kısa açıklama: synchronized, AtomicInteger, LongAdder veya doğru Lock kullanımı atomikliği sağlar; volatile tek başına ++ için yetmez.
 Açıklama: synchronized ve ReentrantLock karşılıklı dışlama ile hem atomiklik hem visibility kurar. AtomicInteger CAS tabanlı atomik artış sağlar. volatile yalnız tekil okuma/yazmaların görünürlüğünü ve sıralamasını iyileştirir; birleşik ++ kayıp güncellemeye açıktır. sleep bir senkronizasyon mekanizması değildir.
 Varsayım: Sayaç okuma/sıfırlama gibi diğer tüm ilişkili işlemler de aynı synchronization politikasına uyar.
 Etiketler: synchronized, atomicinteger, lock, volatile
@@ -2282,7 +2282,7 @@ Soru: Deadlock riskini azaltan geçerli yaklaşımları seçin.
   Neden: Doğru sadeleştirmedir; throughput bedeli olabilir.
 - [x] c: `ReentrantLock.tryLock` ile timeout/başarısızlıkta alınan kilitleri bırakıp yeniden denemek
   Neden: Doğru, başarısızlıkta kesin unlock ve backoff ile.
-- [ ] d: Ters sırayı koruyup yalnız rastgele sleep eklemek
+- [ ] d: Ters kilit sırasını koruyup araya rastgele sleep eklemek
   Neden: Zamanlama hilesidir, cycle'ı ortadan kaldırmaz.
 - [ ] e: Kilidi tutarken sınırsız bloklayan dış çağrılar yapmak
   Neden: Bekleme süresini ve bilinmeyen kilit bağımlılıklarını artırır.
@@ -2576,8 +2576,8 @@ Soru: Sabit `int` değerleri yerine `enum` kullanmanın avantajlarını seçin.
   Neden: Doğru; enum tam bir sınıftır.
 - [x] c: Enum değerleri `switch` içinde doğrudan kullanılabilir
   Neden: Doğru; `case LOW:` gibi okunaklı dallar yazılır.
-- [ ] d: Çalışma zamanında `new Level(3)` ile yeni bir sabit eklenebilir
-  Neden: Enum kurucusu dışarıdan çağrılamaz; sabitler derleme zamanında belirlenir.
+- [x] d: `values()` bütün sabitleri tanım sırasıyla bir dizi olarak döndürür
+  Neden: Doğru; sabitleri dolaşmak için kullanılır.
 - [ ] e: Enum sabitleri `==` ile karşılaştırılınca yanlış sonuç verebilir, bu yüzden `equals` kullanılmalıdır
   Neden: Her sabitin tek bir örneği vardır; `==` güvenle ve null güvenli biçimde kullanılır.
 İpucu: Enum sabitleri tekil nesnelerdir ve derleme zamanında bilinir.

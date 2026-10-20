@@ -445,8 +445,8 @@ Soru: Bir alt sınıf instance metodunun üst sınıftaki metodu geçerli biçim
   Neden: Doğru: reference dönüş tipi alt tür olabilir.
 - [x] visibility: Erişim seviyesi daraltılmamalıdır.
   Neden: Doğru: istemcilerin erişimi daraltılamaz.
-- [ ] returnOnly: Yalnızca dönüş tipini değiştirerek farklı parametreli gibi davranabilir.
-  Neden: Yanlış: dönüş tipi tek başına yeni imza oluşturmaz.
+- [ ] returnOnly: Aynı parametre listesiyle farklı bir dönüş tipi yazmak yeni bir overload oluşturur.
+  Neden: Yanlış: dönüş tipi imzanın parçası değildir; uyumsuz dönüş tipi derleme hatasıdır.
 İpucu: @Override ile derleyicinin denetlediği sözleşmeyi düşünün.
 Kısa açıklama: Aynı imza, uyumlu dönüş tipi ve daraltılmayan erişim gerekir.
 Açıklama: Override alt tür sözleşmesini korur. Checked exception kuralları gibi ek koşullar da vardır; seçeneklerdeki üç ifade temel doğru kurallardır. Dönüş tipi tek başına metot imzasını farklılaştırmaz.
@@ -1209,8 +1209,8 @@ Soru: Genel amaçlı List sınıfından kalıtım almak yerine listeyi private a
   Neden: Doğru: LIFO'yu bozan liste operasyonları açılmaz.
 - [x] replace: İç veri yapısı istemci API'si değişmeden değiştirilebilir.
   Neden: Doğru: ArrayDeque gibi başka yapı içeride kullanılabilir.
-- [ ] isList: Stack'in her List beklenen yerde substitutable olması garanti edilir.
-  Neden: Yanlış: composition is-a substitutability iddiası kurmaz.
+- [ ] isList: Stack, List bekleyen metotlara doğrudan argüman olarak verilebilir.
+  Neden: Yanlış: composition is-a ilişkisi kurmaz; Stack bir List değildir.
 İpucu: Composition'ın saklayabildiği API yüzeyini ve implementasyon ayrıntısını düşünün.
 Kısa açıklama: Composition kontrollü API, invariant koruması ve implementasyon değiştirme özgürlüğü sağlar.
 Açıklama: Stack bir List'in bütün davranış sözleşmesini taşımak zorunda değildir. Private bileşen yalnız ihtiyaç duyulan operasyonlarla çevrelenir. Stack'in List yerine her yerde kullanılabilmesi hedeflenmez.
@@ -1369,8 +1369,8 @@ class CheckoutService {
   Neden: Doğru: ortak sözleşmenin başka uygulaması takılabilir.
 - [x] visible: Zorunlu bağımlılık constructor imzasında görünür olur.
   Neden: Doğru: dependency API'de açık hâle gelir.
-- [ ] noValidation: Artık null veya geçersiz dependency kontrolüne hiç gerek kalmaz.
-  Neden: Yanlış: injection doğrulama ihtiyacını otomatik kaldırmaz.
+- [ ] noValidation: Constructor'a null verilmesini derleyici engeller.
+  Neden: Yanlış: Java null argümanı derleme zamanında engellemez; gerekirse `Objects.requireNonNull` ile kontrol edilir.
 İpucu: Nesne oluşturma kararı sınıfın dışına taşındığında test ve değiştirilebilirlik nasıl etkilenir?
 Kısa açıklama: Constructor injection bağımlılığı görünür, değiştirilebilir ve testte ikame edilebilir yapar.
 Açıklama: CheckoutService MessageSender sözleşmesine bağlı kalır. Composition root uygun gerçek veya sahte uygulamayı verir. Constructor injection geçersiz null değerini kendiliğinden engellemez; sınıf gerekirse doğrulamalıdır.
@@ -1601,8 +1601,8 @@ Soru: Bird–Penguin modelini substitutability açısından iyileştiren kararla
   Neden: Doğru: uçuş ayrı ve doğru bir yetenek sözleşmesine dönüşür.
 - [x] flyingBird: Sparrow gibi uçan türler Flyable uygulasın; Penguin uygulamasın.
   Neden: Doğru: yalnız uygun türler yeteneği uygular.
-- [ ] empty: Penguin.fly hiçbir şey yapmadan sessizce dönsün ama yine Flyable sayılsın.
-  Neden: Yanlış: hiçbir şey yapmamak davranış beklentisini yine bozabilir.
+- [ ] empty: Penguin.fly boş bir gövdeyle dönsün ve Penguin yine Flyable sayılsın.
+  Neden: Yanlış: uçması beklenen bir Flyable'ın sessizce uçmaması davranış beklentisini bozar.
 İpucu: Uçamayan nesneye uçma sözleşmesi vermeyin.
 Kısa açıklama: Ortak kuş özellikleri Bird'de, uçma yeteneği Flyable'da tutulmalıdır.
 Açıklama: Yetenek tabanlı modelde yalnız gerçekten uçabilen türler Flyable sözleşmesini verir. Sessiz no-op uygulama da istemcinin uçuş gerçekleştiği beklentisini bozabileceği için çözüm değildir.
@@ -1852,7 +1852,7 @@ Soru: E-posta, SMS ve push kanalları için sağlam sorumluluk dağılımını s
   Neden: Doğru: kanal invariant'ı ilgili implementasyonda yaşar.
 - [x] orchestrator: NotificationService kanal seçimi/orkestrasyon yapar, sağlayıcı ayrıntısını kanala bırakır.
   Neden: Doğru: akış ile teknik gönderim ayrıntısı ayrılır.
-- [ ] oneHuge: Tüm doğrulama ve gönderim koşulları tek dev static metoda konur.
+- [ ] oneHuge: Kanal doğrulama ve gönderim koşulları tek bir büyük static metotta if-else zinciriyle toplanır.
   Neden: Yanlış: düşük cohesion ve büyüyen koşullar üretir.
 İpucu: Ortak kullanım biçimini korurken değişen ayrıntıları ilgili sınıfta tutun.
 Kısa açıklama: Ortak channel sözleşmesi ile kanala özgü doğrulama/gönderim ayrılmalıdır.

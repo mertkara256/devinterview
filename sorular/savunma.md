@@ -23,12 +23,12 @@ Soru: C/C++'ta memory leak'i önlemeye veya bulmaya yardımcı olan uygulamalar�
   Neden: Nesne kapsamdan çıkınca yıkıcı belleği kendiliğinden serbest bırakır.
 - [x] b: Testleri Valgrind veya AddressSanitizer altında çalıştırmak
   Neden: Bu araçlar serbest bırakılmayan blokları çalışma sırasında raporlar.
-- [ ] c: Her `malloc` çağrısından sonra işaretçiyi `NULL` yapmak
+- [ ] c: Kullanılan bloğun işaretçisini `free` çağırmadan `NULL` yapmak
   Neden: İşaretçiyi NULL yapmak bloğu serbest bırakmaz; free çağrılmazsa sızıntı tam da böyle oluşur.
 - [x] d: Gömülü yazılımda başlangıçtan sonra dinamik bellek tahsisinden kaçınmak
   Neden: Tahsis yalnız başlangıçta yapılırsa çalışma sırasında sızıntı ve parçalanma riski ortadan kalkar.
-- [ ] e: Sızıntıyı önlemek için stack boyutunu büyütmek
-  Neden: Sızıntı heap'te olur; stack boyutu bununla ilgili değildir.
+- [x] e: Hata dönüş yollarında da ayrılan belleği serbest bırakmak
+  Neden: Doğru; erken dönen hata yolları sızıntının en yaygın kaynaklarındandır.
 İpucu: Sızıntı, heap'te ayrılan ve artık erişilemeyen ama serbest bırakılmamış bellektir.
 Kısa açıklama: RAII, akıllı işaretçiler, sızıntı araçları ve gömülüde statik tahsis sızıntıyı önler.
 Açıklama: Memory leak, ayrılan heap belleğin serbest bırakılmadan erişiminin kaybedilmesidir. C++'ta RAII ve akıllı işaretçiler serbest bırakmayı kapsam sonuna bağlar; Valgrind ve ASan sızıntıyı test sırasında gösterir. Gömülü sistemlerde dinamik tahsis çoğu zaman tamamen yasaklanır veya yalnız başlangıçta yapılır.
@@ -263,7 +263,7 @@ Soru: Ham bir işaretçiyle heap belleği sahiplenen bir C++ sınıfı için do�
   Neden: std::move yalnız bir rvalue dönüşümüdür; taşımayı move kurucusu veya move atama operatörü yapar.
 - [x] d: Move kurucusu kaynağın işaretçisini devralıp kaynak nesnedeki işaretçiyi boşaltabilir
   Neden: Doğru; böylece derin kopya yapılmaz.
-- [ ] e: Yalnız yıkıcıyı yazmak kopyalamayı güvenli hâle getirmek için yeterlidir
+- [ ] e: Yıkıcıyı yazmak kopyalamayı da güvenli hâle getirir
   Neden: Kopyalar yine aynı işaretçiyi paylaşır ve çift silme oluşur.
 İpucu: Varsayılan kopya işaretçinin kendisini mi, gösterdiği veriyi mi kopyalar?
 Kısa açıklama: Kaynak sahibi sınıflar kopya ve taşıma işlemlerini birlikte tanımlamalıdır.
@@ -854,12 +854,12 @@ Soru: Dijkstra ve A* için doğru ifadeleri seçin.
   Neden: Doğru; kesinleşmiş bir düğümün mesafesi sonradan düşebilir.
 - [x] b: İkili yığın öncelik kuyruğuyla Dijkstra'nın süresi O((V + E) log V) olur
   Neden: Doğru; her kenar en fazla bir güncelleme yapar.
-- [ ] c: A* sezgisel fonksiyon ne olursa olsun her zaman en kısa yolu bulur
+- [ ] c: A*, gerçek maliyeti olduğundan fazla tahmin eden bir sezgiselle de en kısa yolu garanti eder
   Neden: Optimal sonuç için sezgiselin hedefe olan gerçek maliyeti aşmaması (admissible) gerekir.
 - [x] d: Sezgisel fonksiyonu her zaman 0 olan A*, Dijkstra gibi davranır
   Neden: Doğru; yönlendirme bilgisi olmayınca yalnız mesafeye göre genişler.
-- [ ] e: Dijkstra yalnız ağaç yapısındaki grafiklerde çalışır
-  Neden: Dijkstra döngü içeren genel grafiklerde de çalışır; yalnız negatif kenar olmamalıdır.
+- [x] e: Dijkstra döngü içeren genel grafiklerde de çalışır
+  Neden: Doğru; tek koşul kenar ağırlıklarının negatif olmamasıdır.
 İpucu: A*'ın Dijkstra'dan farkı hedefe doğru tahminidir.
 Kısa açıklama: Dijkstra negatif olmayan kenarlarda en kısa yolu bulur; A* kabul edilebilir bir sezgiselle hedefe yönelerek daha az düğüm açar.
 Açıklama: Dijkstra her adımda en yakın keşfedilmemiş düğümü kesinleştirir. A*, g(n) + h(n) değerine göre genişler; h kabul edilebilir ise sonuç yine optimaldir ve harita üzerindeki rota planlamada Öklid veya Manhattan uzaklığı gibi sezgiseller büyük hızlanma sağlar.
@@ -901,12 +901,12 @@ Soru: Process ve thread için doğru ifadeleri seçin.
   Neden: Doğru; aynı adres alanında çalışırlar.
 - [x] b: Her thread'in kendi stack'i ve register durumu vardır
   Neden: Doğru; çağrı zinciri ve yerel değişkenler thread'e özeldir.
-- [ ] c: Process'ler varsayılan olarak aynı adres alanını paylaşır
-  Neden: Process'lerin ayrı adres alanları vardır; paylaşım IPC ile yapılır.
+- [x] c: Process'ler arası veri paylaşımı pipe, soket veya paylaşılan bellek gibi IPC yöntemleriyle yapılır
+  Neden: Doğru; process'lerin adres alanları ayrıdır.
 - [x] d: Thread'ler arası geçiş, adres alanı değişmediği için genellikle process geçişinden ucuzdur
   Neden: Doğru; sayfa tablosu ve TLB değişmez.
-- [ ] e: Bir thread çökerse yalnız o thread etkilenir, process devam eder
-  Neden: Çoğu durumda, örneğin segmentation fault'ta, tüm process sonlanır.
+- [ ] e: Bir thread segmentation fault ile çökerse process'in diğer thread'leri çalışmaya devam eder
+  Neden: Segmentation fault bütün process'i sonlandırır; diğer thread'ler de durur.
 İpucu: Adres alanını kim paylaşıyor?
 Kısa açıklama: Thread'ler process'in adres alanını paylaşır; process'ler birbirinden yalıtılmıştır.
 Açıklama: Process, kendi adres alanı ve kaynaklarıyla çalışan programdır; thread ise process içindeki bir yürütme akışıdır. Paylaşım thread'ler arasında iletişimi kolaylaştırır ama senkronizasyon ihtiyacı doğurur; process'ler arasındaki yalıtım ise bir hatanın diğerlerine yayılmasını engeller.
@@ -1288,8 +1288,8 @@ Soru: Sanal bellek için doğru ifadeleri seçin.
   Neden: Doğru; böylece process'ler birbirinden yalıtılır.
 - [x] b: TLB, son kullanılan sanal–fiziksel adres çevirilerini önbellekte tutar
   Neden: Doğru; her erişimde sayfa tablosunu gezmeyi önler.
-- [ ] c: Page fault her zaman programdaki bir hatayı gösterir ve process'i sonlandırır
-  Neden: Çoğu page fault normaldir; işletim sistemi sayfayı yükleyip devam eder.
+- [x] c: Erişilen sayfa bellekte değilse page fault oluşur; işletim sistemi sayfayı getirip programı sürdürür
+  Neden: Doğru; geçersiz bir adrese erişim ise segmentation fault'a dönüşür.
 - [x] d: Sayfanın diskten (swap) getirilmesi bellekten okumaya göre çok daha yavaştır
   Neden: Doğru; bu yüzden sık swap performansı çökertir.
 - [ ] e: Paging harici parçalanmayı artırır
@@ -1370,10 +1370,10 @@ Soru: Gömülü yazılımın güvenilirliğini artıran uygulamaları seçin.
   Neden: Doğru; donanıma özgü davranışlar da test edilir.
 - [ ] d: Derleyici uyarılarını kapatıp derlemeyi temiz göstermek
   Neden: Uyarılar çoğu zaman gerçek hataları gösterir; açık tutulup giderilmelidir.
-- [ ] e: Savunmacı kontrolleri performans için tamamen kaldırmak
-  Neden: Sınır ve geçerlilik kontrolleri emniyet için gereklidir; maliyet ölçülerek optimize edilir.
+- [x] e: Takılan yazılımın sistemi yeniden başlatması için watchdog timer kullanmak
+  Neden: Doğru; kilitlenme durumunda sistemi kurtarır.
 İpucu: Hataları mümkün olduğunca erken ve otomatik yakalamak hedeflenir.
-Kısa açıklama: Kodlama standardı, statik analiz ve donanımda test güvenilirliği artırır.
+Kısa açıklama: Kodlama standardı, statik analiz, donanımda test ve watchdog güvenilirliği artırır.
 Açıklama: MISRA C dinamik bellek, sınırsız özyineleme ve belirsiz tip dönüşümleri gibi riskli yapıları kısıtlar. Statik analiz bu kuralları ve olası taşmaları kod çalıştırılmadan denetler. Testler ise beklenen davranışı doğrular; ikisi birbirinin yerine geçmez.
 Etiketler: misra, statik-analiz, emniyet
 
@@ -1717,12 +1717,12 @@ Soru: Mikroservis ve monolit mimariler için doğru ifadeleri seçin.
   Neden: Doğru; her servis ayrı yaşam döngüsüne sahiptir.
 - [x] b: Mikroservislerde servisler arası ağ çağrıları gecikme ve hata yönetimi maliyeti getirir
   Neden: Doğru; bir fonksiyon çağrısı artık başarısız olabilen bir ağ isteğidir.
-- [ ] c: Mikroservis mimarisi her zaman monolitten daha basittir
-  Neden: Dağıtık sistemler izleme, veri tutarlılığı ve dağıtım karmaşıklığı ekler.
+- [ ] c: Mikroservis mimarisi izleme ve işletim yükünü monolite göre azaltır
+  Neden: Dağıtık sistemler izleme, veri tutarlılığı ve dağıtım yükünü artırır.
 - [x] d: Küçük bir ekip ve belirsiz alan sınırlarıyla başlarken iyi modüllere ayrılmış bir monolit çoğu zaman daha uygundur
   Neden: Doğru; sınırlar netleştikçe servislere ayırmak daha az risklidir.
-- [ ] e: Monolit uygulamalar tek bir veritabanı sorgusundan fazlasını çalıştıramaz
-  Neden: Monolit tek bir dağıtım birimidir; sorgu veya modül sayısıyla ilgili böyle bir kısıt yoktur.
+- [x] e: Monolitte modüller arası çağrılar ağ yerine süreç içinde yapılır
+  Neden: Doğru; bu yüzden ağ kaynaklı gecikme ve kısmi hata sorunları oluşmaz.
 İpucu: Dağıtık sistemin bedeli nedir?
 Kısa açıklama: Mikroservis bağımsızlık kazandırır ama dağıtık sistem karmaşıklığı getirir.
 Açıklama: Mikroservislerin faydası ekiplerin ve bileşenlerin bağımsız ilerleyebilmesidir; bedeli ağ hataları, dağıtık veri tutarlılığı, izleme ve operasyon yüküdür. Bu yüzden çoğu proje modüler bir monolitle başlayıp ihtiyaç doğdukça ayrışır.
@@ -1919,8 +1919,8 @@ Soru: Vanishing gradient sorununu azaltan yöntemleri seçin.
   Neden: Doğru; gradyan kısa yoldan geri akabilir.
 - [x] c: Batch veya layer normalization kullanmak
   Neden: Doğru; aktivasyonları sağlıklı bir aralıkta tutar.
-- [ ] d: Öğrenme oranını sıfıra yaklaştırmak
-  Neden: Öğrenme oranını küçültmek gradyanı büyütmez; öğrenmeyi daha da yavaşlatır.
+- [x] d: He veya Xavier gibi uygun ağırlık başlatma yöntemleri kullanmak
+  Neden: Doğru; katmanlar arasında sinyal ölçeğini dengeler.
 - [ ] e: Ağa daha fazla sigmoid katmanı eklemek
   Neden: Sigmoid'in türevi en fazla 0,25'tir; katman eklemek gradyanı daha da küçültür.
 İpucu: Zincir kuralında birden küçük sayılar çarpılınca ne olur?

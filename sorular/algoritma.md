@@ -574,8 +574,8 @@ Soru: Yalnız küçük İngilizce harfleri kabul eden int[26] anagram çözümü
 - [x] a: Uzunluklar farklıysa hemen false dönülebilir
 - [x] b: İlk metinde artırıp ikincide azaltmak yeterlidir
 - [x] c: Sonunda her sayaç sıfır olmalıdır
-- [ ] d: Çözüm her Unicode metinde değişikliksiz güvenlidir
-  Neden: c-'a' yalnız dar bir alfabe için güvenlidir; genel Unicode kod noktaları için Map gibi bir yapı gerekir.
+- [ ] d: Çözüm büyük harf ve Türkçe karakter içeren metinlerde de değişiklik gerekmeden çalışır
+  Neden: `c - 'a'` yalnız küçük İngilizce harfler için 0–25 arası indeks üretir; diğer karakterler için Map gibi bir yapı gerekir.
 İpucu: Aynı çokluk kümesi toplam uzunluğu ve tüm frekansları eşit kılar.
 Kısa açıklama: Uzunluk kontrolü, tek frekans tablosunda artırma/azaltma ve sıfır doğrulaması doğru yaklaşımdır.
 Açıklama: İki metin aynı uzunluktaysa ilkini sayıp ikincisini düşmek, tüm hücrelerin sıfır olmasıyla eşit frekansları kanıtlar. Sabit 26 hücre alanı Θ(1)'dir; genel Unicode için farklı yapı gerekir.
@@ -769,7 +769,7 @@ Soru: Geçerli 0..n eksik sayı girdisinde toplam formülü ile XOR yaklaşımı
 - [x] a: İkisi de Θ(n) zaman ve Θ(1) yardımcı alan kullanabilir
 - [x] b: int ile n(n+1)/2 hesabı taşabilir
 - [x] c: XOR yaklaşımı toplamsal aritmetik taşma riskini taşımaz
-- [ ] d: Her iki yöntem de yinelenen ve iki eksikli bozuk girdiyi her zaman teşhis eder
+- [ ] d: İki yöntem de bir sayının tekrarlandığı bozuk girdiyi fark edip hata bildirir
   Neden: Formüller doğru girdi sözleşmesine dayanır; tekrar/çoklu eksikliği ayrı doğrulama olmadan garanti edemez.
 İpucu: Geçerli girdi varsayımı ile doğrulama yeteneğini karıştırmayın.
 Kısa açıklama: İki yaklaşım da doğrusal/sabit alanlıdır; toplam taşabilir, XOR bu toplama taşmasını önler.
@@ -1716,8 +1716,8 @@ Soru: Tek geçişli Map tabanlı two-sum için doğru ifadeleri seçin.
 - [x] a: Mevcut değeri Map'e koymadan önce tamamlayıcıyı aramak aynı indeksi iki kez kullanmayı önler
 - [x] b: Tek çözüm garantisi yoksa döndürülecek çift politikası belirtilmelidir
 - [x] c: Beklenen zaman Θ(n), yardımcı alan en kötü Θ(n)'dir
-- [ ] d: target - value işlemi int türünde hiçbir zaman taşmaz
-  Neden: Örneğin target pozitif ve value çok negatif olduğunda çıkarma int aralığını aşabilir.
+- [ ] d: target ve value `int` aralığında olduğu sürece `target - value` işlemi taşmaz
+  Neden: Yanlış; örneğin target pozitif ve value çok negatif olduğunda fark `int` aralığını aşabilir.
 İpucu: Algoritma sözleşmesi, işlem sırası ve sayısal aralığı ayrı değerlendirin.
 Kısa açıklama: Arama-önce-ekleme doğru indeksleri korur; sonuç politikası ve doğrusal/bellek maliyeti açıktır.
 Açıklama: Map daha önce görülen değerleri indeksleriyle tutar. Birden çok çift varsa tarama sırasındaki ilk eşleşme doğal politikadır. int çıkarma taşabileceği için geniş aralıkta long tamamlayıcı veya açık sınır gerekir.
