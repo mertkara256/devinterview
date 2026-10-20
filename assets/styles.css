@@ -585,6 +585,7 @@ tr:last-child td { border-bottom: 0; }
 .explorer-card { padding: 1rem; }
 .explorer-card h3 { margin: .65rem 0; font-size: .95rem; }
 .explorer-card p { color: var(--text-soft); font-size: .82rem; }
+.explorer-card .explorer-note { padding: .5rem .7rem; border-radius: 8px; background: var(--surface-soft); white-space: pre-wrap; overflow-wrap: anywhere; }
 .explorer-actions { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .8rem; }
 
 .chart-list { display: grid; gap: .9rem; }
@@ -679,6 +680,7 @@ kbd { display: inline-flex; justify-content: center; min-width: 52px; padding: .
 .interview-checklist .option { grid-template-columns: 22px minmax(0, 1fr); min-height: 0; padding: .6rem .8rem; }
 .interview-checklist .option input { position: static; width: 18px; height: 18px; margin: .15rem 0 0; opacity: 1; pointer-events: auto; accent-color: var(--success); }
 .interview-checklist .option:has(input:checked) { border-color: var(--success); background: var(--success-soft); }
+.interview-previous { margin: 0 0 1rem; padding: .75rem 1rem; border-left: 3px solid var(--line); border-radius: 8px; background: var(--surface-soft); white-space: pre-wrap; overflow-wrap: anywhere; }
 .interview-output { margin: 0 0 1rem; padding: .8rem 1rem; border-radius: 10px; background: var(--code-bg); color: var(--code-text); font: 500 .86rem/1.6 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; white-space: pre-wrap; }
 .interview-example + .interview-example { margin-top: 1rem; padding-top: .25rem; border-top: 1px solid color-mix(in srgb, currentColor 14%, transparent); }
 .interview-rating { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--line); }

@@ -45,7 +45,7 @@
     onboardingStep: 0,
     pendingImport: null,
     explorerLimit: 60,
-    explorerFilters: { search: '', section: 'all', area: 'all', difficulty: 'all', type: 'all' },
+    explorerFilters: { search: '', section: 'all', area: 'all', difficulty: 'all', type: 'all', noted: false },
     builderDefaults: null,
     sections: [],
     areas: {},
@@ -1436,17 +1436,21 @@
     var filters = state.explorerFilters;
     var progressMap = await recordsMap('progress');
     var cardStateMap = await recordsMap('cardState');
+    var notesMap = await recordsMap('notes');
+    var noteOf = function (card) { return notesMap[card.id] && String(notesMap[card.id].text || '').trim(); };
+    var notedCount = state.bank.filter(noteOf).length;
     var search = filters.search.toLocaleLowerCase('tr-TR');
     var cards = state.bank.filter(function (card) {
       if (filters.section !== 'all' && card.section !== filters.section) return false;
       if (filters.area !== 'all' && card.area !== filters.area) return false;
       if (filters.difficulty !== 'all' && card.difficulty !== filters.difficulty) return false;
       if (filters.type !== 'all' && card.type !== filters.type) return false;
+      if (filters.noted && !noteOf(card)) return false;
       if (search && (card.id + ' ' + card.sourceId + ' ' + card.area + ' ' + card.topic + ' ' + card.prompt + ' ' + card.tags.join(' ')).toLocaleLowerCase('tr-TR').indexOf(search) === -1) return false;
       return true;
     });
     var shown = cards.slice(0, state.explorerLimit);
-    app.innerHTML = pageHeader('SORU GEZGİNİ', state.bank.length + ' atomik kart', 'Soruları kaynak kimliği, konu, zorluk ve türe göre bul. Cevap anahtarı çözümden önce gösterilmez.', '<a class="button primary" href="#/builder">Test oluştur</a>') +
+    app.innerHTML = pageHeader('SORU GEZGİNİ', state.bank.length + ' atomik kart', 'Soruları kaynak kimliği, konu, zorluk ve türe göre bul. Cevap anahtarı çözümden önce gösterilmez.', '<button class="button ' + (filters.noted ? 'soft' : 'ghost') + '" type="button" data-action="explorer-noted" aria-pressed="' + (filters.noted ? 'true' : 'false') + '">Notlu kartlar (' + notedCount + ')</button><a class="button primary" href="#/builder">Test oluştur</a>') +
       '<div class="filter-bar"><label class="field"><span class="sr-only">Sorularda ara</span><input type="search" id="explorer-search" placeholder="Kimlik, konu veya soru metninde ara…" value="' + E.escapeHtml(filters.search) + '"></label>' +
       '<label class="field"><span class="sr-only">Bölüm</span><select id="explorer-section"><option value="all">Tüm bölümler</option>' + state.sections.map(function (value) { return '<option ' + (filters.section === value ? 'selected' : '') + '>' + value + '</option>'; }).join('') + '</select></label>' +
       '<label class="field"><span class="sr-only">Alan</span><select id="explorer-area"><option value="all">Tüm alanlar</option>' + Object.keys(state.areas).map(function (section) {
@@ -1458,7 +1462,8 @@
         var progress = progressMap[card.sourceId] || {};
         var cardState = cardStateMap[card.id] || {};
         return '<article class="card explorer-card"><div class="badge-row"><span class="badge primary">' + E.escapeHtml(card.id) + '</span>' + difficultyBadge(card.difficulty) + '<span class="badge">' + E.escapeHtml(typeLabel(card.type)) + '</span>' + (E.isLearned(progress) ? '<span class="badge success">Öğrenildi</span>' : '') + '</div>' +
-          '<h3>' + E.inlineMarkdown(card.prompt) + '</h3><p>' + E.escapeHtml(card.topic) + ' · Kaynak ' + E.escapeHtml(card.sourceId) + '</p><div class="explorer-actions"><button class="button small primary" data-action="practice-card" data-id="' + E.escapeHtml(card.id) + '">Çalış</button>' +
+          '<h3>' + E.inlineMarkdown(card.prompt) + '</h3><p>' + E.escapeHtml(card.topic) + ' · Kaynak ' + E.escapeHtml(card.sourceId) + '</p>' +
+          (noteOf(card) ? '<p class="explorer-note"><strong>Notun:</strong> ' + E.escapeHtml(noteOf(card).length > 240 ? noteOf(card).slice(0, 240) + '…' : noteOf(card)) + '</p>' : '') + '<div class="explorer-actions"><button class="button small primary" data-action="practice-card" data-id="' + E.escapeHtml(card.id) + '">Çalış</button>' +
           '<button class="button small ' + (cardState.favorite ? 'soft' : 'ghost') + '" data-action="explorer-favorite" data-id="' + E.escapeHtml(card.id) + '" aria-label="Favori olarak işaretle" aria-pressed="' + (cardState.favorite ? 'true' : 'false') + '">' + (cardState.favorite ? '★' : '☆') + ' Favori</button>' +
           '<button class="button small ' + (progress.known ? 'soft' : 'ghost') + '" data-action="toggle-known" data-source="' + E.escapeHtml(card.sourceId) + '" data-card-id="' + E.escapeHtml(card.id) + '" aria-label="' + (progress.known ? 'Biliniyor: zaten biliyorum durumu' : 'Zaten biliyorum olarak işaretle') + '" aria-pressed="' + (progress.known ? 'true' : 'false') + '">' + (progress.known ? 'Biliniyor' : 'Zaten biliyorum') + '</button>' +
           '<button class="button small ' + (progress.excluded ? 'warning' : 'ghost') + '" data-action="toggle-excluded" data-source="' + E.escapeHtml(card.sourceId) + '" data-card-id="' + E.escapeHtml(card.id) + '" aria-label="' + (progress.excluded ? 'Dahil et: kaynak şu anda hariç tutuluyor' : 'Hariç tut: kaynağı şimdilik hariç bırak') + '" aria-pressed="' + (progress.excluded ? 'true' : 'false') + '">' + (progress.excluded ? 'Dahil et' : 'Hariç tut') + '</button>' +
@@ -1705,6 +1710,12 @@
     var previous = record && record.lastRating
       ? '<p class="tiny muted">Önceki değerlendirmen: ' + E.escapeHtml(E.INTERVIEW_RATINGS[record.lastRating]) + ' · ' + E.formatDate(record.lastRatedAt) + '</p>'
       : '';
+    // The latest earlier written answer, so the user can compare it with today's.
+    var lastWritten = record && record.ratings ? record.ratings.slice().reverse().find(function (entry) { return entry.answerText; }) : null;
+    if (lastWritten) {
+      previous += '<h3>Önceki yazılı cevabın</h3><p class="tiny muted">' + E.formatDate(lastWritten.at) + ' · ' + E.escapeHtml(E.INTERVIEW_RATINGS[lastWritten.rating] || '') + '</p>' +
+        '<p class="interview-previous">' + E.escapeHtml(lastWritten.answerText) + '</p>';
+    }
     var ratingButtons = INTERVIEW_ORDER.map(function (rating, index) {
       var days = E.INTERVALS[E.nextInterviewState(record, { sourceId: item.sourceId, rating: rating }).reviewStage];
       return '<button type="button" class="rating-button ' + rating + '" data-action="interview-rate" data-rating="' + rating + '" aria-keyshortcuts="' + (index + 1) + '">' +
@@ -2288,6 +2299,7 @@
     if (action === 'toggle-excluded') { await toggleProgressFlag(target.dataset.source, 'excluded'); return refreshPreservingFocus(renderExplorer); }
     if (action === 'delete-question-history') return deleteQuestionHistory(target.dataset.id);
     if (action === 'explorer-more') { state.explorerLimit += 60; return refreshPreservingFocus(renderExplorer); }
+    if (action === 'explorer-noted') { state.explorerFilters.noted = !state.explorerFilters.noted; state.explorerLimit = 60; return refreshPreservingFocus(renderExplorer); }
     if (action === 'export-json') return exportJson();
     if (action === 'export-csv') return exportCsv();
     if (action === 'merge-import') return mergeImport();
