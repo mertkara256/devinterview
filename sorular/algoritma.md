@@ -189,7 +189,7 @@ Dizide indeksle erişim neden hızlıdır? Dizinin başına eleman eklemek veya 
 Konu: Diziler
 Soru: Bir int[] dizisinde geçerli arr[i] erişiminin sıkı zaman maliyeti neden Θ(1)'dir?
 Şıklar:
-- [x] a: Adres doğrudan hesaplanır.
+- [x] a: Adres doğrudan hesaplanır
 - [ ] b: JVM erişimde baştan başlayıp i. elemana kadar ilerler, ama bu adımlar sabit sayıldığı için toplam Θ(1)'dir
   Neden: Baştan dolaşmak i ile büyür ve linked list erişimine özgüdür; dizi erişimi doğrudan adres hesabıdır.
 - [ ] c: Dizi erişimden önce sıralanır
@@ -617,10 +617,10 @@ Konu: Faktoriyel
 Soru: long türünde faktoriyeli taşmadan saklanabilen en büyük negatif olmayan n değerini yazın.
 Cevap: 20
 Kabul: 20L
-İpucu: 20! yaklaşık 2,43 × 10^18; long üst sınırı yaklaşık 9,22 × 10^18'dir.
+İpucu: 15! yaklaşık 1,31 × 10^12; long üst sınırı yaklaşık 9,22 × 10^18'dir.
 Kısa açıklama: 20! long aralığına sığar, 21! sığmaz; cevap 20'dir.
 Açıklama: 20! = 2.432.902.008.176.640.000 değeridir. 21 ile bir sonraki çarpım Long.MAX_VALUE değerini aşar. Bu nedenle sözleşme n>20 için taşmayı açıkça reddetmelidir.
-Varsayım: n tam sayı ve n>=0'dır; 0!=1. Sonuç signed 64-bit long ile tutulur; n>20 geçersiz/taşan girdidir. Döngülü hesaplama zamanı Θ(n), yardımcı alan Θ(1)'dir.
+Varsayım: n tam sayı ve n>=0'dır; 0!=1. Sonuç signed 64-bit long ile tutulur. Döngülü hesaplama zamanı Θ(n), yardımcı alan Θ(1)'dir.
 Etiketler: faktoriyel, overflow, long
 
 ## A17-02 · Çoklu seçim
@@ -1507,7 +1507,7 @@ Etiketler: insertion-sort, trace, sorted-prefix
 Konu: Insertion sort
 Soru: Insertion sort neredeyse sıralı dizilerde neden avantajlı olabilir?
 Şıklar:
-- [x] a: Ters çift azsa süresi Θ(n)'e yaklaşır.
+- [x] a: Ters çift azsa süresi Θ(n)'e yaklaşır
 - [ ] b: Girdi sıralı olsa da n² swap yapar
   Neden: Sıralı girdide iç döngü hemen durur.
 - [ ] c: Sıralı kısmı ikili aramayla taradığı için her eleman Θ(log n) kaydırmayla yerine yerleşir
@@ -1553,14 +1553,14 @@ Kabul: base-case
 İpucu: Çağrı zincirinin durmasını sağlayan durumdur.
 Kısa açıklama: Bu koşula base case (temel/taban durum) denir.
 Açıklama: Base case probleme ait en küçük doğrudan çözülebilir girdiyi tanımlar. Recursive adım girdiyi bu duruma yaklaştırmalıdır; yalnız base case yazmak, erişilebilir değilse sonlanmayı garanti etmez.
-Varsayım: Kavramsal sorudur; recursive fonksiyonun girdisi kendi geçerli alanındadır, null/boş durum gerekiyorsa base case içinde tanımlanır. Taşma yoktur. Zaman/alan bağıntısı probleme bağlıdır; çağrı derinliği d ise stack alanı sıkı Θ(d)'dir.
+Varsayım: Kavramsal sorudur; recursive fonksiyonun girdisi kendi geçerli alanındadır, null/boş girdi gerekiyorsa fonksiyon içinde ayrıca ele alınır. Taşma yoktur. Zaman/alan bağıntısı probleme bağlıdır; çağrı derinliği d ise stack alanı sıkı Θ(d)'dir.
 Etiketler: recursion, base-case, termination
 
 ## A41-02 · Tek seçim
 Konu: Recursion
 Soru: Çok derin veya sonlanmayan recursive çağrılar Java'da neden StackOverflowError üretebilir?
 Şıklar:
-- [x] a: Her çağrı stack frame tüketir.
+- [x] a: Her çağrı stack frame tüketir
 - [ ] b: Her recursive çağrı heap'e yeni nesne koyduğu için heap dolar ve JVM bunu StackOverflowError olarak bildirir
   Neden: Heap'in dolması OutOfMemoryError üretir; StackOverflowError çağrı yığınının tükenmesidir.
 - [ ] c: JVM recursive metotları hiç desteklemez
@@ -1754,7 +1754,7 @@ Etiketler: two-pointer, two-sum, sorted-array
 Konu: Two pointer
 Soru: Artan sıralı dizide toplam hedeften küçükse neden left artırılır?
 Şıklar:
-- [x] a: left artınca toplam büyür.
+- [x] a: left artınca toplam büyür
 - [ ] b: right artırılırsa dizi uzar
   Neden: İşaretçi hareketi dizinin boyutunu değiştirmez.
 - [ ] c: left, hedef değerin indeksini gösterir

@@ -85,6 +85,12 @@ const learningPick = E.selectCards(javaCards, 3, 'learning', 'known-seed', known
 check(learningPick.map((card) => card.sourceId).join(',') === 'J02,J03,J04', 'Bilinen kaynak kaynak sırasında da en sona kalmalı.');
 const fullPick = E.selectCards(javaCards, javaSourceCount + 1, 'mixed', 'known-seed', knownProgress, {});
 check(fullPick.some((card) => card.sourceId === 'J01') && fullPick.slice(0, javaSourceCount - 1).every((card) => card.sourceId !== 'J01'), 'Havuz yetmediğinde bilinen kaynak en sonda kullanılabilmeli.');
+// A later card of a source can show an earlier card's answer, so a test keeps each source's cards in id order.
+const inSourceOrder = (cards) => cards.every((card, index) => cards.slice(index + 1).every((later) => later.sourceId !== card.sourceId || later.id > card.id));
+check(inSourceOrder(E.selectCards(javaCards, javaCards.length - 1, 'mixed', 'source-seed', {}, {})) && inSourceOrder(E.selectCards(E.getBank(), E.getBank().length, 'mixed', 'source-seed', {}, {})), 'Aynı kaynağın kartları testte kimlik sırasıyla gelmeli.');
+// An untouched order answer is graded, so an order card must never open already solved.
+const orderCards = E.getBank().filter((card) => card.type === 'order');
+check(orderCards.every((card) => Array.from({ length: 200 }, (_, index) => E.makeAttemptItem(card, 'order-seed-' + index, 0).itemOrder).every((order) => order.join() !== card.answer.join() && order.slice().sort().join() === card.answer.slice().sort().join())), 'Sıralama kartı doğru sırayla açılmamalı ve tüm öğeleri içermeli.');
 const pastDue = {};
 javaCards.filter((card) => card.sourceId === 'J01' || card.sourceId === 'J02').forEach((card) => { pastDue[card.id] = { dueAt: '2000-01-01T00:00:00.000Z', timesSeen: 1 }; });
 check(E.filterBank(javaCards, { status: 'due' }, knownProgress, pastDue).every((card) => card.sourceId === 'J02'), 'Bilinen kaynak "Tekrar zamanı gelen" filtresine girmemeli.');
@@ -123,6 +129,11 @@ const booleanCards = E.getBank().filter((card) => card.type === 'boolean');
 const trueShare = booleanCards.filter((card) => card.answer === true).length / booleanCards.length;
 check(trueShare >= 0.35 && trueShare <= 0.65, `Doğru/Yanlış cevapları dengeli olmalı: Doğru oranı %${Math.round(trueShare * 100)}.`);
 check(E.getBank().filter((card) => card.type === 'match').every((card) => card.pairs.right.length > card.pairs.left.length), 'Her eşleştirmede son eşleşmeyi eleme ile bedava yapmayan en az bir yanıltıcı seçenek olmalı.');
+check(E.getBank().filter((card) => card.type === 'single' || card.type === 'multi').every((card) => new Set(card.options.map((option) => /\.\s*$/.test(option.text))).size === 1), 'Bir karttaki şıklar ya hep noktayla bitmeli ya hiç bitmemeli.');
+// The assumption is shown with the question and the hint on request, so neither may state a fill answer.
+const containsWord = (text, word) => new RegExp('(?<![\\p{L}\\p{N}])' + word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?![\\p{L}\\p{N}])', 'iu').test(text);
+const leakingFills = E.getBank().filter((card) => card.type === 'fill' && [card.answer].concat(card.acceptedAnswers).some((answer) => answer.length >= 2 && containsWord([card.hint].concat(card.assumptions || []).join(' '), answer)));
+check(leakingFills.length === 0, `Boşluk doldurmada varsayım veya ipucu cevabı içermemeli: ${leakingFills.map((card) => card.id).join(', ')}.`);
 
 // In choice cards, absolute wording must not mark the wrong options; in multi-choice no correct-answer count may dominate.
 const ABSOLUTE = /(?<!\p{L})(her zaman|hiçbir zaman|her durumda|her türlü|asla|daima|hiçbir|hiç|kesinlikle|tamamen|mutlaka|yalnızca|yalnız|sadece|tüm|bütün|hepsi|hep|her)(?!\p{L})/iu;

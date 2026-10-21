@@ -1279,7 +1279,7 @@
     var cards = original.items.map(function (item) { return state.bankById[item.questionId] || item.snapshot; });
     var items = sameOrder
       ? original.items.map(function (item) { var copy = E.clone(item); copy.snapshot = E.clone(state.bankById[item.questionId] || item.snapshot); return copy; })
-      : E.shuffled(cards, seed).map(function (card, index) { return E.makeAttemptItem(card, seed, index); });
+      : E.sourceOrdered(E.shuffled(cards, seed)).map(function (card, index) { return E.makeAttemptItem(card, seed, index); });
     var attempt = {
       id: E.uuid(), title: original.title + ' · Tekrar', mode: original.mode, path: original.path,
       seed: seed, filters: E.clone(original.filters || {}), status: 'active', currentIndex: 0, items: items,

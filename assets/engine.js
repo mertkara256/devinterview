@@ -304,11 +304,25 @@
     });
   }
 
+  // A later card of a source can show an earlier card's answer (J01-02 lists the types J01-01 asks for),
+  // so cards of one source keep their slots in the test but fill them in id order.
+  function sourceOrdered(cards) {
+    var bySource = {};
+    cards.forEach(function (card) {
+      if (!bySource[card.sourceId]) bySource[card.sourceId] = [];
+      bySource[card.sourceId].push(card);
+    });
+    Object.keys(bySource).forEach(function (sourceId) {
+      bySource[sourceId].sort(function (a, b) { return a.id.localeCompare(b.id); });
+    });
+    return cards.map(function (card) { return bySource[card.sourceId].shift(); });
+  }
+
   function selectCards(bank, count, mode, seed, progressMap, cardStateMap) {
     if (count >= bank.length) {
       return mode === 'learning'
         ? bank.slice().sort(function (a, b) { return learningRank(a.sourceId) - learningRank(b.sourceId) || a.id.localeCompare(b.id); })
-        : shuffled(bank, seed);
+        : sourceOrdered(shuffled(bank, seed));
     }
     var groups = {};
     bank.forEach(function (card) {
@@ -346,7 +360,7 @@
       remainder = remainder.filter(function (card) { return !isKnown(card.sourceId); }).concat(remainder.filter(function (card) { return isKnown(card.sourceId); }));
       selected = selected.concat(remainder.slice(0, count - selected.length));
     }
-    return selected;
+    return sourceOrdered(selected);
   }
 
   function makeAttemptItem(card, seed, index) {
@@ -357,6 +371,8 @@
     var itemOrder = card.type === 'order'
       ? shuffled((card.items || []).map(function (item) { return item.id; }), itemSeed + ':items')
       : [];
+    // An untouched order answer is graded, so a shuffle that lands on the answer is rotated by one.
+    if (itemOrder.length > 1 && itemOrder.join('\n') === asArray(card.answer).join('\n')) itemOrder = itemOrder.slice(1).concat(itemOrder[0]);
     var rightOrder = card.type === 'match'
       ? shuffled(((card.pairs && card.pairs.right) || []).map(function (item) { return item.id; }), itemSeed + ':right')
       : [];
@@ -771,6 +787,7 @@
     isBlankAnswer: isBlankAnswer,
     filterBank: filterBank,
     selectCards: selectCards,
+    sourceOrdered: sourceOrdered,
     makeAttemptItem: makeAttemptItem,
     learningRank: learningRank,
     sectionsOf: sectionsOf,
