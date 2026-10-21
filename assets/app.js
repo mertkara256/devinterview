@@ -387,6 +387,8 @@
     var token = ++state.routeToken;
     app.setAttribute('aria-busy', 'true');
     var route = routeInfo();
+    // A new page starts at the top; on a phone the button that opened it is often far down the previous page.
+    var newPage = !state.route || state.route.name !== route.name || state.route.params.toString() !== route.params.toString();
     if (route.name !== 'builder') { clearTimeout(saveTimers.builder); saveTimers.builder = null; }
     if (route.name !== 'explorer') { clearTimeout(saveTimers.explorer); saveTimers.explorer = null; }
     if (route.name !== 'interview') { clearTimeout(saveTimers.interviewForm); saveTimers.interviewForm = null; }
@@ -430,6 +432,7 @@
       if (!document.querySelector('dialog[open]')) {
         document.getElementById('main-content').focus({ preventScroll: true });
       }
+      if (newPage) window.scrollTo({ top: 0, behavior: 'instant' });
       if (heading) announce(heading.textContent);
     } catch (error) {
       if (token !== state.routeToken) {
@@ -1915,7 +1918,7 @@
         '<label class="setting-row"><span class="setting-copy"><strong>Azaltılmış hareket</strong><small>Geçişleri ve animasyonları en aza indir</small></span><span class="switch"><input type="checkbox" name="reducedMotion" ' + (state.settings.reducedMotion ? 'checked' : '') + '><span></span></span></label>' +
         '<label class="setting-row"><span class="setting-copy"><strong>Günlük hedef</strong><small>Seri için gereken benzersiz kart sayısı</small></span><input type="number" name="dailyGoal" min="1" max="100" value="' + state.settings.dailyGoal + '" style="width:86px"></label></form>' +
         '<div class="card pad"><span class="eyebrow">SORU BİLDİRİMLERİ</span><h2>Yerel inceleme listesi</h2><div class="list">' + issueHtml + '</div></div></div>' +
-      '<div class="stack"><div class="card pad"><span class="eyebrow">YEDEKLEME</span><h2>Verini taşı ve koru</h2><p class="muted">Chrome yerel verisi bu dosya konumuna ve tarayıcı profiline bağlıdır. Klasörü taşımadan önce JSON yedeği al.</p>' +
+      '<div class="stack"><div class="card pad"><span class="eyebrow">YEDEKLEME</span><h2>Verini taşı ve koru</h2><p class="muted">Yerel veri bu tarayıcıya ve sayfanın konumuna bağlıdır. Klasörü taşımadan veya başka cihaza geçmeden önce JSON yedeği al.</p>' +
         '<div class="summary-list"><div><span>Depolama</span><strong>' + (DB.mode() === 'indexeddb' ? 'IndexedDB' : 'Yerel yedek') + '</strong></div><div><span>Kayıt sayısı</span><strong>' + recordCount + '</strong></div><div><span>Son JSON yedeği</span><strong>' + (state.settings.lastBackupAt ? E.formatDate(state.settings.lastBackupAt, true) : 'Henüz yok') + '</strong></div></div>' +
         '<div class="page-actions" style="justify-content:flex-start"><button class="button primary" data-action="export-json">JSON yedeği</button><button class="button ghost" data-action="export-csv">CSV indir</button><label class="button ghost file-picker">JSON içe aktar<input class="file-picker-input" type="file" id="import-file" accept="application/json,.json"></label></div>' + importPreview + '</div>' +
         '<div class="card pad"><span class="eyebrow">BANKA BİLGİSİ</span><h2>Kaynak doğrulaması</h2><div class="summary-list"><div><span>Atomik kart</span><strong>' + state.validation.cardCount + '</strong></div><div><span>Kaynak soru</span><strong>' + state.validation.sourceCount + '</strong></div><div><span>Sürüm</span><strong>' + E.escapeHtml(window.SOURCE_BANK_META.version) + '</strong></div></div><p class="tiny muted" style="word-break:break-all">SHA-256: ' + E.escapeHtml(window.SOURCE_BANK_META.sourceSha256) + '</p><p class="tiny muted">Cevap anahtarı statik uygulamanın yerel dosyalarında bulunur; bu bir kişisel öğrenme aracıdır.</p></div>' +
@@ -2277,7 +2280,7 @@
     if (action === 'copy-code') {
       var code = target.closest('.code-wrap').querySelector('code').textContent;
       try { await navigator.clipboard.writeText(code); toast('Kod kopyalandı.', 'success'); }
-      catch (error) { toast('Chrome panoya erişemedi.', 'error'); }
+      catch (error) { toast('Tarayıcı panoya erişemedi.', 'error'); }
       return;
     }
     if (action === 'code-larger' || action === 'code-smaller') {
@@ -2400,7 +2403,7 @@
   function renderOnboardingStep() {
     var steps = [
       { symbol: '{ }', title: 'Öğrenme ve sınav aynı yerde', text: 'Pratik modunda ilk yanlışta ipucu alırsın. Sınav modunda cevaplar ve çözümler final gönderimine kadar gizli kalır.' },
-      { symbol: '⎈', title: 'Her şey bu Chrome profilinde', text: 'Cevaplar otomatik kaydedilir; fakat klasörü taşımak veya tarayıcı verisini temizlemek kayda erişimi etkileyebilir. Düzenli JSON yedeği al.' },
+      { symbol: '⎈', title: 'Her şey bu tarayıcıda', text: 'Cevaplar otomatik kaydedilir; fakat klasörü taşımak veya tarayıcı verisini temizlemek kayda erişimi etkileyebilir. Düzenli JSON yedeği al.' },
       { symbol: '⌨', title: 'Klavye ile hızlı çalış', text: '1–9 ile şık seç, Enter ile gönder, F ile işaretle, V ile favoriye ekle. ? tuşu yardım panelini açar.' }
     ];
     var step = steps[state.onboardingStep];
