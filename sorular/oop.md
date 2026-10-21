@@ -148,8 +148,8 @@ Soru: Java constructor'ları için doğru ifadeleri seçin.
 Şıklar:
 - [x] sameName: Adı sınıf adıyla aynıdır.
   Neden: Doğru: constructor sınıfla aynı adı taşır.
-- [x] noReturn: Dönüş tipi bildirilmez; void bile yazılmaz.
-  Neden: Doğru: dönüş tipi bildirilmez.
+- [ ] noReturn: Dönüş tipi olarak void yazılmalıdır.
+  Neden: Yanlış: constructor'a dönüş tipi yazılmaz; void yazılırsa aynı adlı sıradan bir metot olur.
 - [x] newCall: Nesne oluşturulurken çalışır.
   Neden: Doğru: nesne oluşturma zincirinin parçası olarak çalışır.
 - [ ] inherited: Alt sınıflar constructor'ı normal bir metot gibi miras alır.
@@ -277,14 +277,14 @@ Soru: Başlangıç bakiyesi 0 olan, kredili mevduat sunmayan bir BankAccount iç
 Şıklar:
 - [x] depositPositive: deposit tutarı sıfırdan büyük olmalıdır.
   Neden: Doğru: sıfır veya negatif yatırma reddedilir.
-- [x] withdrawPositive: withdraw tutarı sıfırdan büyük olmalıdır.
-  Neden: Doğru: sıfır veya negatif çekme reddedilir.
+- [ ] withdrawPositive: withdraw sonrası bakiye sıfıra inecekse işlem reddedilmelidir.
+  Neden: Yanlış: invariant bakiyenin negatife düşmemesidir; sıfır bakiye geçerli bir durumdur.
 - [x] withinBalance: withdraw tutarı mevcut bakiyeyi aşmamalıdır.
   Neden: Doğru: kredili mevduat yoksa negatif bakiye engellenir.
 - [ ] publicBalance: balance çağıran kodun hızlı değiştirmesi için public olmalıdır.
   Neden: Yanlış: public alan invariant'ı dış müdahaleye açar.
 İpucu: Her başarılı işlemden sonra bakiyenin negatif olmaması ve anlamsız tutarların reddedilmesi gerekir.
-Kısa açıklama: Pozitif tutar kontrolleri ve yeterli bakiye koşulu nesnenin kurallarını korur.
+Kısa açıklama: Pozitif tutar kontrolleri ve yeterli bakiye koşulu nesnenin kurallarını korur; sıfır bakiye geçerlidir.
 Açıklama: Sınıf, geçersiz para yatırma/çekme girişlerini kendi sınırında reddetmelidir. balance alanını public yapmak tüm bu kuralları atlanabilir hâle getirir.
 Varsayım: Hesap kredili mevduat veya eksi bakiye desteklemez.
 Varsayım: Tutarlar kuruş hassasiyeti tartışılmadan tam sayı olarak ele alınır.
@@ -349,7 +349,7 @@ Etiketler: inheritance, is-a, has-a
 
 ## O08-02 · Doğru / Yanlış
 Konu: Inheritance
-Soru: Car ile Engine ilişkisini Car extends Engine şeklinde modellemek yerine Car'ın bir Engine alanı tutması genellikle semantik olarak daha uygundur.
+Soru: Car ile Engine ilişkisini Car extends Engine şeklinde modellemek yerine Car'ın bir Engine alanı tutması semantik olarak daha uygundur.
 Şıklar:
 - [x] Doğru
   Neden: Doğru: ilişki has-a niteliğindedir.
@@ -374,12 +374,12 @@ Soru: Sınıfta void send(String message) varken aynı sınıfta geçerli bir ov
   Neden: Doğru: parametre tipi farklıdır.
 - [x] stringInt: void send(String message, int retryCount)
   Neden: Doğru: parametre sayısı farklıdır.
-- [x] int: void send(int code)
-  Neden: Doğru: parametre tipi farklıdır.
+- [ ] int: static void send(String message)
+  Neden: Yanlış: static eklemek parametre listesini değiştirmez; aynı imza ikinci kez bildirilmiş olur.
 - [ ] returnOnly: boolean send(String message)
   Neden: Yanlış: aynı ad ve aynı parametre listesi tekrar bildirilmiştir.
 İpucu: Overload ayrımında metot adı ve parametre listesi kullanılır; dönüş tipi tek başına yetmez.
-Kısa açıklama: Parametre tipi veya sayısı değişen ilk üç imza overload'dur; yalnız dönüş tipi değişen son imza çakışır.
+Kısa açıklama: Parametre tipi veya sayısı değişen imzalar overload'dur; yalnız dönüş tipi veya static belirteci değişen imzalar çakışır.
 Açıklama: Java metot imzası overload çözümlemesi açısından ad ve parametre tiplerinden oluşur. Dönüş tipi çağrı yerinde overload seçmek için kullanılmaz.
 Varsayım: Java 8 veya sonrası kullanılır; gerekli importlar ve çevreleyen metot mevcuttur.
 Varsayım: Aksi belirtilmedikçe null ve geçersiz girdiler kapsam dışıdır.
@@ -443,13 +443,13 @@ Soru: Bir alt sınıf instance metodunun üst sınıftaki metodu geçerli biçim
   Neden: Doğru: override edilen metotla aynı parametre listesi gerekir.
 - [x] covariant: Reference dönüş tipi aynı veya covariant olabilir.
   Neden: Doğru: reference dönüş tipi alt tür olabilir.
-- [x] visibility: Erişim seviyesi daraltılmamalıdır.
-  Neden: Doğru: istemcilerin erişimi daraltılamaz.
+- [ ] visibility: Erişim seviyesi daraltılabilir; public bir metot protected olarak override edilebilir.
+  Neden: Yanlış: override erişimi daraltamaz; public metot alt sınıfta da public kalmalıdır.
 - [ ] returnOnly: Aynı parametre listesiyle farklı bir dönüş tipi yazmak yeni bir overload oluşturur.
   Neden: Yanlış: dönüş tipi imzanın parçası değildir; uyumsuz dönüş tipi derleme hatasıdır.
 İpucu: @Override ile derleyicinin denetlediği sözleşmeyi düşünün.
 Kısa açıklama: Aynı imza, uyumlu dönüş tipi ve daraltılmayan erişim gerekir.
-Açıklama: Override alt tür sözleşmesini korur. Checked exception kuralları gibi ek koşullar da vardır; seçeneklerdeki üç ifade temel doğru kurallardır. Dönüş tipi tek başına metot imzasını farklılaştırmaz.
+Açıklama: Override alt tür sözleşmesini korur. Checked exception kuralları gibi ek koşullar da vardır. Erişim seviyesi daraltılamaz ve dönüş tipi tek başına metot imzasını farklılaştırmaz.
 Varsayım: Java 8 veya sonrası kullanılır; gerekli importlar ve çevreleyen metot mevcuttur.
 Varsayım: Aksi belirtilmedikçe null ve geçersiz girdiler kapsam dışıdır.
 Etiketler: overriding, covariant-return, access
@@ -564,8 +564,8 @@ Soru: Bir sınıfın kalıtım hiyerarşisinden bağımsız olarak birden fazla 
   Neden: Doğru: çoklu interface uygulaması desteklenir.
 - [x] contract: İstemciler somut sınıf yerine davranış sözleşmesine bağlanabilir.
   Neden: Doğru: bağımlılık soyut sözleşmeye yöneltilebilir.
-- [x] unrelated: İlişkisiz sınıflar aynı yetenek sözleşmesini uygulayabilir.
-  Neden: Doğru: ortak ata sınıf gerektirmez.
+- [ ] unrelated: Aynı interface'i uygulayan sınıflar ortak bir üst sınıftan türemelidir.
+  Neden: Yanlış: interface ortak ata sınıf gerektirmez; ilişkisiz sınıflar aynı sözleşmeyi uygulayabilir.
 - [ ] ctor: Interface instance constructor'ı ile ortak nesne state'i kurar.
   Neden: Yanlış: interface instance constructor'ı yoktur.
 İpucu: Interface'i ortak state taşıyan bir üst sınıftan çok, takılabilir bir yetenek olarak düşünün.
@@ -1203,8 +1203,8 @@ Composition ve inheritance arasındaki fark nedir? Bir `Stack` sınıfının gen
 Konu: Composition
 Soru: Genel amaçlı List sınıfından kalıtım almak yerine listeyi private alan olarak kullanan bir Stack tasarımının yararlarını seçin.
 Şıklar:
-- [x] api: Stack yalnız push, pop ve peek gibi geçerli operasyonları açabilir.
-  Neden: Doğru: dış API alan ihtiyacına göre daraltılır.
+- [ ] api: Stack, List'in add ve remove gibi metotlarını kendiliğinden devralır.
+  Neden: Yanlış: composition metot devralmaz; Stack yalnız push, pop ve peek gibi kendi tanımladığı operasyonları açar.
 - [x] invariant: İstemcinin listeye özgü rastgele ekleme/silme işlemleriyle LIFO kuralını bozması engellenebilir.
   Neden: Doğru: LIFO'yu bozan liste operasyonları açılmaz.
 - [x] replace: İç veri yapısı istemci API'si değişmeden değiştirilebilir.
@@ -1367,8 +1367,8 @@ class CheckoutService {
   Neden: Doğru: yan etki üretmeyen test double kullanılabilir.
 - [x] replace: Email yerine SMS uygulaması istemci sınıf değiştirilmeden takılabilir.
   Neden: Doğru: ortak sözleşmenin başka uygulaması takılabilir.
-- [x] visible: Zorunlu bağımlılık constructor imzasında görünür olur.
-  Neden: Doğru: dependency API'de açık hâle gelir.
+- [ ] visible: CheckoutService hangi MessageSender uygulamasını kullanacağına kendi içinde karar verir.
+  Neden: Yanlış: hangi uygulamanın verileceğine composition root karar verir; CheckoutService yalnız sözleşmeyi bilir.
 - [ ] noValidation: Constructor'a null verilmesini derleyici engeller.
   Neden: Yanlış: Java null argümanı derleme zamanında engellemez; gerekirse `Objects.requireNonNull` ile kontrol edilir.
 İpucu: Nesne oluşturma kararı sınıfın dışına taşındığında test ve değiştirilebilirlik nasıl etkilenir?
@@ -1595,8 +1595,8 @@ Etiketler: solid, lsp, substitutability, bird-penguin
 Konu: SOLID · Liskov Substitution
 Soru: Bird–Penguin modelini substitutability açısından iyileştiren kararları seçin.
 Şıklar:
-- [x] baseBird: Bird temel türü yalnız tüm kuşlarda geçerli davranışları içersin.
-  Neden: Doğru: temel sözleşme tüm alt türlerce karşılanabilir olur.
+- [ ] baseBird: Bird temel türü fly metodunu korusun; Penguin bu metotta UnsupportedOperationException fırlatsın.
+  Neden: Yanlış: istemci her Bird'ün uçabileceğini varsayar; exception fırlatan alt tür bu beklentiyi bozar.
 - [x] flyable: fly davranışı ayrı Flyable interface'ine taşınsın.
   Neden: Doğru: uçuş ayrı ve doğru bir yetenek sözleşmesine dönüşür.
 - [x] flyingBird: Sparrow gibi uçan türler Flyable uygulasın; Penguin uygulamasın.
@@ -1783,8 +1783,8 @@ Soru: Yeni ödeme türlerinde koşul bloklarının büyümesini engelleyen check
   Neden: Doğru: istemci için kararlı abstraction sağlar.
 - [x] implementations: CreditCardPayment, BankTransferPayment ve WalletPayment uygulamaları
   Neden: Doğru: kanala özgü davranış kendi sınıfında yaşar.
-- [x] inject: CheckoutService'e seçilen PaymentMethod'ı dışarıdan verme
-  Neden: Doğru: strateji seçimi checkout dışına taşınır.
+- [ ] inject: CheckoutService'in seçilen PaymentMethod'ı kendi içinde new ile oluşturması
+  Neden: Yanlış: hangi sınıfın oluşturulacağına içeride karar vermek yine ödeme türüne göre koşul gerektirir; seçim dışarıda yapılmalıdır.
 - [ ] typeString: CheckoutService içinde paymentType String'i için sürekli büyüyen switch
   Neden: Yanlış: her yeni tür mevcut koşul bloğunu değiştirir.
 İpucu: Değişen ödeme davranışını polymorphic nesnelere taşıyın.

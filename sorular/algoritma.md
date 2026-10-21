@@ -572,7 +572,8 @@ Konu: Anagram
 Soru: Yalnız küçük İngilizce harfleri kabul eden int[26] anagram çözümü için doğru ifadeleri seçin.
 Şıklar:
 - [x] a: Uzunluklar farklıysa hemen false dönülebilir
-- [x] b: İlk metinde artırıp ikincide azaltmak yeterlidir
+- [ ] b: İki metin için iki ayrı int[26] tablosu kurmak gerekir
+  Neden: Tek tabloda ilk metinde artırıp ikincide azaltmak yeterlidir; ikinci tablo gerekmez.
 - [x] c: Sonunda her sayaç sıfır olmalıdır
 - [ ] d: Çözüm büyük harf ve Türkçe karakter içeren metinlerde de değişiklik gerekmeden çalışır
   Neden: `c - 'a'` yalnız küçük İngilizce harfler için 0–25 arası indeks üretir; diğer karakterler için Map gibi bir yapı gerekir.
@@ -768,7 +769,8 @@ Soru: Geçerli 0..n eksik sayı girdisinde toplam formülü ile XOR yaklaşımı
 Şıklar:
 - [x] a: İkisi de Θ(n) zaman ve Θ(1) yardımcı alan kullanabilir
 - [x] b: int ile n(n+1)/2 hesabı taşabilir
-- [x] c: XOR yaklaşımı toplamsal aritmetik taşma riskini taşımaz
+- [ ] c: XOR yaklaşımı n büyüdükçe toplam formülünden daha önce int taşmasına uğrar
+  Neden: XOR toplama yapmaz; sonuç bit genişliğini aşmadığı için taşma oluşmaz.
 - [ ] d: İki yöntem de bir sayının tekrarlandığı bozuk girdiyi fark edip hata bildirir
   Neden: Formüller doğru girdi sözleşmesine dayanır; tekrar/çoklu eksikliği ayrı doğrulama olmadan garanti edemez.
 İpucu: Geçerli girdi varsayımı ile doğrulama yeteneğini karıştırmayın.
@@ -886,7 +888,7 @@ Binary search uygulanabilmesi için girdi hangi koşulu sağlamalıdır? Arama a
 
 ## A24-01 · Doğru / Yanlış
 Konu: Binary search
-Soru: Standart binary search, dizi sıralı olmasa da hedef dizide bulunuyorsa onu her zaman bulur.
+Soru: Standart binary search, dizi sıralı olmasa da hedef dizide bulunuyorsa onu bulur; sıralılık aramanın doğruluğu için değil, Θ(log n) adımda bitmesi için gereklidir.
 Şıklar:
 - [ ] Doğru
   Neden: Yanlış seçimdir; sırasız girdide yarıyı elemek geçerli bir çıkarım değildir.
@@ -1057,6 +1059,8 @@ while (left <= right) {
 - [x] b: Hedef büyükse left = mid + 1 olmalı
 - [x] c: Hedef küçükse right = mid - 1 olmalı
 - [x] d: (left + right) toplamı çok büyük indislerde taşabilir
+- [ ] e: Orta indeks taşmasın diye `mid = (right - left) / 2` yazılmalı
+  Neden: Bu ifade aralığın başlangıcını eklemediği için yanlış indeks verir; taşmayan doğru biçim `left + (right - left) / 2`'dir.
 İpucu: Aralık kapsayıcıysa son geçerli indeksi ve her adımda mid'in dışlanmasını kontrol edin.
 Kısa açıklama: Başlangıç sınırı hatalıdır; iki güncelleme mid'i dışlamaz ve orta hesaplaması overflow riski taşır.
 Açıklama: Kapsayıcı [left,right] aralığında right=length-1'dir. Karşılaştırılan mid eşit değilse yeniden aday olamaz, bu yüzden +1/-1 gerekir; aksi halde sonsuz döngü olabilir. Güvenli orta left+(right-left)/2'dir.
@@ -1417,7 +1421,8 @@ Soru: Swap bayrağıyla erken çıkan standart bubble sort için doğru özellik
 Şıklar:
 - [x] a: Sıralı girdide en iyi zaman Θ(n)'dir
 - [x] b: Ters sıralı girdide kötü zaman Θ(n²)'dir
-- [x] c: Komşu eşit elemanlar değiştirilmezse kararlıdır
+- [ ] c: Standart karşılaştırmayla eşit komşuları da yer değiştirdiği için kararsızdır
+  Neden: Standart bubble sort yalnız > olduğunda swap yapar; eşitler yer değiştirmediği için kararlıdır.
 - [ ] d: Yardımcı alanı Θ(n)'dir
   Neden: Yerinde uygulama bayrak ve geçici değer dışında sabit yardımcı alan kullanır.
 İpucu: İlk geçişte swap yoksa durur; swap yalnız > karşılaştırmasında yapılır.
@@ -1713,7 +1718,8 @@ Etiketler: two-sum, hashmap, indices
 Konu: Two sum
 Soru: Tek geçişli Map tabanlı two-sum için doğru ifadeleri seçin.
 Şıklar:
-- [x] a: Mevcut değeri Map'e koymadan önce tamamlayıcıyı aramak aynı indeksi iki kez kullanmayı önler
+- [ ] a: Tamamlayıcıyı aramadan önce mevcut değeri Map'e koymak aynı indeksi iki kez kullanmayı önler
+  Neden: Önce eklemek, target değerin iki katı olduğunda elemanın kendisiyle eşleşmesine izin verir; önce aranmalıdır.
 - [x] b: Tek çözüm garantisi yoksa döndürülecek çift politikası belirtilmelidir
 - [x] c: Beklenen zaman Θ(n), yardımcı alan en kötü Θ(n)'dir
 - [ ] d: target ve value `int` aralığında olduğu sürece `target - value` işlemi taşmaz
@@ -1834,7 +1840,8 @@ Etiketler: two-pointer, move-zeroes, stable
 Konu: Sıfırları taşıma
 Soru: Sıfırları sona taşıyan read/write çözümü için doğru özellikleri seçin.
 Şıklar:
-- [x] a: Sıfır olmayan elemanların göreli sırasını korur
+- [ ] a: Sıfır olmayan elemanların göreli sırası değişebilir; çözüm kararsızdır
+  Neden: Sıfır olmayanlar okuma sırasıyla yazıldığı için göreli sıraları korunur.
 - [x] b: Girdi dizisini yerinde değiştirir
 - [x] c: Sıkı zaman Θ(n), yardımcı alan Θ(1)'dir
 - [ ] d: Sonuçtan sonra dizinin uzunluğu azalır

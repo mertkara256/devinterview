@@ -128,6 +128,10 @@ check(answerRanks.every((count) => count / singleCards.length <= 0.35), `Doğru 
 const booleanCards = E.getBank().filter((card) => card.type === 'boolean');
 const trueShare = booleanCards.filter((card) => card.answer === true).length / booleanCards.length;
 check(trueShare >= 0.35 && trueShare <= 0.65, `Doğru/Yanlış cevapları dengeli olmalı: Doğru oranı %${Math.round(trueShare * 100)}.`);
+const booleanLengths = booleanCards.map((card) => card.prompt.length).sort((a, b) => a - b);
+const medianLength = booleanLengths[Math.floor(booleanLengths.length / 2)];
+const lengthGuess = booleanCards.filter((card) => (card.prompt.length > medianLength) === card.answer).length / booleanCards.length;
+check(lengthGuess >= 0.4 && lengthGuess <= 0.6, `Doğru/Yanlış'ta "uzunsa Doğru" tahmini şans düzeyinde kalmalı: isabet %${Math.round(lengthGuess * 100)}.`);
 check(E.getBank().filter((card) => card.type === 'match').every((card) => card.pairs.right.length > card.pairs.left.length), 'Her eşleştirmede son eşleşmeyi eleme ile bedava yapmayan en az bir yanıltıcı seçenek olmalı.');
 check(E.getBank().filter((card) => card.type === 'single' || card.type === 'multi').every((card) => new Set(card.options.map((option) => /\.\s*$/.test(option.text))).size === 1), 'Bir karttaki şıklar ya hep noktayla bitmeli ya hiç bitmemeli.');
 // The assumption is shown with the question and the hint on request, so neither may state a fill answer.
@@ -151,6 +155,8 @@ const multiCards = E.getBank().filter((card) => card.type === 'multi');
 const correctCounts = {};
 multiCards.forEach((card) => { correctCounts[card.answer.length] = (correctCounts[card.answer.length] || 0) + 1; });
 check(Object.values(correctCounts).every((count) => count / multiCards.length <= 0.5), `Çoklu seçimde aynı doğru şık sayısı kartların yarısından fazlasında olmamalı: ${JSON.stringify(correctCounts)}.`);
+const correctOptionShare = multiCards.reduce((sum, card) => sum + card.answer.length, 0) / multiCards.reduce((sum, card) => sum + card.options.length, 0);
+check(correctOptionShare <= 0.6, `Çoklu seçimde şıkların çoğu doğru olmamalı: doğru şık oranı %${Math.round(correctOptionShare * 100)}.`);
 
 const interviewBank = E.buildInterviewBank(E.getBank());
 check(interviewBank.length === Object.keys(context.window.SOURCE_QUESTIONS).length, 'Mülakat bankası her kaynak soruyu içermeli.');

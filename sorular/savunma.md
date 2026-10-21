@@ -27,8 +27,8 @@ Soru: C/C++'ta memory leak'i önlemeye veya bulmaya yardımcı olan uygulamalar�
   Neden: İşaretçiyi `NULL` yapmak bloğu serbest bırakmaz; `free` çağrılmazsa sızıntı tam da böyle oluşur.
 - [x] d: Gömülü yazılımda başlangıçtan sonra dinamik bellek tahsisinden kaçınmak
   Neden: Tahsis yalnız başlangıçta yapılırsa çalışma sırasında sızıntı ve parçalanma riski ortadan kalkar.
-- [x] e: Hata dönüş yollarında da ayrılan belleği serbest bırakmak
-  Neden: Doğru; erken dönen hata yolları sızıntının en yaygın kaynaklarındandır.
+- [ ] e: Belleği büyütürken `realloc` sonucunu doğrudan aynı işaretçiye atamak (`p = realloc(p, n)`)
+  Neden: Yanlış; `realloc` başarısız olunca `NULL` döner ve özgün bloğun adresi kaybolur; sonuç önce geçici bir işaretçide denetlenmelidir.
 İpucu: Sızıntı, heap'te ayrılan ve artık erişilemeyen ama serbest bırakılmamış bellektir.
 Kısa açıklama: RAII, akıllı işaretçiler, sızıntı araçları ve gömülüde statik tahsis sızıntıyı önler.
 Açıklama: Memory leak, ayrılan heap belleğin serbest bırakılmadan erişiminin kaybedilmesidir. C++'ta RAII ve akıllı işaretçiler serbest bırakmayı kapsam sonuna bağlar; Valgrind ve ASan sızıntıyı test sırasında gösterir. Gömülü sistemlerde dinamik tahsis çoğu zaman tamamen yasaklanır veya yalnız başlangıçta yapılır.
@@ -66,7 +66,7 @@ Etiketler: volatile, gömülü, isr
 
 ## S02-02 · Doğru / Yanlış
 Konu: volatile
-Soru: `volatile` tanımlanmış bir değişkende `count++` işlemi kesmelere karşı güvenli ve atomiktir.
+Soru: `volatile` tanımlanmış bir sayaçta `count++`, her erişim bellekten yapıldığı için ISR ile ana döngü arasında güvenli ve atomik bir artırmadır.
 Şıklar:
 - [ ] Doğru
   Neden: `volatile` yalnız her erişimin bellekten yapılmasını sağlar; artırma okuma, toplama ve yazma adımlarına bölünür.
@@ -303,7 +303,7 @@ Etiketler: cpp, bellek
 
 ## S07-02 · Doğru / Yanlış
 Konu: Dinamik bellek
-Soru: `new` ile ayrılan bir nesneyi `free` ile serbest bırakmak geçerli ve güvenlidir.
+Soru: `new` ile ayrılan nesneyi `free` ile bırakmak, kaynak tutmayan basit sınıflarda güvenlidir; eksik kalan tek şey yıkıcı çağrısıdır.
 Şıklar:
 - [ ] Doğru
   Neden: Yıkıcı çalışmaz ve iki tahsisçi farklı olabilir; davranış tanımsızdır.
@@ -522,7 +522,7 @@ Etiketler: cpp, akıllı-işaretçi
 
 ## S10-02 · Doğru / Yanlış
 Konu: Akıllı işaretçiler
-Soru: Birbirini `shared_ptr` ile gösteren iki nesne, dışarıdan referans kalmadığında kendiliğinden serbest bırakılır.
+Soru: Birbirini `shared_ptr` ile gösteren iki nesne, dışarıdaki son `shared_ptr` yok edilince sayaçları sıfıra indiği için serbest kalır.
 Şıklar:
 - [ ] Doğru
   Neden: Döngüdeki sayaçlar sıfıra inmez; nesneler sızar.
@@ -721,8 +721,8 @@ Soru: Quicksort ve mergesort için doğru ifadeleri seçin.
   Neden: Doğru; bölmeler 0 ve n-1 elemanlı olur.
 - [ ] c: Quicksort kararlı, mergesort kararsızdır
   Neden: Tersi doğrudur: standart mergesort kararlı, tipik yerinde quicksort kararsızdır.
-- [x] d: Dizilerde mergesort tipik olarak Θ(n) ek bellek kullanır
-  Neden: Doğru; birleştirme için yardımcı dizi gerekir.
+- [ ] d: Dizilerde mergesort yerinde çalışır ve Θ(1) ek bellek kullanır
+  Neden: Yanlış; standart dizi mergesort'u birleştirme için Θ(n) yardımcı dizi kullanır.
 - [ ] e: İkisi de en iyi durumda Θ(n) çalışır
   Neden: İki algoritma da en iyi durumda Θ(n log n)'dir.
 İpucu: Pivot seçimi ve birleştirme adımının maliyetini düşünün.
@@ -779,7 +779,7 @@ Etiketler: ring-buffer, gömülü, kuyruk
 
 ## S16-02 · Doğru / Yanlış
 Konu: Ring buffer
-Soru: Tek üretici (ISR) ve tek tüketici (ana döngü) olan bir ring buffer'da her taraf yalnız kendi indeksini güncellerse, indeksler atomik okunup yazıldığı sürece kilit gerekmez.
+Soru: Tek üreticili (ISR) ve tek tüketicili bir ring buffer'da her taraf yalnız kendi indeksini yazıyor ve indeksler atomik erişiliyorsa kilit gerekmez.
 Şıklar:
 - [x] Doğru
   Neden: Doğru; head'i yalnız ISR, tail'i yalnız ana döngü yazar; indeksler volatile ve atomik genişlikte olmalıdır.
@@ -903,8 +903,8 @@ Soru: Process ve thread için doğru ifadeleri seçin.
   Neden: Doğru; çağrı zinciri ve yerel değişkenler thread'e özeldir.
 - [x] c: Process'ler arası veri paylaşımı pipe, soket veya paylaşılan bellek gibi IPC yöntemleriyle yapılır
   Neden: Doğru; process'lerin adres alanları ayrıdır.
-- [x] d: Thread'ler arası geçiş, adres alanı değişmediği için genellikle process geçişinden ucuzdur
-  Neden: Doğru; sayfa tablosu ve TLB değişmez.
+- [ ] d: Thread'ler arası geçiş, her geçişte sayfa tablosu değiştiği için process geçişinden pahalıdır
+  Neden: Yanlış; aynı process'in thread'leri aynı adres alanını kullanır; sayfa tablosu ve TLB değişmediği için geçiş genellikle daha ucuzdur.
 - [ ] e: Bir thread segmentation fault ile çökerse process'in diğer thread'leri çalışmaya devam eder
   Neden: Segmentation fault bütün process'i sonlandırır; diğer thread'ler de durur.
 İpucu: Adres alanını kim paylaşıyor?
@@ -1032,7 +1032,7 @@ Etiketler: rtos, gerçek-zamanlı
 
 ## S22-02 · Doğru / Yanlış
 Konu: Gerçek zamanlı sistemler
-Soru: Gerçek zamanlı sistem, işlemleri mümkün olan en hızlı şekilde yapan sistem demektir.
+Soru: Gerçek zamanlı bir sistemi ayırt eden özellik, işlemleri olabildiğince hızlı bitirmesidir.
 Şıklar:
 - [ ] Doğru
   Neden: Gerçek zamanlılık hız değil öngörülebilirliktir; yavaş ama süre sınırını her zaman tutan bir sistem gerçek zamanlıdır.
@@ -1068,8 +1068,8 @@ Soru: Bir ISR içinde kaçınılması gerekenleri seçin.
   Neden: Doğru; ISR bloklanamaz.
 - [ ] c: Bir bayrak set edip asıl işi ana döngüye bırakmak
   Neden: Bu önerilen yaklaşımdır: ISR kısa tutulur, iş ertelenir.
-- [x] d: Dinamik bellek tahsisi (`malloc`)
-  Neden: Doğru; süresi belirsizdir ve reentrant olmayabilir.
+- [ ] d: Kesmenin bekleme (pending) bayrağını temizlemek
+  Neden: Bu gereklidir; birçok donanımda bayrak temizlenmezse kesme çıkışta hemen yeniden tetiklenir.
 - [ ] e: ISR ile paylaşılan değişkeni `volatile` tanımlamak
   Neden: Bu gereklidir; derleyicinin değişkeni önbelleğe almasını engeller.
 İpucu: ISR'nin süresi diğer her şeyi geciktirir.
@@ -1286,8 +1286,8 @@ Soru: Sanal bellek için doğru ifadeleri seçin.
 Şıklar:
 - [x] a: Her process kendi sanal adres alanını görür; MMU bunu fiziksel adrese çevirir
   Neden: Doğru; böylece process'ler birbirinden yalıtılır.
-- [x] b: TLB, son kullanılan sanal–fiziksel adres çevirilerini önbellekte tutar
-  Neden: Doğru; her erişimde sayfa tablosunu gezmeyi önler.
+- [ ] b: TLB, sık kullanılan sayfaların verisini önbellekte tutar
+  Neden: Yanlış; TLB veri değil, son kullanılan sanal–fiziksel adres çevirilerini tutar; veriyi önbelleğe alan CPU cache'tir.
 - [x] c: Erişilen sayfa bellekte değilse page fault oluşur; işletim sistemi sayfayı getirip programı sürdürür
   Neden: Doğru; geçersiz bir adrese erişim ise segmentation fault'a dönüşür.
 - [x] d: Sayfanın diskten (swap) getirilmesi bellekten okumaya göre çok daha yavaştır
@@ -1332,7 +1332,7 @@ Etiketler: verilog, vhdl, fpga
 
 ## S29-02 · Doğru / Yanlış
 Konu: HDL
-Soru: Verilog'daki iki ayrı `always` bloğu, C'deki iki fonksiyon gibi yazıldıkları sırayla art arda çalışır.
+Soru: Verilog'da aynı saat kenarına bağlı iki ayrı `always` bloğu, C'deki iki fonksiyon çağrısı gibi dosyada yazıldıkları sırayla art arda çalışır.
 Şıklar:
 - [ ] Doğru
   Neden: always blokları eşzamanlı donanımı tanımlar; aynı saat kenarında paralel çalışırlar.
@@ -1370,8 +1370,8 @@ Soru: Gömülü yazılımın güvenilirliğini artıran uygulamaları seçin.
   Neden: Doğru; donanıma özgü davranışlar da test edilir.
 - [ ] d: Derleyici uyarılarını kapatıp derlemeyi temiz göstermek
   Neden: Uyarılar çoğu zaman gerçek hataları gösterir; açık tutulup giderilmelidir.
-- [x] e: Takılan yazılımın sistemi yeniden başlatması için watchdog timer kullanmak
-  Neden: Doğru; kilitlenme durumunda sistemi kurtarır.
+- [ ] e: Watchdog timer'ı ana döngü yerine periyodik bir timer kesmesinde beslemek
+  Neden: Yanlış; timer kesmesi ana döngü takılsa da çalışır ve watchdog tetiklenmez; besleme ana döngünün ilerlediğini göstermelidir.
 İpucu: Hataları mümkün olduğunca erken ve otomatik yakalamak hedeflenir.
 Kısa açıklama: Kodlama standardı, statik analiz, donanımda test ve watchdog güvenilirliği artırır.
 Açıklama: MISRA C dinamik bellek, sınırsız özyineleme ve belirsiz tip dönüşümleri gibi riskli yapıları kısıtlar. Statik analiz bu kuralları ve olası taşmaları kod çalıştırılmadan denetler. Testler ise beklenen davranışı doğrular; ikisi birbirinin yerine geçmez.
@@ -1379,7 +1379,7 @@ Etiketler: misra, statik-analiz, emniyet
 
 ## S30-02 · Doğru / Yanlış
 Konu: Statik analiz
-Soru: Statik analiz kodu çalıştırmadan incelediği için testlerin yerini tamamen alabilir.
+Soru: Statik analiz aracının uyarı vermediği bir modül için ayrıca birim testi yazmak gerekmez.
 Şıklar:
 - [ ] Doğru
   Neden: Statik analiz belirli hata sınıflarını bulur ama gereksinimin doğru karşılandığını göstermez; test yine gereklidir.
@@ -1429,8 +1429,8 @@ Soru: TCP'nin özelliklerini seçin.
   Neden: Doğru; SYN, SYN-ACK ve ACK.
 - [x] b: Kaybolan segmentleri yeniden iletir
   Neden: Doğru; onay gelmeyen veri tekrar gönderilir.
-- [x] c: Verinin sırasını korur
-  Neden: Doğru; sıra numaralarıyla yeniden sıralar.
+- [ ] c: Mesaj sınırlarını korur; her send çağrısı karşı tarafta ayrı bir recv ile okunur
+  Neden: TCP bayt akışıdır; birden çok send tek recv'de gelebilir veya bir send bölünebilir. Mesaj sınırlarını uygulama belirler.
 - [ ] d: Multicast gönderimi destekler
   Neden: Multicast UDP ile yapılır; TCP noktadan noktaya bağlantıdır.
 - [ ] e: Başlığı UDP başlığından küçüktür
@@ -1637,7 +1637,7 @@ Etiketler: veritabanı, normalizasyon
 
 ## S35-02 · Doğru / Yanlış
 Konu: Index
-Soru: Bir tabloya eklenen her index, hem okuma hem yazma işlemlerini her durumda hızlandırır.
+Soru: Bir sütuna index eklemek, o sütuna göre filtreleyen sorguları hızlandırdığı gibi aynı tablodaki INSERT ve UPDATE işlemlerini de hızlandırır.
 Şıklar:
 - [ ] Doğru
   Neden: Index okuma sorgularını hızlandırabilir ama her INSERT ve UPDATE'te index de güncellendiği için yazma maliyeti artar.
@@ -1919,8 +1919,8 @@ Soru: Vanishing gradient sorununu azaltan yöntemleri seçin.
   Neden: Doğru; gradyan kısa yoldan geri akabilir.
 - [x] c: Batch veya layer normalization kullanmak
   Neden: Doğru; aktivasyonları sağlıklı bir aralıkta tutar.
-- [x] d: He veya Xavier gibi uygun ağırlık başlatma yöntemleri kullanmak
-  Neden: Doğru; katmanlar arasında sinyal ölçeğini dengeler.
+- [ ] d: Ağırlıkları sıfırla başlatmak
+  Neden: Yanlış; sıfır başlatma nöronları simetrik bırakır ve öğrenmeyi bozar; He veya Xavier gibi ölçekli başlatma kullanılır.
 - [ ] e: Ağa daha fazla sigmoid katmanı eklemek
   Neden: Sigmoid'in türevi en fazla 0,25'tir; katman eklemek gradyanı daha da küçültür.
 İpucu: Zincir kuralında birden küçük sayılar çarpılınca ne olur?
@@ -2237,7 +2237,7 @@ Etiketler: kalman, takip, navigasyon
 
 ## S49-02 · Doğru / Yanlış
 Konu: Kalman filtresi
-Soru: Ölçüm gürültüsü (R) çok büyükse Kalman kazancı büyür ve filtre ölçümlere daha çok güvenir.
+Soru: Kalman filtresinde ölçüm gürültüsü kovaryansı (R) büyüdükçe kazanç da büyür; filtre bu durumda modelin tahmininden çok yeni ölçümlere ağırlık verir.
 Şıklar:
 - [ ] Doğru
   Neden: R büyüdükçe kazanç küçülür; filtre gürültülü ölçüm yerine modelin tahminine güvenir.
@@ -2422,10 +2422,10 @@ Etiketler: test, sınır-değer
 
 ## S53-03 · Doğru / Yanlış
 Konu: Eşdeğer bölümleme
-Soru: Eşdeğer bölümlemede aynı sınıftaki değerlerin sistemi aynı şekilde etkilediği varsayılır; bu yüzden her sınıftan bir temsilci test etmek yeterli kabul edilir.
+Soru: Eşdeğer bölümlemede her sınıftan bir temsilci değer test etmek yeterli kabul edilir.
 Şıklar:
 - [x] Doğru
-  Neden: Doğru; teknik test sayısını bu varsayımla azaltır.
+  Neden: Doğru; aynı sınıftaki değerlerin sistemi aynı şekilde etkilediği varsayılır ve test sayısı böylece azalır.
 - [ ] Yanlış
   Neden: Eşdeğer bölümlemenin amacı tam olarak her sınıftan bir temsilci seçmektir.
 İpucu: Aynı sınıftaki iki değer farklı bir hata ortaya çıkarır mı?
@@ -2593,7 +2593,7 @@ Etiketler: v-model, scrum, yaşam-döngüsü
 
 ## S57-02 · Doğru / Yanlış
 Konu: Yaşam döngüsü modelleri
-Soru: Savunma projelerinde Agile yöntemler hiçbir zaman kullanılamaz; tüm projeler zorunlu olarak şelale modeliyle yürütülür.
+Soru: Savunma projelerinde DO-178C ve MIL-STD-498 gibi standartlar şelale modelini şart koştuğu için Agile yöntemler bu projelerde kullanılamaz.
 Şıklar:
 - [ ] Doğru
   Neden: Birçok savunma projesi Agile pratiklerini aşama geçitleri ve dokümantasyon şartlarıyla birlikte uygular.
@@ -2962,7 +2962,7 @@ Etiketler: palindrom, negatif-sayı
 
 ## S66-03 · Doğru / Yanlış
 Konu: Palindrom sayı
-Soru: Sayının tamamını ters çevirmek, `int` sınırına yakın girdilerde taşmaya yol açabilir; yalnız yarısını ters çevirip kalan yarıyla karşılaştırmak bu riski ortadan kaldırır.
+Soru: Palindrom kontrolünde sayının yalnız yarısını ters çevirmek, tamamını ters çevirirken oluşabilecek `int` taşmasını önler.
 Şıklar:
 - [x] Doğru
   Neden: Doğru; ters çevrilen yarı en fazla orijinal sayının yarısı kadar basamak taşır ve taşmaz.
@@ -3163,7 +3163,7 @@ Etiketler: spring, di, test
 
 ## S69-03 · Doğru / Yanlış
 Konu: Bean scope
-Soru: Spring'de varsayılan scope singleton olduğu için bir bean içinde isteğe özel, değişebilir bir alan tutmak eşzamanlı isteklerde hatalı sonuçlara yol açabilir.
+Soru: Varsayılan singleton scope'taki bir Spring bean'inde isteğe özel, değişebilir bir alan tutmak thread güvenli değildir.
 Şıklar:
 - [x] Doğru
   Neden: Doğru; aynı singleton örneği bütün isteklerde paylaşılır ve alan thread'ler arasında karışır.

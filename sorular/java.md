@@ -175,8 +175,8 @@ Soru: Primitive ve reference tipler hakkında doğru ifadeleri seçin.
   Neden: Doğru primitive değer semantiğidir.
 - [x] b: Bir reference değişken null tutabilir
   Neden: Doğru; null bir reference değeridir.
-- [x] c: Primitive bir değerde örnek metodu doğrudan çağrılamaz
-  Neden: Doğru; autoboxing ayrı bir dönüşüm bağlamıdır.
+- [ ] c: `int` gibi primitive bir değerde `toString()` gibi örnek metotları doğrudan çağrılabilir
+  Neden: Yanlış; primitive değerin metodu yoktur; metot ancak `Integer` gibi bir wrapper üzerinden çağrılır.
 - [ ] d: İki reference değişkenini `==` ile karşılaştırmak, gösterdikleri nesnelerin içeriğini karşılaştırır
   Neden: Yanlış; `==` nesne kimliğini karşılaştırır.
 - [x] e: Reference ataması nesneyi değil, referans değerini kopyalar
@@ -781,8 +781,8 @@ Soru: String karşılaştırması hakkında doğru ifadeleri seçin.
   Neden: Doğru; alıcı null değil varsayımı önemlidir.
 - [ ] c: String literal pool sayesinde `new String("java") == "java"` ifadesi true döner
   Neden: Yanlış; `new String` havuz dışında yeni bir nesne üretir ve ifade false olur.
-- [x] d: `Objects.equals(a, b)` null-safe içerik eşitliği sağlayabilir
-  Neden: Doğru null-safe yardımcıdır.
+- [ ] d: `a.equals(b)`, `a` null olduğunda false döner
+  Neden: Yanlış; `a` null ise `a.equals(b)` NullPointerException fırlatır; null güvenliği için `Objects.equals(a, b)` kullanılır.
 - [x] e: `equals` metodunu override etmeyen bir sınıfta `equals`, `==` gibi referans kimliğini karşılaştırır
   Neden: Doğru; `Object.equals` varsayılanı kimlik karşılaştırmasıdır.
 İpucu: String pool bir optimizasyon/özdeşleştirme ayrıntısıdır; genel içerik sözleşmesi değildir.
@@ -819,7 +819,7 @@ Etiketler: stringbuilder, array, join
 
 ## J16-02 · Doğru / Yanlış
 Konu: StringBuilder
-Soru: Bir döngüde çok sayıda metin parçası biriktirirken StringBuilder kullanmak, her turda `result = result + part` ile yeni immutable String'ler üretmekten genellikle daha az ara nesne oluşturur.
+Soru: Döngüde metin biriktirirken `StringBuilder` kullanmak, her turda `result = result + part` yazmaktan daha az ara nesne üretir.
 Şıklar:
 - [x] Doğru
   Neden: Tipik döngüsel biriktirmede doğru performans gerekçesidir.
@@ -1073,8 +1073,8 @@ Etiketler: constructor, super, inheritance, output
 Konu: this ve super
 Soru: Constructor ve nesne bağlamı hakkında doğru ifadeleri seçin.
 Şıklar:
-- [x] a: `this` geçerli nesneyi ifade eder
-  Neden: Doğru instance alıcısıdır.
+- [ ] a: `this` bir static metot içinde de sınıfın geçerli nesnesini ifade eder
+  Neden: Yanlış; static metotta geçerli nesne yoktur ve `this` kullanmak derleme hatasıdır.
 - [x] b: `this(...)` aynı sınıftaki başka bir constructor'ı çağırır
   Neden: Doğru constructor chaining biçimidir.
 - [x] c: `super(...)` doğrudan üst sınıf constructor'ını çağırır
@@ -1437,8 +1437,8 @@ Soru: HashMap hakkında doğru ifadeleri seçin.
   Neden: Doğru; farklı anahtarlar aynı hash'i paylaşabilir ve `equals` ile ayırt edilir.
 - [x] c: Eş anahtarlar aynı hashCode'u üretmelidir
   Neden: Doğru equals/hashCode sözleşmesidir.
-- [x] d: Kapasite/yük eşiği aşılınca resize maliyetli olabilir
-  Neden: Doğru; tablo yeniden düzenlenir.
+- [ ] d: Kapasite/yük eşiği aşılınca HashMap yeni anahtar eklemeyi reddeder
+  Neden: Yanlış; eşik aşılınca tablo büyütülür (resize) ve anahtarlar yeniden dağıtılır; ekleme reddedilmez.
 - [ ] e: Aynı bucket'ta çakışan anahtarlar çoğaldıkça HashMap araması hızlanır
   Neden: Yanlış; aynı bucket'ta zincir uzadıkça arama yavaşlar; O(1) yalnız ortalama beklentidir.
 İpucu: Hash aynı olması yalnız adaylığı gösterir; eşitliğin tersi yönlü sözleşmesini düşünün.
@@ -1633,8 +1633,8 @@ Soru: Java 8 için doğru ifadeleri seçin.
   Neden: Doğru çoklu tip sözleşmesidir.
 - [ ] b: Bir sınıf birden fazla concrete/abstract sınıfı doğrudan extend edebilir
   Neden: Yanlış; sınıf kalıtımı tektir.
-- [x] c: Abstract class constructor içerebilir
-  Neden: Doğru; super zincirinde çağrılır.
+- [ ] c: Abstract class örneklenemediği için constructor içeremez
+  Neden: Yanlış; abstract class örneklenemese de constructor'ı alt sınıf oluşturulurken super zincirinde çalışır.
 - [ ] d: Interface instance field taşıyabilir
   Neden: Yanlış; bildirilen alanlar sabittir.
 - [x] e: Interface default ve static metot tanımlayabilir
@@ -1888,7 +1888,7 @@ Etiketler: stack, heap, reference, object
 
 ## J38-02 · Doğru / Yanlış
 Konu: Stack ve heap
-Soru: Bir reference değişkeni ile onun gösterdiği nesne aynı şey değildir; yerel referansın kapsamdan çıkması, nesnenin ancak başka erişilebilir referans yoksa GC adayı olmasına katkı verir.
+Soru: Yerel bir referansın kapsamdan çıkması, nesneyi ancak ona erişilebilir başka referans kalmadıysa GC adayı yapar.
 Şıklar:
 - [x] Doğru
   Neden: Doğru reachability ayrımıdır.
@@ -1986,8 +1986,8 @@ Soru: equals/hashCode sözleşmesi hakkında doğru ifadeleri seçin.
   Neden: Hash sözleşmesidir.
 - [ ] d: Aynı hashCode üreten nesneler mutlaka equals ile eşit olmalıdır
   Neden: Yanlış; collision serbesttir.
-- [x] e: x.equals(null) false olmalıdır
-  Neden: Non-null nesne için gereklidir.
+- [ ] e: x.equals(null) çağrısı NullPointerException fırlatmalıdır
+  Neden: Yanlış; sözleşmeye göre null olmayan x için x.equals(null) false döner.
 İpucu: Hash collision mümkündür; sözleşme tek yönde zorunludur.
 Kısa açıklama: Refleksivite, simetri, null-false ve eşit nesnelerde aynı hash zorunludur; aynı hash eşitlik garantilemez.
 Açıklama: equals ayrıca transitif ve tutarlı olmalıdır. hashCode, eşitlikte kullanılan durum değişmediği sürece tutarlı olmalıdır. Collision nedeniyle farklı nesneler aynı hash'i paylaşabilir. Sözleşme bozulursa HashSet duplicate/contains ve HashMap get/remove beklenmedik davranabilir.
@@ -2199,8 +2199,8 @@ Soru: Paylaşılan sayacı thread-safe artırabilecek temel çözümleri seçin.
   Neden: Doğru monitor korumasıdır.
 - [x] b: `AtomicInteger` kullanıp `incrementAndGet()` çağırmak
   Neden: Doğru atomik API'dir.
-- [x] c: Tüm erişimleri aynı `ReentrantLock` ile korumak ve finally'da unlock yapmak
-  Neden: Doğru, aynı lock disipliniyle.
+- [ ] c: Her thread'in artırmayı kendi `ReentrantLock` nesnesiyle koruması
+  Neden: Yanlış; farklı kilitler karşılıklı dışlama sağlamaz; erişimler aynı kilitle korunmalıdır.
 - [ ] d: Alanı `volatile int` yapıp `value++` kullanmaya devam etmek
   Neden: Yetersiz; ++ atomik olmaz.
 - [x] e: Sayacı `LongAdder` ile tutup `increment()` çağırmak
@@ -2517,7 +2517,7 @@ Etiketler: optional, null-safety
 
 ## J49-03 · Doğru / Yanlış
 Konu: Optional
-Soru: `Optional.ofNullable(null)` çağrısı `NullPointerException` fırlatır.
+Soru: `Optional.of(null)` gibi `Optional.ofNullable(null)` çağrısı da `NullPointerException` fırlatır.
 Şıklar:
 - [ ] Doğru
   Neden: `ofNullable` null için boş bir `Optional` döndürür; NPE fırlatan `Optional.of(null)`'dır.
@@ -2576,8 +2576,8 @@ Soru: Sabit `int` değerleri yerine `enum` kullanmanın avantajlarını seçin.
   Neden: Doğru; enum tam bir sınıftır.
 - [x] c: Enum değerleri `switch` içinde doğrudan kullanılabilir
   Neden: Doğru; `case LOW:` gibi okunaklı dallar yazılır.
-- [x] d: `values()` bütün sabitleri tanım sırasıyla bir dizi olarak döndürür
-  Neden: Doğru; sabitleri dolaşmak için kullanılır.
+- [ ] d: `values()` sabitleri alfabetik sıraya dizilmiş bir dizi olarak döndürür
+  Neden: Yanlış; `values()` sabitleri tanımlandıkları sırayla döndürür.
 - [ ] e: Enum sabitleri `==` ile karşılaştırılınca yanlış sonuç verebilir, bu yüzden `equals` kullanılmalıdır
   Neden: Her sabitin tek bir örneği vardır; `==` güvenle ve null güvenli biçimde kullanılır.
 İpucu: Enum sabitleri tekil nesnelerdir ve derleme zamanında bilinir.
