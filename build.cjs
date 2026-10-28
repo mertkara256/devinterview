@@ -112,6 +112,15 @@ function parseSource(block, file, errors) {
     if (!area) errors.push(`${file}:${body[0].line + 1}: ${id}: "Alan:" satırı boş.`);
     body.shift();
   }
+  // An optional "Şirket:" line after it lists the companies the question is reported from.
+  while (body.length && !body[0].text.trim()) body.shift();
+  let companies = [];
+  const companyLine = body.length ? /^Şirket:(.*)$/.exec(body[0].text) : null;
+  if (companyLine) {
+    companies = companyLine[1].split(',').map((name) => name.trim()).filter(Boolean);
+    if (!companies.length) errors.push(`${file}:${body[0].line + 1}: ${id}: "Şirket:" satırı boş.`);
+    body.shift();
+  }
   // An optional "Anahtar noktalar:" list closes the block; interview mode uses it as its checklist.
   const keyPoints = [];
   let inFence = false;
@@ -133,7 +142,12 @@ function parseSource(block, file, errors) {
   while (lines.length && !lines[0].trim()) lines.shift();
   while (lines.length && !lines[lines.length - 1].trim()) lines.pop();
   if (!lines.length) errors.push(`${file}:${block.line + 1}: ${id}: soru metni boş.`);
-  return { id, difficulty, kind: kind.trim(), area, keyPoints, prompt: lines.join('\n'), file, line: block.line };
+  const prompt = lines.join('\n');
+  // The prompt's "Nerede soruldu" note is the evidence for a company, so every listed name must appear in it.
+  companies.filter((name) => !prompt.includes(name)).forEach((name) => {
+    errors.push(`${file}:${block.line + 1}: ${id}: "${name}" soru metninde geçmiyor; şirketi "Nerede soruldu" notuna da yazın.`);
+  });
+  return { id, difficulty, kind: kind.trim(), area, companies, keyPoints, prompt, file, line: block.line };
 }
 
 function parseCard(block, source, file, errors) {
@@ -443,6 +457,7 @@ function buildBank(dir) {
   sources.forEach((source) => {
     sourceQuestions[source.id] = { id: source.id, descriptor: `${source.difficulty} · ${source.kind}`, prompt: source.prompt };
     if (source.area) sourceQuestions[source.id].area = source.area;
+    if (source.companies.length) sourceQuestions[source.id].companies = source.companies;
     if (source.keyPoints.length) sourceQuestions[source.id].keyPoints = source.keyPoints;
   });
   const digest = crypto.createHash('sha256').update(JSON.stringify({ sourceQuestions, cards })).digest('hex');

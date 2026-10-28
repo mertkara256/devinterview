@@ -126,6 +126,7 @@
     normalized.originalPrompt = source ? source.prompt : '';
     // Areas live on the source question, so every card of a source shares one.
     normalized.area = source && source.area || '';
+    normalized.companies = source && source.companies || [];
     return normalized;
   }
 
@@ -268,6 +269,20 @@
     return result;
   }
 
+  // Unlike areas, a company narrows the pool: once one is chosen, cards without it are left out.
+  function companyAllowed(filters, companies) {
+    return !filters.company || filters.company === 'all' || (companies || []).indexOf(filters.company) !== -1;
+  }
+
+  // Every company named in the bank, in Turkish alphabetical order.
+  function companiesOf(bank) {
+    var result = [];
+    bank.forEach(function (card) {
+      (card.companies || []).forEach(function (company) { if (result.indexOf(company) === -1) result.push(company); });
+    });
+    return result.sort(function (a, b) { return a.localeCompare(b, 'tr'); });
+  }
+
   function sectionsOf(bank) {
     return Object.keys(SECTION_ORDER).filter(function (section) {
       return bank.some(function (card) { return card.section === section; });
@@ -292,6 +307,7 @@
       if (filters.difficulties && filters.difficulties.indexOf(card.difficulty) === -1) return false;
       if (filters.types && filters.types.indexOf(card.type) === -1) return false;
       if (!areaAllowed(filters, card.area)) return false;
+      if (!companyAllowed(filters, card.companies)) return false;
       if (filters.topic && filters.topic !== 'all' && card.topic !== filters.topic) return false;
       if (progress.excluded && filters.status !== 'excluded') return false;
       if (filters.status === 'new' && (state.timesSeen || progress.known)) return false;
@@ -706,6 +722,7 @@
         sourceId: sourceId,
         section: cards[0].section,
         area: cards[0].area,
+        companies: cards[0].companies,
         difficulty: INTERVIEW_MINUTES[descriptor[0]] ? descriptor[0] : cards[0].difficulty,
         kind: descriptor.slice(1).join(' · '),
         topic: cards[0].topic,
@@ -793,6 +810,8 @@
     sectionsOf: sectionsOf,
     areasBySection: areasBySection,
     areaAllowed: areaAllowed,
+    companiesOf: companiesOf,
+    companyAllowed: companyAllowed,
     formatDate: formatDate,
     formatDuration: formatDuration,
     formatAnswer: formatAnswer,

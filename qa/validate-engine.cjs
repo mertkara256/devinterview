@@ -192,6 +192,16 @@ check(areaIds({ areas: [] }) === 'J90-01', 'Hiç alan seçilmezse alanı olan ka
 check(areaIds({ sections: [] }) === '' && areaIds({ difficulties: [] }) === '' && areaIds({ types: [] }) === '', 'Boş bölüm, zorluk veya tür seçimi hiçbir kartla eşleşmemeli.');
 check(JSON.stringify(E.areasBySection(areaCards)) === JSON.stringify({ Savunma: ['Gömülü', 'Ağ'] }), 'Alanlar bölüme göre ve banka sırasıyla listelenmeli.');
 
+const companyCards = [
+  { id: 'S92-01', sourceId: 'S92', section: 'Savunma', companies: ['HAVELSAN', 'Baykar'], difficulty: 'Kolay', type: 'single' },
+  { id: 'S93-01', sourceId: 'S93', section: 'Savunma', companies: ['ASELSAN'], difficulty: 'Kolay', type: 'single' },
+  { id: 'J92-01', sourceId: 'J92', section: 'Java', companies: [], difficulty: 'Kolay', type: 'single' }
+];
+const companyIds = (filters) => E.filterBank(companyCards, filters, {}, {}).map((card) => card.id).join(',');
+check(companyIds({ company: 'Baykar' }) === 'S92-01', 'Şirket filtresi yalnız o şirketin kartlarını bırakmalı.');
+check(companyIds({}) === 'S92-01,S93-01,J92-01' && companyIds({ company: 'all' }) === 'S92-01,S93-01,J92-01', 'Şirket seçilmezse hiçbir kart elenmemeli.');
+check(JSON.stringify(E.companiesOf(companyCards)) === JSON.stringify(['ASELSAN', 'Baykar', 'HAVELSAN']), 'Şirketler tekrarsız ve alfabetik sırayla listelenmeli.');
+
 const interviewItems = E.buildInterviewBank(E.getBank());
 const sourceQuestions = context.window.SOURCE_QUESTIONS;
 check(interviewItems.every((item) => {

@@ -154,6 +154,16 @@ const mixedAreas = build.buildBank(areaDir);
 fs.rmSync(areaDir, { recursive: true, force: true });
 check(mixedAreas.errors.some((error) => error.includes('S99') && error.includes('Alan:')), 'Bir bölümde alanı olmayan soru derlemede hata vermeli.');
 
+// Companies come from the source question; every name in "Şirket:" must also appear in the question text.
+for (const card of bank) check(JSON.stringify(card.companies) === JSON.stringify((sources[card.sourceId] || {}).companies || []), `${card.id}: şirketler kaynak sorusundakiyle aynı olmalı.`);
+const companySample = areaSample('S98', 'Deneme alanı')
+  .replace('Alan: Deneme alanı', 'Alan: Deneme alanı\nŞirket: ASELSAN, Baykar')
+  .replace('Deneme sorusu.', 'Deneme sorusu.\n\nNerede soruldu: ASELSAN ve Baykar.');
+const parsedCompany = build.parseFile(companySample, 'deneme.md');
+check(!parsedCompany.errors.length && JSON.stringify(parsedCompany.sources[0].companies) === JSON.stringify(['ASELSAN', 'Baykar']) && parsedCompany.sources[0].prompt.startsWith('Deneme sorusu.'), '"Şirket:" satırı ayrıştırılıp soru metninden çıkarılmalı.');
+const unlistedCompany = build.parseFile(companySample.replace('Şirket: ASELSAN, Baykar', 'Şirket: ASELSAN, Roketsan'), 'deneme.md');
+check(unlistedCompany.errors.some((error) => error.includes('Roketsan')), 'Soru metninde geçmeyen şirket derlemede hata vermeli.');
+
 // "Anahtar noktalar:" closes the source block and never leaks into the question text.
 const withPoints = areaSample('S98', 'Deneme alanı').replace('Deneme sorusu.\n', 'Deneme sorusu.\n\nAnahtar noktalar:\n- Birinci nokta\n- `kod` içeren ikinci nokta\n');
 const parsedPoints = build.parseFile(withPoints, 'deneme.md');

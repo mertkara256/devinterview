@@ -3,6 +3,7 @@
 # S01 · Orta · Teori
 
 Alan: C/C++
+Şirket: ASELSAN
 
 Memory leak nedir, nasıl önlenir? C ve C++ için önleme yollarını ve gömülü sistemlerdeki yaklaşımı anlatın.
 
@@ -164,6 +165,7 @@ Etiketler: c, static
 # S05 · Orta · Teori
 
 Alan: C/C++
+Şirket: ASELSAN
 
 C++'ta virtual fonksiyonlar nasıl çalışır? Taban sınıfın yıkıcısı neden virtual olmalıdır?
 
@@ -317,6 +319,7 @@ Etiketler: cpp, bellek
 # S08 · Orta · Kod okuma
 
 Alan: C/C++
+Şirket: Baykar
 
 Verilen C kodunun çıktısını bulun ve koddaki hatayı gösterin. İşaretsiz taşma, pointer aritmetiği ve operatör önceliği tuzaklarını açıklayın.
 
@@ -612,6 +615,7 @@ Etiketler: tasarım-desenleri
 # S13 · Orta · Teori
 
 Alan: Tasarım ve modelleme
+Şirket: HAVELSAN
 
 Dependency Injection nedir? .NET'te `AddTransient`, `AddScoped` ve `AddSingleton` ömürleri arasındaki fark nedir?
 
@@ -654,6 +658,7 @@ Etiketler: dotnet, di
 # S14 · Kolay · Teori
 
 Alan: Tasarım ve modelleme
+Şirket: ASELSAN
 
 Sınıf ve sekans diyagramı çizin. Model tabanlı bir araç (ör. IBM Rational Rhapsody) kullandınız mı?
 
@@ -699,6 +704,7 @@ Etiketler: uml, sekans
 # S15 · Orta · Karşılaştırma
 
 Alan: Veri yapıları ve algoritmalar
+Şirket: Baykar
 
 Quicksort ile mergesort'u karşılaştırın: ortalama ve en kötü durum, kararlılık ve ek bellek.
 
@@ -881,6 +887,7 @@ Etiketler: dijkstra, graf
 # S19 · Kolay · Karşılaştırma
 
 Alan: Gömülü ve işletim sistemleri
+Şirket: HAVELSAN, Baykar
 
 Process ile thread arasındaki fark nedir? Hangi kaynaklar paylaşılır, bağlam değiştirme maliyeti nasıl farklılaşır?
 
@@ -915,6 +922,7 @@ Etiketler: process, thread, işletim-sistemi
 # S20 · Orta · Karşılaştırma
 
 Alan: Gömülü ve işletim sistemleri
+Şirket: ASELSAN
 
 Race condition nedir? Mutex ile semaphore arasındaki fark nedir?
 
@@ -1139,6 +1147,7 @@ Etiketler: dma, gömülü
 # S25 · Orta · Karşılaştırma
 
 Alan: Gömülü ve işletim sistemleri
+Şirket: Roketsan
 
 UART, SPI ve I2C arasındaki farklar nelerdir? RS232 ile RS485 arasındaki fark nedir?
 
@@ -1182,6 +1191,7 @@ Etiketler: spi, i2c
 # S26 · Orta · Karşılaştırma
 
 Alan: Gömülü ve işletim sistemleri
+Şirket: Roketsan
 
 Bare-metal ile RTOS'lu geliştirme arasındaki fark nedir? Watchdog timer ne işe yarar?
 
@@ -1226,6 +1236,7 @@ Etiketler: bare-metal, rtos
 # S27 · Kolay · Teori
 
 Alan: Gömülü ve işletim sistemleri
+Şirket: Roketsan
 
 Kaynak koddan çalışan programa giden adımları anlatın: preprocessor, compiler, assembler ve linker. Statik ve dinamik kütüphane arasındaki fark nedir? Makefile ve CMake ne işe yarar?
 
@@ -1302,6 +1313,7 @@ Etiketler: sanal-bellek, paging, tlb
 # S29 · Orta · Karşılaştırma
 
 Alan: Gömülü ve işletim sistemleri
+Şirket: Roketsan
 
 Verilog/VHDL ile bir yazılım dili arasındaki temel fark nedir?
 
@@ -1346,6 +1358,7 @@ Etiketler: verilog, eşzamanlılık
 # S30 · Orta · Teori
 
 Alan: Gömülü ve işletim sistemleri
+Şirket: Roketsan
 
 Gömülü kodunuzun güvenilirliğini ve emniyetini nasıl sağlarsınız? Kodlama standardı (ör. MISRA C) ve statik analiz neden kullanılır?
 
@@ -1393,6 +1406,7 @@ Etiketler: statik-analiz, test
 # S31 · Kolay · Karşılaştırma
 
 Alan: Ağ ve güvenlik
+Şirket: HAVELSAN, Baykar, Roketsan
 
 TCP ile UDP arasındaki fark nedir? Telemetri veya canlı video için hangisini seçersiniz?
 
@@ -1532,6 +1546,7 @@ Etiketler: multicast, telemetri
 # S34 · Orta · Kod yazma
 
 Alan: Veritabanı ve uygulama
+Şirket: HAVELSAN
 
 Bir ER diyagramı çizin ve SQL sorgusu yazın: JOIN türleri ve GROUP BY.
 
@@ -1697,6 +1712,7 @@ Etiketler: veritabanı, isolation
 # S37 · Orta · Karşılaştırma
 
 Alan: Veritabanı ve uygulama
+Şirket: HAVELSAN
 
 Mikroservis ile monolit mimari arasındaki fark nedir? Hangi durumda hangisini seçersiniz?
 
@@ -1731,6 +1747,7 @@ Etiketler: mikroservis, mimari
 # S38 · Kolay · Teori
 
 Alan: Veritabanı ve uygulama
+Şirket: HAVELSAN
 
 Linux'ta süreçleri ve portları nasıl izlersiniz? Dosya izinleri ve sinyaller nasıl çalışır? Basit bir shell script yazın.
 
@@ -1770,6 +1787,7 @@ Etiketler: linux, chmod
 # S39 · Orta · Kod okuma
 
 Alan: Veritabanı ve uygulama
+Şirket: Baykar
 
 JavaScript'te closure nedir? Bir örnekle açıklayın.
 
@@ -1897,6 +1915,7 @@ Etiketler: c, buffer-overflow
 # S42 · Orta · Teori
 
 Alan: Yapay zekâ ve görü
+Şirket: ASELSAN
 
 Vanishing gradient nedir, nasıl çözülür?
 
@@ -1944,6 +1963,7 @@ Etiketler: lstm, rnn
 # S43 · Kolay · Karşılaştırma
 
 Alan: Yapay zekâ ve görü
+Şirket: Baykar
 
 Aktivasyon fonksiyonlarını (sigmoid, tanh, ReLU, softmax) karşılaştırın.
 
@@ -1974,6 +1994,7 @@ Etiketler: aktivasyon, derin-öğrenme
 # S44 · Orta · Teori
 
 Alan: Yapay zekâ ve görü
+Şirket: Baykar
 
 Bir dizi modeli (RNN) için uçtan uca pipeline nasıl kurulur? LSTM/GRU'dan Transformer'a geçişin gerekçesi nedir?
 
@@ -2019,6 +2040,7 @@ Etiketler: transformer, attention
 # S45 · Zorlayıcı · Teori
 
 Alan: Yapay zekâ ve görü
+Şirket: Baykar
 
 LLM'lerde fine-tuning, optimizasyon ve RAG'i açıklayın. Hangi durumda hangisini seçersiniz?
 
@@ -2251,6 +2273,7 @@ Etiketler: kalman
 # S50 · Orta · Teori
 
 Alan: Sinyal, kontrol ve navigasyon
+Şirket: Roketsan
 
 Nyquist teoremi ve aliasing nedir? FFT ne işe yarar? FIR ile IIR filtrelerini karşılaştırın.
 
@@ -2293,6 +2316,7 @@ Etiketler: fir, iir, fft
 # S51 · Zorlayıcı · Teori
 
 Alan: Sinyal, kontrol ve navigasyon
+Şirket: Baykar
 
 Rotasyon matrisleri ve koordinat dönüşümlerini açıklayın. Euler açıları, gimbal lock ve quaternion arasındaki ilişki nedir?
 
@@ -2337,6 +2361,7 @@ Etiketler: rotasyon, lineer-cebir
 # S52 · Orta · Teori
 
 Alan: Sinyal, kontrol ve navigasyon
+Şirket: HAVELSAN
 
 PID formülünü yazın ve terimlerin etkisini açıklayın. Integral windup nedir?
 
@@ -2382,6 +2407,7 @@ Etiketler: pid, windup
 # S53 · Kolay · Karşılaştırma
 
 Alan: Test, süreç ve standartlar
+Şirket: ASELSAN
 
 Blackbox ve whitebox test arasındaki fark nedir? Sınır değer analizi ve eşdeğer bölümleme nedir?
 
@@ -2480,6 +2506,7 @@ Etiketler: test, regresyon
 # S55 · Kolay · Karşılaştırma
 
 Alan: Test, süreç ve standartlar
+Şirket: HAVELSAN
 
 Verification ile validation arasındaki fark nedir?
 
@@ -2521,6 +2548,7 @@ Etiketler: verification
 # S56 · Orta · Teori
 
 Alan: Test, süreç ve standartlar
+Şirket: HAVELSAN
 
 İyi bir gereksinim nasıl yazılır? İzlenebilirlik (traceability) nedir?
 
@@ -2565,6 +2593,7 @@ Etiketler: izlenebilirlik
 # S57 · Orta · Karşılaştırma
 
 Alan: Test, süreç ve standartlar
+Şirket: Roketsan
 
 Yazılım yaşam döngüsünü anlatın. V-model ile Agile/Scrum arasındaki farklar nelerdir?
 
@@ -2740,6 +2769,7 @@ Etiketler: git, rebase
 # S61 · Orta · Teori
 
 Alan: Test, süreç ve standartlar
+Şirket: STM
 
 Konfigürasyon yönetimi nedir? Baseline ve değişiklik kontrolü ne işe yarar?
 
@@ -2807,6 +2837,7 @@ Etiketler: code-review
 # S63 · Kolay · Davranışsal
 
 Alan: Davranışsal ve işe alım
+Şirket: TÜBİTAK SAGE, HAVELSAN, ASELSAN, Baykar
 
 Kendinizi ve projelerinizi anlatın. Karşılaştığınız teknik bir problemi ve nasıl çözdüğünüzü anlatın.
 
@@ -2853,6 +2884,7 @@ Etiketler: proje, davranışsal
 # S64 · Kolay · Davranışsal
 
 Alan: Davranışsal ve işe alım
+Şirket: ASELSAN, Baykar
 
 Neden bizimle çalışmak istiyorsunuz? Şirketimiz hakkında neler biliyorsunuz?
 
@@ -2884,6 +2916,7 @@ Etiketler: ik, motivasyon
 # S65 · Kolay · Teori
 
 Alan: Davranışsal ve işe alım
+Şirket: ASELSAN
 
 Kişi Güvenlik Belgesi (KGB) nedir, süreç nasıl işler? Askerlik durumunuz nedir?
 
@@ -2912,6 +2945,7 @@ Etiketler: kgb, işe-alım
 # S66 · Kolay · Kod yazma
 
 Alan: Veri yapıları ve algoritmalar
+Şirket: ASELSAN, HAVELSAN
 
 Bir tamsayının palindrom olup olmadığını, sayıyı String'e çevirmeden bulun. Negatif sayıları, sonu 0 olan sayıları ve taşmayı nasıl ele alırsınız? Zaman ve bellek karmaşıklığı nedir?
 
@@ -2976,6 +3010,7 @@ Etiketler: palindrom, taşma, optimizasyon
 # S67 · Orta · Teori
 
 Alan: Veritabanı ve uygulama
+Şirket: HAVELSAN
 
 JVM'de nesil tabanlı (generational) çöp toplama nasıl çalışır? Java'da bellek sızıntısı olur mu? Bir örnek verin.
 
@@ -3038,6 +3073,7 @@ Etiketler: gc, reachability
 # S68 · Kolay · Karşılaştırma
 
 Alan: C/C++
+Şirket: Baykar
 
 C'de değerle ve adresle geçirme arasındaki fark nedir? C'de "call by reference" var mı? C++'taki referans bu durumu nasıl değiştirir?
 
@@ -3118,6 +3154,7 @@ Etiketler: cpp, referans, işaretçi
 # S69 · Orta · Teori
 
 Alan: Veritabanı ve uygulama
+Şirket: HAVELSAN
 
 Spring'de IoC ve Dependency Injection nedir? Bean scope'ları nelerdir ve varsayılan scope uygulamayı nasıl etkiler?
 
@@ -3177,6 +3214,7 @@ Etiketler: spring, singleton, thread-safety
 # S70 · Orta · Karşılaştırma
 
 Alan: Veritabanı ve uygulama
+Şirket: HAVELSAN
 
 Java'da `synchronized` ne yapar? `HashMap`, `Collections.synchronizedMap` ve `ConcurrentHashMap` arasındaki farklar nelerdir?
 

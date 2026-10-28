@@ -45,10 +45,11 @@
     onboardingStep: 0,
     pendingImport: null,
     explorerLimit: 60,
-    explorerFilters: { search: '', section: 'all', area: 'all', difficulty: 'all', type: 'all', noted: false },
+    explorerFilters: { search: '', section: 'all', area: 'all', company: 'all', difficulty: 'all', type: 'all', noted: false },
     builderDefaults: null,
     sections: [],
     areas: {},
+    companies: [],
     interviewBank: [],
     interviewById: {},
     interview: null,
@@ -459,6 +460,7 @@
     state.bank.forEach(function (card) { state.bankById[card.id] = card; });
     state.sections = E.sectionsOf(state.bank);
     state.areas = E.areasBySection(state.bank);
+    state.companies = E.companiesOf(state.bank);
     state.interviewBank = E.buildInterviewBank(state.bank);
     state.interviewBank.forEach(function (item) { state.interviewById[item.sourceId] = item; });
     if (!state.validation.valid) {
@@ -584,6 +586,17 @@
     }).join('');
   }
 
+  // One company at a time: preparing for an interview means one company's questions.
+  function companySelectHtml(selected) {
+    if (!state.companies.length) return '';
+    var sections = state.sections.filter(function (section) {
+      return state.bank.some(function (card) { return card.section === section && card.companies.length; });
+    });
+    return '<section class="form-section"><h2>Şirket</h2><label class="field"><span class="sr-only">Şirket</span><select name="company"><option value="all">Tüm sorular</option>' + state.companies.map(function (company) {
+      return '<option value="' + E.escapeHtml(company) + '" ' + (selected === company ? 'selected' : '') + '>' + E.escapeHtml(company) + '</option>';
+    }).join('') + '</select></label><p class="tiny muted" style="margin:.65rem 0 0">Şirket seçersen yalnız o şirkette sorulduğu bilinen sorular gelir. Şirket bilgisi şu an yalnız ' + E.escapeHtml(sections.join(', ')) + ' sorularında var.</p></section>';
+  }
+
   // Area chips are not rendered while their section is unselected; keep the earlier choice then.
   function readAreas(form, data, previous) {
     if (form.querySelector('input[name="areas"]')) return data.getAll('areas');
@@ -605,6 +618,7 @@
       path: 'mixed',
       sections: state.sections.slice(),
       areas: allAreas(),
+      company: 'all',
       difficulties: ['Kolay', 'Orta', 'Zorlayıcı'],
       types: Object.keys(E.TYPE_LABELS),
       topic: 'all',
@@ -643,6 +657,7 @@
             '<label><input type="radio" name="path" value="learning" ' + (defaults.path === 'learning' ? 'checked' : '') + '><span>Kaynak sırası</span></label></div></section>' +
           '<section class="form-section"><span class="eyebrow">3 · KAPSAM</span><h2>Bölümler</h2>' + chips(state.sections, defaults.sections, 'sections') + '</section>' +
           areaChipsHtml(defaults.sections, defaults.areas || allAreas()) +
+          companySelectHtml(defaults.company) +
           '<section class="form-section"><h2>Zorluk</h2>' + chips(['Kolay', 'Orta', 'Zorlayıcı'], defaults.difficulties, 'difficulties') + '</section>' +
           '<section class="form-section"><h2>Soru türleri</h2>' + chips(Object.keys(E.TYPE_LABELS), defaults.types, 'types', E.TYPE_LABELS) + '</section>' +
           '<section class="form-section"><div class="check-grid"><label class="field"><span>Alt konu</span><select name="topic"><option value="all">Tüm konular</option>' + topics.map(function (topic) { return '<option value="' + E.escapeHtml(topic) + '" ' + (defaults.topic === topic ? 'selected' : '') + '>' + E.escapeHtml(topic) + '</option>'; }).join('') + '</select></label>' +
@@ -669,6 +684,7 @@
       path: data.get('path') || 'mixed',
       sections: data.getAll('sections'),
       areas: readAreas(form, data, state.builderDefaults),
+      company: data.get('company') || 'all',
       difficulties: data.getAll('difficulties'),
       types: data.getAll('types'),
       topic: data.get('topic') || 'all',
@@ -1446,10 +1462,11 @@
     var cards = state.bank.filter(function (card) {
       if (filters.section !== 'all' && card.section !== filters.section) return false;
       if (filters.area !== 'all' && card.area !== filters.area) return false;
+      if (!E.companyAllowed(filters, card.companies)) return false;
       if (filters.difficulty !== 'all' && card.difficulty !== filters.difficulty) return false;
       if (filters.type !== 'all' && card.type !== filters.type) return false;
       if (filters.noted && !noteOf(card)) return false;
-      if (search && (card.id + ' ' + card.sourceId + ' ' + card.area + ' ' + card.topic + ' ' + card.prompt + ' ' + card.tags.join(' ')).toLocaleLowerCase('tr-TR').indexOf(search) === -1) return false;
+      if (search && (card.id + ' ' + card.sourceId + ' ' + card.area + ' ' + card.companies.join(' ') + ' ' + card.topic + ' ' + card.prompt + ' ' + card.tags.join(' ')).toLocaleLowerCase('tr-TR').indexOf(search) === -1) return false;
       return true;
     });
     var shown = cards.slice(0, state.explorerLimit);
@@ -1458,6 +1475,9 @@
       '<label class="field"><span class="sr-only">Bölüm</span><select id="explorer-section"><option value="all">Tüm bölümler</option>' + state.sections.map(function (value) { return '<option ' + (filters.section === value ? 'selected' : '') + '>' + value + '</option>'; }).join('') + '</select></label>' +
       '<label class="field"><span class="sr-only">Alan</span><select id="explorer-area"><option value="all">Tüm alanlar</option>' + Object.keys(state.areas).map(function (section) {
         return '<optgroup label="' + E.escapeHtml(section) + '">' + state.areas[section].map(function (area) { return '<option value="' + E.escapeHtml(area) + '" ' + (filters.area === area ? 'selected' : '') + '>' + E.escapeHtml(area) + '</option>'; }).join('') + '</optgroup>';
+      }).join('') + '</select></label>' +
+      '<label class="field"><span class="sr-only">Şirket</span><select id="explorer-company"><option value="all">Tüm şirketler</option>' + state.companies.map(function (company) {
+        return '<option value="' + E.escapeHtml(company) + '" ' + (filters.company === company ? 'selected' : '') + '>' + E.escapeHtml(company) + '</option>';
       }).join('') + '</select></label>' +
       '<label class="field"><span class="sr-only">Zorluk</span><select id="explorer-difficulty"><option value="all">Tüm zorluklar</option>' + ['Kolay', 'Orta', 'Zorlayıcı'].map(function (value) { return '<option ' + (filters.difficulty === value ? 'selected' : '') + '>' + value + '</option>'; }).join('') + '</select></label>' +
       '<label class="field"><span class="sr-only">Soru türü</span><select id="explorer-type"><option value="all">Tüm türler</option>' + Object.keys(E.TYPE_LABELS).map(function (type) { return '<option value="' + type + '" ' + (filters.type === type ? 'selected' : '') + '>' + E.TYPE_LABELS[type] + '</option>'; }).join('') + '</select></label></div>' +
@@ -1478,7 +1498,7 @@
   var interviewTicker = null;
 
   function interviewFormDefaults() {
-    return { sections: state.sections.slice(), areas: allAreas(), difficulties: ['Kolay', 'Orta', 'Zorlayıcı'], status: 'all', size: '10' };
+    return { sections: state.sections.slice(), areas: allAreas(), company: 'all', difficulties: ['Kolay', 'Orta', 'Zorlayıcı'], status: 'all', size: '10' };
   }
 
   function readInterviewForm(form) {
@@ -1486,6 +1506,7 @@
     return {
       sections: data.getAll('sections'),
       areas: readAreas(form, data, state.interviewDefaults),
+      company: data.get('company') || 'all',
       difficulties: data.getAll('difficulties'),
       status: data.get('status') || 'all',
       size: data.get('size') || '10'
@@ -1503,6 +1524,7 @@
       if ((progressMap[item.sourceId] || {}).excluded) return false;
       if (filters.sections && filters.sections.indexOf(item.section) === -1) return false;
       if (!E.areaAllowed(filters, item.area)) return false;
+      if (!E.companyAllowed(filters, item.companies)) return false;
       if (filters.difficulties && filters.difficulties.indexOf(item.difficulty) === -1) return false;
       if (filters.status === 'new' && record) return false;
       if (filters.status === 'due' && !interviewIsDue(record, now)) return false;
@@ -1611,6 +1633,7 @@
             '<li>Kendini puanla; soru buna göre 1–30 gün sonra yeniden gelir.</li></ol></section>' +
           '<section class="form-section"><span class="eyebrow">1 · KAPSAM</span><h2>Bölümler</h2>' + chips(state.sections, defaults.sections, 'sections', 'Bölümler') + '</section>' +
             areaChipsHtml(defaults.sections, defaults.areas || allAreas()) +
+            companySelectHtml(defaults.company) +
           '<section class="form-section"><h2>Zorluk</h2>' + chips(['Kolay', 'Orta', 'Zorlayıcı'], defaults.difficulties, 'difficulties', 'Zorluklar') + '</section>' +
           '<section class="form-section"><span class="eyebrow">2 · HAVUZ</span><h2>Hangi sorular?</h2>' + segmented('status', 'Soru havuzu', [['all', 'Tümü'], ['new', 'Yeni'], ['due', 'Tekrar zamanı'], ['weak', 'Zayıf']]) +
             '<p class="tiny muted" style="margin:.65rem 0 0">Zayıf: son puanı "Anlatamadım" veya "Eksik kaldı" olan sorular.</p></section>' +
@@ -2352,9 +2375,10 @@
       saveInterview().catch(function (error) { console.error(error); });
     }
     if (event.target.id === 'import-file' && event.target.files[0]) readImportFile(event.target.files[0]);
-    if (['explorer-section', 'explorer-area', 'explorer-difficulty', 'explorer-type'].indexOf(event.target.id) !== -1) {
+    if (['explorer-section', 'explorer-area', 'explorer-company', 'explorer-difficulty', 'explorer-type'].indexOf(event.target.id) !== -1) {
       state.explorerFilters.section = document.getElementById('explorer-section').value;
       state.explorerFilters.area = document.getElementById('explorer-area').value;
+      state.explorerFilters.company = document.getElementById('explorer-company').value;
       state.explorerFilters.difficulty = document.getElementById('explorer-difficulty').value;
       state.explorerFilters.type = document.getElementById('explorer-type').value;
       state.explorerLimit = 60;
