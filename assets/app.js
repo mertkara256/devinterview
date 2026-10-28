@@ -73,11 +73,12 @@
     element.className = 'toast ' + (type || '');
     element.textContent = message;
     toastRegion.appendChild(element);
+    // Errors stay longer: they say what may not have been saved.
     setTimeout(function () {
       element.style.opacity = '0';
       element.style.transform = 'translateY(8px)';
       setTimeout(function () { element.remove(); }, 180);
-    }, 3600);
+    }, type === 'error' ? 8000 : 3600);
   }
 
   function announce(message) {
@@ -450,6 +451,16 @@
     }
   }
 
+  // Asks the browser not to clear this site's data when space runs low; each browser decides by itself and may refuse.
+  async function requestPersistentStorage() {
+    if (!navigator.storage || !navigator.storage.persist) return null;
+    try {
+      return (await navigator.storage.persisted()) || (await navigator.storage.persist());
+    } catch (error) {
+      return null;
+    }
+  }
+
   async function init() {
     await DB.init();
     storageIndicator.textContent = DB.mode() === 'indexeddb' ? 'IndexedDB ile otomatik kayıt etkin' : 'Yedek yerel kayıt etkin';
@@ -475,6 +486,10 @@
     state.settings = Object.assign({}, DEFAULT_SETTINGS, savedSettings || {});
     await saveSettings();
     bindGlobalEvents();
+    // Not awaited: Firefox asks the user first, and startup should not wait for that answer.
+    requestPersistentStorage().then(function (persistent) {
+      if (persistent !== null) storageIndicator.textContent += persistent ? ' · kalıcı depolama açık' : ' · kalıcı depolama izni yok';
+    });
     if (!location.hash) location.hash = '#/dashboard';
     await render();
     if (!state.settings.onboardingComplete) openOnboarding();
@@ -792,10 +807,10 @@
       }).join('') + '</div>';
     }
     if (card.type === 'fill') {
-      return '<label class="field"><span>Cevabın</span><input type="text" name="answerText" autocomplete="off" value="' + E.escapeHtml(answer || '') + '" ' + (locked ? 'disabled' : '') + ' placeholder="Kısa ve kesin cevabı yaz"></label>';
+      return '<label class="field"><span>Cevabın</span><input type="text" name="answerText" autocomplete="off" autocapitalize="off" autocorrect="off" value="' + E.escapeHtml(answer || '') + '" ' + (locked ? 'disabled' : '') + ' placeholder="Kısa ve kesin cevabı yaz"></label>';
     }
     if (card.type === 'output') {
-      return '<label class="field"><span>Program çıktısı</span><textarea name="answerText" rows="4" spellcheck="false" ' + (locked ? 'disabled' : '') + ' placeholder="Her satırı ayrı yaz">' + E.escapeHtml(answer || '') + '</textarea></label>';
+      return '<label class="field"><span>Program çıktısı</span><textarea name="answerText" rows="4" spellcheck="false" autocapitalize="off" autocorrect="off" ' + (locked ? 'disabled' : '') + ' placeholder="Her satırı ayrı yaz">' + E.escapeHtml(answer || '') + '</textarea></label>';
     }
     if (card.type === 'order') {
       var order = Array.isArray(answer) && answer.length ? answer : item.itemOrder;
@@ -1782,7 +1797,7 @@
         '<div class="question-meta-right"><span class="badge interview-timer' + (interviewOverTime(item, current.elapsedMs) ? ' over' : '') + '" id="interview-timer" role="timer" title="Geçen süre">' + clockText(current.elapsedMs) + '</span></div></div>' +
         '<div class="interview-prompt">' + interviewPromptHtml(item) + '</div>' +
         '<p class="tiny muted">Önerilen süre: ' + (E.INTERVIEW_MINUTES[item.difficulty] || 3) + ' dk · Mülakattaymış gibi sesli anlat ya da aşağıya yaz.</p>' +
-        '<label class="field"><span>Yazılı cevabın (isteğe bağlı)</span><textarea id="interview-answer" rows="7" maxlength="6000" spellcheck="false" placeholder="Ana fikirleri, örnek kodu veya karmaşıklığı yaz…" ' + (current.revealed ? 'readonly' : '') + '>' + E.escapeHtml(current.answerText || '') + '</textarea></label>' +
+        '<label class="field"><span>Yazılı cevabın (isteğe bağlı)</span><textarea id="interview-answer" rows="7" maxlength="6000" spellcheck="false" autocapitalize="off" autocorrect="off" placeholder="Ana fikirleri, örnek kodu veya karmaşıklığı yaz…" ' + (current.revealed ? 'readonly' : '') + '>' + E.escapeHtml(current.answerText || '') + '</textarea></label>' +
         (current.revealed ? interviewRevealHtml(item, current, record) :
           '<div class="question-actions"><div class="question-actions-left"><button class="button ghost" type="button" data-action="interview-skip">Atla</button></div>' +
           '<div class="question-actions-right"><button class="button primary" type="button" data-action="interview-reveal" aria-keyshortcuts="Enter">Örnek cevabı göster</button></div></div>') +
@@ -2002,7 +2017,14 @@
   async function mergeImport() {
     if (!state.pendingImport) return;
     await exportJson('java-mulakat-otomatik-on-yedek-' + E.dateKey());
-    var incoming = state.pendingImport.data.stores;
+    // Records are written one at a time, so a failure can leave the backup partly merged.
+    return mergeStores(state.pendingImport.data.stores).catch(function (error) {
+      console.error(error);
+      toast('Yedek birleştirilemedi (' + (error.message || error) + '). Bir kısmı eklenmiş olabilir; birleştirmeden önceki hâlin az önce indirilen otomatik ön yedekte duruyor.', 'error');
+    });
+  }
+
+  async function mergeStores(incoming) {
     var attemptIdMap = {};
     var existingAttempts = await recordsMap('attempts');
     var existingResponseRecords = await DB.all('responses');
@@ -2450,6 +2472,11 @@
   }
 
   function bindGlobalEvents() {
+    // Click and submit handlers are async and nothing awaits them, so a failed save would otherwise reach only the console.
+    window.addEventListener('unhandledrejection', function (event) {
+      var detail = event.reason && event.reason.message || String(event.reason || '');
+      toast('Bir işlem tamamlanamadı' + (detail ? ' (' + detail + ')' : '') + '. Son değişiklik kaydedilmemiş olabilir; sayfayı yenileyip yeniden dene.', 'error');
+    });
     window.addEventListener('hashchange', render);
     app.addEventListener('click', handleAppClick);
     app.addEventListener('change', handleAppChange);

@@ -97,6 +97,11 @@ const storageSource = fs.readFileSync(path.join(assetsDir, 'storage.js'), 'utf8'
 check(/hashchange/.test(appSource) && /location\.hash/.test(appSource), 'Hash tabanlı gezinme uygulaması doğrulanamadı.');
 check(/indexedDB\.open\s*\(/.test(storageSource), 'Native IndexedDB kullanımı doğrulanamadı.');
 check(/localStorage/.test(html), 'İlk boya tema tercihi için küçük localStorage kullanımı doğrulanamadı.');
+check(/addEventListener\('unhandledrejection'/.test(appSource), 'Yakalanmamış async hatalar kullanıcıya gösterilmeli.');
+check(/navigator\.storage\.persist\(\)/.test(appSource), 'Tarayıcıdan kalıcı depolama izni istenmeli.');
+// Phone keyboards capitalize the first letter and autocorrect words, which breaks case-sensitive typed answers.
+const answerFields = appSource.match(/<(?:input|textarea)[^>]*(?:name="answerText"|id="interview-answer")[^>]*>/g) || [];
+check(answerFields.length >= 3 && answerFields.every((tag) => /autocapitalize="off"/.test(tag) && /autocorrect="off"/.test(tag)), 'Cevap alanlarında otomatik büyük harf ve otomatik düzeltme kapalı olmalı.');
 
 const context = {
   window: {},
