@@ -271,6 +271,30 @@ Etiketler: encapsulation, invariant, bank-account
 
 Bakiyesi dışarıdan doğrudan değiştirilemeyen bir `BankAccount` sınıfı yazın. Para yatırma ve çekme kurallarını nesnenin içinde koruyun.
 
+Örnek çözüm:
+```java
+class BankAccount {
+    private int balance;  // Başlangıç bakiyesi 0; dışarıdan yalnız okunabilir.
+
+    public boolean deposit(int amount) {
+        if (amount <= 0) return false;
+        balance += amount;
+        return true;
+    }
+
+    public boolean withdraw(int amount) {
+        // Kredili mevduat yok: bakiyeyi aşan çekim reddedilir, bakiye eksiye düşmez.
+        if (amount <= 0 || amount > balance) return false;
+        balance -= amount;
+        return true;
+    }
+
+    public int getBalance() {
+        return balance;
+    }
+}
+```
+
 ## O07-01 · Çoklu seçim
 Konu: Encapsulation ve Invariant
 Soru: Başlangıç bakiyesi 0 olan, kredili mevduat sunmayan bir BankAccount için invariant'ı koruyan kuralları seçin.
@@ -1253,6 +1277,61 @@ Etiketler: composition, stack, lifo, output
 
 Bir `Order` nesnesinin birden fazla `OrderItem` içermesini composition kullanarak modelleyin. Ürün, adet ve toplam tutar sorumluluklarını doğru sınıflara dağıtın.
 
+Örnek çözüm:
+```java
+class Product {
+    private final String name;
+    private final double unitPrice;  // Gerçek para hesabında BigDecimal kullanılır.
+
+    public Product(String name, double unitPrice) {
+        this.name = name;
+        this.unitPrice = unitPrice;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public double getUnitPrice() {
+        return unitPrice;
+    }
+}
+
+// Satır, ürünü ve adedi bilir; satır toplamını kendisi hesaplar.
+class OrderItem {
+    private final Product product;
+    private final int quantity;
+
+    public OrderItem(Product product, int quantity) {
+        this.product = product;
+        this.quantity = quantity;
+    }
+
+    public double total() {
+        return product.getUnitPrice() * quantity;
+    }
+}
+
+// Composition: satırları Order oluşturur ve yönetir; satırların ömrü siparişe bağlıdır.
+class Order {
+    private final List<OrderItem> items = new ArrayList<>();
+
+    public void addItem(Product product, int quantity) {
+        items.add(new OrderItem(product, quantity));
+    }
+
+    public List<OrderItem> getItems() {
+        return Collections.unmodifiableList(items);
+    }
+
+    public double total() {
+        double sum = 0;
+        for (OrderItem item : items) sum += item.total();
+        return sum;
+    }
+}
+```
+
 ## O25-01 · Eşleştirme
 Konu: Composition ile Modelleme
 Soru: Order composition modelindeki sorumlulukları uygun sınıfla eşleştirin.
@@ -1774,6 +1853,39 @@ Etiketler: solid, lsp, composition, contract
 # O35 · Zorlayıcı · Kod yazma
 
 Kredi kartı, banka havalesi ve dijital cüzdanla ödeme alabilen bir checkout sistemi tasarlayın. Yeni ödeme türlerinde koşul bloklarının büyümemesini sağlayın.
+
+Örnek çözüm:
+```java
+// Yeni ödeme türü yeni bir sınıf olarak eklenir; CheckoutService değişmez.
+interface PaymentMethod {
+    String pay(double amount);
+}
+
+class CreditCardPayment implements PaymentMethod {
+    public String pay(double amount) {
+        return "credit:" + amount;
+    }
+}
+
+class BankTransferPayment implements PaymentMethod {
+    public String pay(double amount) {
+        return "transfer:" + amount;
+    }
+}
+
+class WalletPayment implements PaymentMethod {
+    public String pay(double amount) {
+        return "wallet:" + amount;
+    }
+}
+
+class CheckoutService {
+    // Ödeme yöntemi dışarıdan verilir; türe bakan if veya switch bloğu yoktur.
+    public String checkout(double amount, PaymentMethod method) {
+        return method.pay(amount);
+    }
+}
+```
 
 ## O35-01 · Çoklu seçim
 Konu: Ödeme Sistemi Tasarımı

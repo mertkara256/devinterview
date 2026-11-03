@@ -435,6 +435,27 @@ Bir register'da n. biti set, clear ve toggle edin; sistemin endianness'ını tes
 
 Nerede soruldu: klasik gömülü yazılım sorusu.
 
+Örnek çözüm:
+```c
+#include <stdbool.h>
+#include <stdint.h>
+
+/* İşaretsiz tip ve 1u: işaretli değeri kaydırmak tanımsız davranışa yol açabilir.
+   n, 0..31 aralığında olmalıdır. Okuma-değiştirme-yazma atomik değildir;
+   aynı register'ı bir ISR da değiştiriyorsa işlem sırasında kesmeler kapatılır. */
+void bit_set(volatile uint32_t *reg, unsigned n) { *reg |= (1u << n); }
+void bit_clear(volatile uint32_t *reg, unsigned n) { *reg &= ~(1u << n); }
+void bit_toggle(volatile uint32_t *reg, unsigned n) { *reg ^= (1u << n); }
+bool bit_read(const volatile uint32_t *reg, unsigned n) { return (*reg >> n) & 1u; }
+
+/* Çok baytlı değerin en düşük adresteki baytına bakılır: 0x04 ise little-endian.
+   Ağ bayt düzeni big-endian'dır; htonl ve ntohl bu farkı giderir. */
+bool is_little_endian(void) {
+    uint32_t value = 0x01020304u;
+    return *(const uint8_t *)&value == 0x04u;
+}
+```
+
 Anahtar noktalar:
 - Set: `reg |= (1u << n)`, clear: `reg &= ~(1u << n)`, toggle: `reg ^= (1u << n)`
 - Bit okuma: `(reg >> n) & 1u`
@@ -1620,6 +1641,64 @@ Alan: Veritabanı ve uygulama
 Bir ER diyagramı çizin ve SQL sorgusu yazın: JOIN türleri ve GROUP BY.
 
 Nerede soruldu: HAVELSAN iş analistliği (aday beyanı).
+
+Örnek çözüm:
+```sql
+-- ER: departments 1-N employees (employees.dept_id yabancı anahtar),
+--     employees N-N projects (ara tablo employee_projects).
+CREATE TABLE departments (
+    id   INTEGER PRIMARY KEY,
+    name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE employees (
+    id      INTEGER PRIMARY KEY,
+    name    VARCHAR(50) NOT NULL,
+    salary  INTEGER NOT NULL,
+    dept_id INTEGER REFERENCES departments(id)
+);
+
+CREATE TABLE projects (
+    id   INTEGER PRIMARY KEY,
+    name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE employee_projects (
+    employee_id INTEGER REFERENCES employees(id),
+    project_id  INTEGER REFERENCES projects(id),
+    PRIMARY KEY (employee_id, project_id)
+);
+
+-- INNER JOIN: yalnız bir departmana bağlı çalışanlar gelir.
+SELECT e.name, d.name AS department
+FROM employees e
+INNER JOIN departments d ON d.id = e.dept_id;
+
+-- LEFT JOIN + GROUP BY: çalışanı olmayan departman da 0 ile listelenir,
+-- çünkü COUNT(e.id) NULL değerleri saymaz.
+SELECT d.name, COUNT(e.id) AS employee_count
+FROM departments d
+LEFT JOIN employees e ON e.dept_id = d.id
+GROUP BY d.id, d.name;
+
+-- N-N ilişki ara tablo üzerinden sorgulanır: her projede kaç çalışan var.
+SELECT p.name, COUNT(ep.employee_id) AS member_count
+FROM projects p
+LEFT JOIN employee_projects ep ON ep.project_id = p.id
+GROUP BY p.id, p.name;
+
+-- WHERE satırları gruplamadan önce, HAVING grupları gruplamadan sonra süzer:
+-- maaşı 30000 ve üstü olan en az iki çalışanı bulunan departmanlar.
+SELECT d.name, COUNT(*) AS senior_count
+FROM departments d
+INNER JOIN employees e ON e.dept_id = d.id
+WHERE e.salary >= 30000
+GROUP BY d.id, d.name
+HAVING COUNT(*) >= 2;
+
+-- FULL OUTER JOIN iki taraftaki eşleşmeyen satırları da getirir. MySQL bunu
+-- desteklemez, orada LEFT JOIN ve RIGHT JOIN sonuçları UNION ile birleştirilir.
+```
 
 Anahtar noktalar:
 - ER diyagramı: varlıklar, ilişkiler ve kardinalite (1-1, 1-N, N-N)
@@ -3019,6 +3098,25 @@ Alan: Veri yapıları ve algoritmalar
 Bir tamsayının palindrom olup olmadığını, sayıyı String'e çevirmeden bulun. Negatif sayıları, sonu 0 olan sayıları ve taşmayı nasıl ele alırsınız? Zaman ve bellek karmaşıklığı nedir?
 
 Nerede soruldu: ASELSAN gömülü yazılım (LeetCode palindrom sayı) ve HAVELSAN ("java ile palindrom problemi"); İşteMülakat aday beyanları.
+
+Örnek çözüm:
+```java
+static boolean isPalindrome(int x) {
+    // Negatif sayılar (-121 tersten 121- okunur) ve 0 dışında sonu 0 olan
+    // sayılar palindrom olamaz.
+    if (x < 0 || (x % 10 == 0 && x != 0)) return false;
+    // Yalnız yarısı ters çevrilir: sayının tamamını çevirmek int sınırında taşabilir.
+    int reversedHalf = 0;
+    while (x > reversedHalf) {
+        reversedHalf = reversedHalf * 10 + x % 10;
+        x /= 10;
+    }
+    // Basamak sayısı tekse ortadaki basamak reversedHalf'in son basamağında kalır.
+    return x == reversedHalf || x == reversedHalf / 10;
+}
+
+// Zaman: basamak sayısı kadar, yani O(log n). Ek bellek: O(1).
+```
 
 Anahtar noktalar:
 - Basamakları `% 10` ve `/ 10` ile alıp sayıyı String'e çevirmeden ters çevirmek

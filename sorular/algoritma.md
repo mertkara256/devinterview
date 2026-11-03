@@ -1533,6 +1533,26 @@ Etiketler: bubble-sort, trace, swap
 
 Bubble sort’u yazın. Dizi sıralıysa erken çıkış optimizasyonu ekleyin ve en iyi/kötü durum karmaşıklıklarını belirtin.
 
+Örnek çözüm:
+```java
+static void bubbleSort(int[] arr) {
+    for (int end = arr.length - 1; end > 0; end--) {
+        boolean swapped = false;
+        for (int j = 0; j < end; j++) {
+            if (arr[j] > arr[j + 1]) {
+                int temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+                swapped = true;
+            }
+        }
+        // Bir geçişte hiç swap olmadıysa dizi sıralıdır: en iyi durum Θ(n).
+        if (!swapped) break;
+    }
+    // Kötü durum (ters sıralı girdi) Θ(n²) zamandır; ek bellek her durumda Θ(1).
+}
+```
+
 ## A37-01 · Çoklu seçim
 Konu: Bubble sort
 Soru: Swap bayrağıyla erken çıkan standart bubble sort için doğru özellikleri seçin.

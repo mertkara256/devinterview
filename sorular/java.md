@@ -795,6 +795,22 @@ Etiketler: string, equals, objects-equals, null
 
 `{"Java", "OOP", "Algoritma"}` dizisini `StringBuilder` kullanarak virgülle ayrılmış tek bir metne dönüştürün. `StringBuilder` tercihinin gerekçesini açıklamaya hazırlanın.
 
+Örnek çözüm:
+```java
+static String joinWithComma(String[] topics) {
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < topics.length; i++) {
+        if (i > 0) sb.append(',');  // Ayırıcı yalnız elemanların arasına konur.
+        sb.append(topics[i]);
+    }
+    return sb.toString();
+}
+
+// Neden StringBuilder: döngüde result = result + part her turda yeni bir String
+// üretir; StringBuilder aynı tamponu büyüterek ara nesne sayısını azaltır.
+// Java 8'de String.join(",", topics) da aynı sonucu verir.
+```
+
 ## J16-01 · Tek seçim
 Konu: StringBuilder
 Soru: Diziyi tam olarak `Java,OOP,Algoritma` metnine dönüştüren, sonda fazladan virgül bırakmayan çözüm hangisidir?
