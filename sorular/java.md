@@ -1362,6 +1362,23 @@ Etiketler: equals, hashcode, hashset, contract
 
 Bir sipariş listesini müşteri kimliğine göre gruplandıran ve `Map<Integer, List<Order>>` döndüren bir metot tasarlayın.
 
+Örnek çözüm:
+```java
+static Map<Integer, List<Order>> groupByCustomer(List<Order> orders) {
+    Map<Integer, List<Order>> result = new HashMap<>();
+    for (Order order : orders) {
+        // Müşterinin listesi yoksa bir kez oluşturulur, sonra sipariş eklenir.
+        result.computeIfAbsent(order.getCustomerId(), id -> new ArrayList<>()).add(order);
+    }
+    return result;
+}
+
+// Stream ile aynı sonuç:
+// orders.stream().collect(Collectors.groupingBy(Order::getCustomerId))
+// Müşterilerin ilk görülme sırası gerekirse HashMap yerine
+// LinkedHashMap kullanılır.
+```
+
 ## J28-01 · Tek seçim
 Konu: Map ile gruplama
 Soru: Siparişleri `customerId`'ye göre `Map<Integer,List<Order>>` içinde doğru biçimde gruplayan gövde hangisidir? `Order#getCustomerId()` int döndürür.
@@ -1569,6 +1586,28 @@ Etiketler: checked, unchecked, exception-hierarchy
 # J32 · Orta · Kod yazma
 
 Geçersiz yaş bilgisi için `InvalidAgeException` tasarlayın. Bunun checked mı unchecked mı olacağına karar verin; exception’ı `throw` ile üretip gerekiyorsa `throws` ile bildiren metodu yazın ve kararlarınızı gerekçelendirin.
+
+Örnek çözüm:
+```java
+// Checked: geçersiz yaş, çağıranın kullanıcıdan yeni değer isteyerek
+// düzeltebileceği bir iş kuralı ihlalidir; derleyici çağıranı bu durumu ele
+// almaya zorlar. Yaşın önceden doğrulanmış olması gerekiyorsa negatif değer bir
+// programlama hatası olur ve unchecked IllegalArgumentException daha uygun olur.
+class InvalidAgeException extends Exception {
+    public InvalidAgeException(String message) {
+        super(message);
+    }
+}
+
+class RegistrationService {
+    public void register(int age) throws InvalidAgeException {
+        if (age < 0) {
+            throw new InvalidAgeException("Yaş negatif olamaz: " + age);
+        }
+        // Kayıt işlemi burada yapılır.
+    }
+}
+```
 
 ## J32-01 · Tek seçim
 Konu: Özel exception tasarımı
@@ -1955,6 +1994,35 @@ Etiketler: gc, nondeterminism, eligibility
 
 `Candidate` nesnelerinin yalnızca `id` alanına göre eşit kabul edilmesini sağlayan `equals()` ve `hashCode()` metotlarını yazın. Sözleşmenin bozulmasının `HashSet` ve `HashMap` üzerindeki etkisini açıklayın.
 
+Örnek çözüm:
+```java
+// Sözleşme bozulursa (equals override edilip hashCode edilmezse) eşit iki
+// Candidate farklı hash kovalarına düşebilir: HashSet ikisini birden saklar,
+// HashMap eşit bir anahtarla get yapınca değeri bulamaz.
+final class Candidate {
+    private final int id;
+    private final String name;
+
+    public Candidate(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Candidate)) return false;
+        return id == ((Candidate) o).id;
+    }
+
+    @Override
+    public int hashCode() {
+        // equals ile aynı alan: eşit nesneler aynı hash'i üretir.
+        return Integer.hashCode(id);
+    }
+}
+```
+
 ## J40-01 · Tek seçim
 Konu: equals ve hashCode sözleşmesi
 Soru: Candidate nesneleri yalnız `id` alanına göre eşit olacaksa en doğru Java 8 uygulaması hangisidir? `id` constructor'da atanmış `final int`'tir.
@@ -2057,6 +2125,32 @@ Etiketler: immutable, map-key, hashmap
 # J42 · Zorlayıcı · Kod yazma
 
 `String name` ve `List<String> roles` alanlarına sahip gerçekten immutable bir `User` sınıfı tasarlayın. Mutable listenin dışarıdan değiştirilmesini engelleyin.
+
+Örnek çözüm:
+```java
+final class User {
+    private final String name;
+    private final List<String> roles;
+
+    public User(String name, List<String> roles) {
+        this.name = Objects.requireNonNull(name, "name");
+        // Kopya alınır: çağıran kendi listesini sonradan değiştirse de
+        // bu nesne etkilenmez.
+        List<String> copy = new ArrayList<>(Objects.requireNonNull(roles, "roles"));
+        this.roles = Collections.unmodifiableList(copy);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    // Değiştirilemez görünüm döner;
+    // add veya remove UnsupportedOperationException fırlatır.
+    public List<String> getRoles() {
+        return roles;
+    }
+}
+```
 
 ## J42-01 · Tek seçim
 Konu: Immutable sınıf tasarımı

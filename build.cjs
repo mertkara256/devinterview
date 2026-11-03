@@ -138,6 +138,25 @@ function parseSource(block, file, errors) {
     if (!keyPoints.length) errors.push(`${file}:${body[listAt].line + 1}: ${id}: "Anahtar noktalar:" listesi boş.`);
     body.splice(listAt);
   }
+  // An optional "Örnek çözüm:" code block ends the question text; interview mode shows it with the sample answer.
+  let solution = null;
+  inFence = false;
+  const solutionAt = body.findIndex((entry) => {
+    if (FENCE.test(entry.text)) inFence = !inFence;
+    return !inFence && entry.text.trim() === 'Örnek çözüm:';
+  });
+  if (solutionAt !== -1) {
+    const where = `${file}:${body[solutionAt].line + 1}: ${id}`;
+    const fence = readFence(body, solutionAt + 1, file, errors, 'Örnek çözüm');
+    solution = { code: fence.text, language: fence.language || 'java' };
+    if (!CODE_LANGUAGES.includes(solution.language)) errors.push(`${where}: örnek çözümün dili ${CODE_LANGUAGES.join(', ')} değerlerinden biri olmalı.`);
+    // readFence has already reported a missing block; these checks only make sense for a block it read.
+    if (fence.next !== solutionAt + 1) {
+      if (!fence.text.trim()) errors.push(`${where}: örnek çözüm boş.`);
+      if (body.slice(fence.next).some((entry) => entry.text.trim())) errors.push(`${where}: "Örnek çözüm:" bloğundan sonra soru metni gelemez; çözüm soru metninin sonunda, "Anahtar noktalar:" listesinden önce durur.`);
+    }
+    body.splice(solutionAt);
+  }
   const lines = body.map((entry) => entry.text);
   while (lines.length && !lines[0].trim()) lines.shift();
   while (lines.length && !lines[lines.length - 1].trim()) lines.pop();
@@ -147,7 +166,7 @@ function parseSource(block, file, errors) {
   companies.filter((name) => !prompt.includes(name)).forEach((name) => {
     errors.push(`${file}:${block.line + 1}: ${id}: "${name}" soru metninde geçmiyor; şirketi "Nerede soruldu" notuna da yazın.`);
   });
-  return { id, difficulty, kind: kind.trim(), area, companies, keyPoints, prompt, file, line: block.line };
+  return { id, difficulty, kind: kind.trim(), area, companies, keyPoints, solution, prompt, file, line: block.line };
 }
 
 function parseCard(block, source, file, errors) {
@@ -459,6 +478,7 @@ function buildBank(dir) {
     if (source.area) sourceQuestions[source.id].area = source.area;
     if (source.companies.length) sourceQuestions[source.id].companies = source.companies;
     if (source.keyPoints.length) sourceQuestions[source.id].keyPoints = source.keyPoints;
+    if (source.solution) sourceQuestions[source.id].solution = source.solution;
   });
   const digest = crypto.createHash('sha256').update(JSON.stringify({ sourceQuestions, cards })).digest('hex');
   const meta = { title: TITLE, version: digest.slice(0, 8), sourceSha256: digest, sourceQuestionCount: sources.length, cardCount: cards.length };

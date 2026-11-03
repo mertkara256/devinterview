@@ -544,6 +544,38 @@ Singleton nasıl yazılır? Çok thread'li ortamda nasıl güvenli hâle getiril
 
 Nerede soruldu: klasik tasarım sorusu.
 
+Örnek çözüm:
+```cpp
+#include <iostream>
+#include <string>
+
+class Logger {
+public:
+    // Fonksiyon-yerel static: C++11'den beri ilk çağrıdaki başlatma
+    // thread-safe'tir, elle kilit gerekmez.
+    static Logger& instance() {
+        static Logger logger;
+        return logger;
+    }
+
+    // Kopyalama ve atama yasaktır; ikinci bir örnek oluşturulamaz.
+    Logger(const Logger&) = delete;
+    Logger& operator=(const Logger&) = delete;
+
+    void log(const std::string& message) {
+        std::cout << message << '\n';
+    }
+
+private:
+    Logger() = default;  // Dışarıdan oluşturulamaz.
+};
+
+// Kullanım: Logger::instance().log("Sistem açıldı");
+// Dezavantaj: global durum ve gizli bağımlılık yaratır; sınıfın neye ihtiyaç
+// duyduğu imzasından görünmez ve testte sahtesiyle değiştirmek zorlaşır.
+// Çoğu zaman nesneyi bir kez oluşturup bağımlılık olarak geçirmek daha iyidir.
+```
+
 Anahtar noktalar:
 - Özel kurucu, kopyalamanın yasaklanması ve tek erişim noktası
 - C++11'de fonksiyon-yerel `static` nesnenin başlatılması thread-safe'tir
@@ -759,6 +791,43 @@ Alan: Veri yapıları ve algoritmalar
 Bir ring buffer (dairesel kuyruk) yazın. Bir ISR ile ana döngü arasında veri aktarırken nelere dikkat edilir?
 
 Nerede soruldu: klasik gömülü yazılım sorusu.
+
+Örnek çözüm:
+```c
+#include <stdbool.h>
+#include <stdint.h>
+
+/* İkinin kuvveti: modulo yerine & (RING_SIZE - 1) maskesi kullanılabilir. */
+#define RING_SIZE 16u
+
+typedef struct {
+    /* volatile: derleyici bu alanları önbelleğe almaz ve erişim sırasını korur. */
+    volatile uint8_t data[RING_SIZE];
+    /* Her indeksi tek taraf yazar; 8 bit olduğu için tek komutta okunup yazılır. */
+    volatile uint8_t head;  /* yalnız üretici (ISR) yazar */
+    volatile uint8_t tail;  /* yalnız tüketici (ana döngü) yazar */
+} RingBuffer;
+
+/* ISR'den çağrılır. Kuyruk doluysa veri düşer ve false döner;
+   dolu ile boşu ayırt etmek için bir slot hep boş kalır. */
+bool ring_put(RingBuffer *rb, uint8_t value) {
+    uint8_t next = (uint8_t)((rb->head + 1u) & (RING_SIZE - 1u));
+    if (next == rb->tail) return false;
+    rb->data[rb->head] = value;
+    /* İndeks veriden sonra güncellenir; çok çekirdekli sistemde
+       arada bellek bariyeri gerekir. */
+    rb->head = next;
+    return true;
+}
+
+/* Ana döngüden çağrılır. Kuyruk boşsa false döner. */
+bool ring_get(RingBuffer *rb, uint8_t *value) {
+    if (rb->tail == rb->head) return false;
+    *value = rb->data[rb->tail];
+    rb->tail = (uint8_t)((rb->tail + 1u) & (RING_SIZE - 1u));
+    return true;
+}
+```
 
 Anahtar noktalar:
 - `head` yazma, `tail` okuma indeksi; indeksler mod N ile sarar

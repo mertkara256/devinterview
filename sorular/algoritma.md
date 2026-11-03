@@ -266,6 +266,21 @@ Etiketler: min-max, karmasiklik
 
 Ek dizi kullanmadan bir `int[]` dizisini ters çevirin.
 
+Örnek çözüm:
+```java
+static void reverse(int[] arr) {
+    int left = 0;
+    int right = arr.length - 1;
+    while (left < right) {
+        int temp = arr[left];
+        arr[left] = arr[right];
+        arr[right] = temp;
+        left++;
+        right--;
+    }
+}
+```
+
 ## A08-01 · Sıralama
 Konu: Diziler
 Soru: {1,2,3,4} dizisini iki uçlu yerinde ters çevirme algoritmasının adımlarını sıralayın.
@@ -518,6 +533,18 @@ Etiketler: unicode, hashmap, frekans
 
 Bir dizide tekrar eden herhangi bir eleman olup olmadığını `Set` kullanarak belirleyin.
 
+Örnek çözüm:
+```java
+static boolean hasDuplicate(int[] arr) {
+    Set<Integer> seen = new HashSet<>();
+    for (int value : arr) {
+        // add, eleman zaten varsa false döner; ayrıca contains çağırmaya gerek yoktur.
+        if (!seen.add(value)) return true;
+    }
+    return false;
+}
+```
+
 ## A14-01 · Doğru / Yanlış
 Konu: Set
 Soru: Bir HashSet'e sırayla 2, 1, 2 eklenirken add metodu üçüncü çağrıda da true döner; tekrarı ancak size() ile anlamak mümkündür.
@@ -552,6 +579,37 @@ Etiketler: hashset, karmasiklik, duplicate
 # A15 · Kolay · Kod yazma
 
 İki String’in anagram olup olmadığını kontrol edin. Büyük-küçük harf ve boşluk politikasını önceden tanımlayın.
+
+Örnek çözüm:
+```java
+// Politika: boşluklar yok sayılır, harfler Locale.ROOT ile küçültülür,
+// İngilizce harf dışı karakter reddedilir.
+static boolean isAnagram(String first, String second) {
+    String a = normalize(first);
+    String b = normalize(second);
+    if (a.length() != b.length()) return false;
+    int[] counts = new int[26];
+    for (int i = 0; i < a.length(); i++) {
+        counts[a.charAt(i) - 'a']++;
+        counts[b.charAt(i) - 'a']--;
+    }
+    for (int count : counts) {
+        if (count != 0) return false;
+    }
+    return true;
+}
+
+static String normalize(String text) {
+    String result = text.replaceAll("\\s", "").toLowerCase(Locale.ROOT);
+    for (int i = 0; i < result.length(); i++) {
+        char c = result.charAt(i);
+        if (c < 'a' || c > 'z') {
+            throw new IllegalArgumentException("Desteklenmeyen karakter: " + c);
+        }
+    }
+    return result;
+}
+```
 
 ## A15-01 · Doğru / Yanlış
 Konu: Anagram
@@ -612,6 +670,20 @@ Etiketler: rakam-toplami, basamak-sayisi, sayi
 # A17 · Kolay · Kod yazma
 
 Faktoriyeli döngüyle hesaplayın. Negatif girdi ve veri tipi taşması için beklenen davranışı belirtin.
+
+Örnek çözüm:
+```java
+static long factorial(int n) {
+    if (n < 0) throw new IllegalArgumentException("n negatif olamaz: " + n);
+    long result = 1;
+    for (int i = 2; i <= n; i++) {
+        // 21! long aralığını aşar; multiplyExact sessizce sarmak yerine
+        // ArithmeticException fırlatır.
+        result = Math.multiplyExact(result, i);
+    }
+    return result;
+}
+```
 
 ## A17-01 · Boşluk doldurma
 Konu: Faktoriyel
@@ -1129,6 +1201,28 @@ Etiketler: binary-search, ilk-indeks, invariant
 
 `()`, `[]` ve `{}` karakterlerinden oluşan bir ifadenin dengeli olup olmadığını stack kullanarak kontrol edin.
 
+Örnek çözüm:
+```java
+static boolean isBalanced(String s) {
+    Deque<Character> stack = new ArrayDeque<>();
+    for (int i = 0; i < s.length(); i++) {
+        char c = s.charAt(i);
+        if (c == '(' || c == '[' || c == '{') {
+            stack.push(c);
+        } else if (c == ')' || c == ']' || c == '}') {
+            if (stack.isEmpty() || stack.pop() != openingOf(c)) return false;
+        } else {
+            return false; // Politika: parantez dışı karakter reddedilir.
+        }
+    }
+    return stack.isEmpty();
+}
+
+static char openingOf(char closing) {
+    return closing == ')' ? '(' : closing == ']' ? '[' : '{';
+}
+```
+
 ## A30-01 · Doğru / Yanlış
 Konu: Stack
 Soru: Yalnız ()[]{} karakterlerini kabul eden dengeli parantez denetiminde "{[()]}" geçerli, "([)]" geçersizdir.
@@ -1357,6 +1451,30 @@ Etiketler: slow-fast, karmasiklik, linked-list
 
 Tek yönlü linked list’i iteratif olarak ters çevirin ve yeni head’i döndürün.
 
+Örnek çözüm:
+```java
+class Node {
+    int value;
+    Node next;
+
+    Node(int value) {
+        this.value = value;
+    }
+}
+
+static Node reverse(Node head) {
+    Node previous = null;
+    Node current = head;
+    while (current != null) {
+        Node next = current.next; // Kalan listeyi kaybetmemek için önce saklanır.
+        current.next = previous;
+        previous = current;
+        current = next;
+    }
+    return previous;
+}
+```
+
 ## A35-01 · Sıralama
 Konu: Linked list ters çevirme
 Soru: Tek yönlü linked list'i iteratif ters çeviren döngünün adımlarını sıralayın.
@@ -1457,6 +1575,25 @@ Etiketler: bubble-sort, best-case, trace
 # A38 · Orta · Kod yazma
 
 Selection sort’u uygulayın. Her dış döngü sonunda dizinin hangi bölümünün doğru konuma geldiğini açıklayın.
+
+Örnek çözüm:
+```java
+static void selectionSort(int[] arr) {
+    for (int i = 0; i < arr.length - 1; i++) {
+        int minIndex = i;
+        for (int j = i + 1; j < arr.length; j++) {
+            if (arr[j] < arr[minIndex]) minIndex = j;
+        }
+        if (minIndex != i) {
+            int temp = arr[i];
+            arr[i] = arr[minIndex];
+            arr[minIndex] = temp;
+        }
+        // Bu adımın sonunda arr[0..i] nihai ve sıralıdır:
+        // en küçük i + 1 eleman yerine oturmuştur.
+    }
+}
+```
 
 ## A38-01 · Sıralama
 Konu: Selection sort
@@ -1939,6 +2076,41 @@ Etiketler: variable-window, invariant, last-seen
 # A50 · Zorlayıcı · Kod yazma
 
 Linked list içinde döngü olup olmadığını slow/fast pointer yaklaşımıyla belirleyin. Ek bellek kullanan alternatifle karşılaştırın.
+
+Örnek çözüm:
+```java
+class Node {
+    int value;
+    Node next;
+
+    Node(int value) {
+        this.value = value;
+    }
+}
+
+// Floyd: fast iki, slow bir adım ilerler; döngü varsa fast, slow'a döngü
+// içinde yetişir. Θ(n) zaman, Θ(1) ek bellek.
+static boolean hasCycle(Node head) {
+    Node slow = head;
+    Node fast = head;
+    while (fast != null && fast.next != null) {
+        slow = slow.next;
+        fast = fast.next.next;
+        if (slow == fast) return true;
+    }
+    return false;
+}
+
+// Alternatif: görülen düğümleri saklamak. Zaman yine Θ(n),
+// ama ek bellek Θ(n) olur.
+static boolean hasCycleWithSet(Node head) {
+    Set<Node> seen = new HashSet<>();
+    for (Node current = head; current != null; current = current.next) {
+        if (!seen.add(current)) return true;
+    }
+    return false;
+}
+```
 
 ## A50-01 · Doğru / Yanlış
 Konu: Linked list döngüsü

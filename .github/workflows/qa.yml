@@ -51,3 +51,7 @@ jobs:
       - name: C/C++ kod kartları
         if: ${{ !cancelled() }}
         run: node qa/validate-c.cjs
+
+      - name: Örnek çözümler
+        if: ${{ !cancelled() }}
+        run: node qa/validate-solutions.cjs

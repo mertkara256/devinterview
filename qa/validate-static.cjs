@@ -30,7 +30,7 @@ const expectedAssets = [
   'storage.js',
   'styles.css'
 ];
-const expectedQa = ['validate-bank.cjs', 'validate-c.cjs', 'validate-engine.cjs', 'validate-java.cjs', 'validate-runtime.cjs', 'validate-static.cjs'];
+const expectedQa = ['validate-bank.cjs', 'validate-c.cjs', 'validate-engine.cjs', 'validate-java.cjs', 'validate-runtime.cjs', 'validate-solutions.cjs', 'validate-static.cjs'];
 
 sameList(sortedEntries(root).filter((name) => name !== '.git'), expectedRoot, 'Teslimat kök dosyaları değişti');
 sameList(sortedEntries(assetsDir), expectedAssets, 'Çalışma zamanı varlıkları değişti');
@@ -173,6 +173,12 @@ check(unlistedCompany.errors.some((error) => error.includes('Roketsan')), 'Soru 
 const withPoints = areaSample('S98', 'Deneme alanı').replace('Deneme sorusu.\n', 'Deneme sorusu.\n\nAnahtar noktalar:\n- Birinci nokta\n- `kod` içeren ikinci nokta\n');
 const parsedPoints = build.parseFile(withPoints, 'deneme.md');
 check(!parsedPoints.errors.length && parsedPoints.sources[0].prompt === 'Deneme sorusu.' && JSON.stringify(parsedPoints.sources[0].keyPoints) === JSON.stringify(['Birinci nokta', '`kod` içeren ikinci nokta']), '"Anahtar noktalar:" listesi ayrıştırılıp soru metninden çıkarılmalı.');
+// "Örnek çözüm:" ends the question text, may be followed only by "Anahtar noktalar:", and never leaks into the prompt.
+const withSolution = areaSample('S98', 'Deneme alanı').replace('Deneme sorusu.\n', 'Deneme sorusu.\n\nÖrnek çözüm:\n```c\nint x;\n```\n\nAnahtar noktalar:\n- Nokta\n');
+const parsedSolution = build.parseFile(withSolution, 'deneme.md');
+check(!parsedSolution.errors.length && parsedSolution.sources[0].prompt === 'Deneme sorusu.' && JSON.stringify(parsedSolution.sources[0].solution) === JSON.stringify({ code: 'int x;', language: 'c' }) && parsedSolution.sources[0].keyPoints.length === 1, '"Örnek çözüm:" bloğu ayrıştırılıp soru metninden çıkarılmalı.');
+check(build.parseFile(withSolution.replace('```\n\n', '```\n\nFazladan metin.\n\n'), 'deneme.md').errors.some((error) => error.includes('"Örnek çözüm:" bloğundan sonra')), '"Örnek çözüm:" bloğundan sonra gelen soru metni hata vermeli.');
+check(build.parseFile(withSolution.replace('```c\nint x;\n```', 'int x;'), 'deneme.md').errors.some((error) => error.includes('"Örnek çözüm:" satırından sonra')), 'Kod bloğu olmayan "Örnek çözüm:" hata vermeli.');
 const badPoints = build.parseFile(withPoints.replace('- Birinci nokta', 'Birinci nokta'), 'deneme.md');
 check(badPoints.errors.some((error) => error.includes('"- " ile başlamalı')), '"Anahtar noktalar:" altındaki madde dışı satır hata vermeli.');
 for (const id of Object.keys(sources)) {

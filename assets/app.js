@@ -1765,6 +1765,7 @@
     return '<section class="feedback interview-reveal" id="interview-reveal" tabindex="-1" aria-labelledby="interview-reveal-title">' +
         '<h2 id="interview-reveal-title">Örnek cevap</h2>' +
         '<h3>Kontrol listesi</h3><p class="tiny muted">Anlatırken bu noktalara değindin mi? İşaretlemek isteğe bağlı.</p><div class="options interview-checklist">' + checklist + '</div>' +
+        (item.solution ? '<h3>Örnek çözüm</h3>' + renderCode(item.solution.code, item.solution.language) : '') +
         (item.explanations.length ? '<h3>Açıklama</h3>' + item.explanations.map(function (text) { return '<p>' + E.inlineMarkdown(text) + '</p>'; }).join('') : '') + outputs + steps + examples + previous +
       '</section>' +
       '<section class="interview-rating" aria-labelledby="interview-rating-title"><h2 id="interview-rating-title">Kendini puanla</h2><div class="rating-grid">' + ratingButtons + '</div></section>';
