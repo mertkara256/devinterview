@@ -4,6 +4,13 @@
 
 Java’daki sekiz primitive veri tipini sayın. Her birinin hangi tür değerleri temsil ettiğini ve değişken tanımlama ile değer atama arasındaki farkı açıklayın.
 
+Anahtar noktalar:
+- Tamsayılar: `byte` (8), `short` (16), `int` (32) ve `long` (64 bit); hepsi işaretlidir
+- Kayan noktalı sayılar: `float` (32) ve `double` (64 bit), IEEE 754 biçiminde
+- `char` 16 bitlik işaretsiz bir UTF-16 kod birimidir; `boolean` yalnız `true` veya `false` alır
+- `String`, `Integer` gibi wrapper tipler ve `BigDecimal` primitive değil, sınıftır
+- Tanımlama tipi ve adı bildirir (`int x;`), atama değeri yazar (`x = 5;`); ikisi tek satırda da yapılabilir
+
 ## J01-01 · Çoklu seçim
 Konu: Primitive tipler
 Soru: Aşağıdakilerden Java'nın sekiz primitive tipinin tamamını ve yalnızca onları seçin.
@@ -55,6 +62,12 @@ class Demo {
     }
 }
 ```
+
+Anahtar noktalar:
+- Kod derlenmez: `local` okunmadan önce kesin olarak atanmamıştır
+- Yerel değişkenlere varsayılan değer verilmez; derleyici okumadan önce atama yapılmasını ister
+- Instance ve static alanlar varsayılan değer alır: sayılarda 0, `boolean`'da `false`, referanslarda `null`
+- Düzeltme: yerel değişkene açık bir başlangıç değeri vermek (`int local = 0;`)
 
 ## J02-01 · Tek seçim
 Konu: Değişken başlangıç değerleri
@@ -117,6 +130,12 @@ System.out.println(a);
 System.out.println(first[0]);
 ```
 
+Anahtar noktalar:
+- Çıktı: `10` ve `99`
+- `int b = a;` değeri kopyalar; `b` sonradan değişince `a` etkilenmez
+- `int[] second = first;` diziyi değil referans değerini kopyalar; iki değişken aynı diziyi gösterir
+- Ortak dizi değiştirilince değişiklik iki değişkenden de görünür; birini yeniden atamak diğerini etkilemez
+
 ## J03-01 · Kod çıktısı
 Konu: Değer ve referans ataması
 Soru: Kodun standart çıktısını satır sırasını koruyarak yazın.
@@ -167,6 +186,13 @@ Etiketler: reference, aliasing, array
 
 Primitive type ile reference type arasındaki farkları; saklanan değer, `null` alabilme, karşılaştırma ve metot çağrısı açısından açıklayın.
 
+Anahtar noktalar:
+- Primitive değişken değerin kendisini, reference değişken bir nesneye giden referansı tutar
+- Yalnız reference tipler `null` alabilir; primitive bir değişkenin her zaman bir değeri vardır
+- `==` primitive'lerde değeri, referanslarda aynı nesne olup olmadığını karşılaştırır; içerik için `equals` kullanılır
+- Metot yalnız nesne üzerinde çağrılır; `null` referansta çağrı `NullPointerException` verir
+- Atama ve parametre geçişi iki türde de değeri kopyalar; reference tipte kopyalanan şey referanstır
+
 ## J04-01 · Çoklu seçim
 Konu: Primitive ve reference tipler
 Soru: Primitive ve reference tipler hakkında doğru ifadeleri seçin.
@@ -215,6 +241,13 @@ System.out.println(a / b);
 System.out.println(a % b);
 System.out.println((double) a / b);
 ```
+
+Anahtar noktalar:
+- Çıktı: `3`, `1` ve `3.5`
+- `int / int` tamsayı bölmesidir; sonuç sıfıra doğru kesilir (7 / 2 = 3)
+- `%` kalanı verir (7 % 2 = 1); sonucun işareti bölünenin işaretini izler
+- `(double) a / b` önce `a`'yı double yapar, `b` de yükseltilir ve sonuç 3.5 olur
+- `(double) (a / b)` ise önce tamsayı bölmesini yapar ve 3.0 verir
 
 ## J05-01 · Kod çıktısı
 Konu: Aritmetik operatörler ve cast
@@ -276,6 +309,13 @@ int z = ++x;
 System.out.println(x + " " + y + " " + z);
 ```
 
+Anahtar noktalar:
+- Çıktı: `7 5 7`
+- Postfix `x++` ifadenin değeri olarak eski değeri üretir ve `x`'i artırır
+- Prefix `++x` önce artırır, ifadenin değeri olarak yeni değeri üretir
+- `y = x++` sonrası y = 5 ve x = 6; `z = ++x` sonrası x = 7 ve z = 7
+- Artırmayı ayrı bir satırda yazmak, aynı ifadede karıştırmaktan daha okunurdur
+
 ## J06-01 · Kod çıktısı
 Konu: Artırma operatörleri
 Soru: Kodun çıktısını tek satır olarak yazın.
@@ -320,6 +360,13 @@ if (username != null && username.length() >= 3) {
 }
 ```
 
+Anahtar noktalar:
+- `&&` kısa devrelidir: sol taraf `false` ise sağ taraf hiç değerlendirilmez
+- `username != null` önce denetlendiği için `length()` null üzerinde çağrılmaz
+- Boolean `&` iki tarafı da değerlendirir; `username` null iken `NullPointerException` oluşur
+- Aynı kural `||` ile `|` için de geçerlidir: `||` sol taraf `true` ise durur
+- Null kontrolü koşulun solunda yer almalıdır
+
 ## J07-01 · Doğru / Yanlış
 Konu: Kısa devreli mantıksal işleçler
 Soru: username null iken bu koşul, `&&` iki operandı da değerlendirdiği için NullPointerException üretir.
@@ -362,6 +409,13 @@ Etiketler: short-circuit, bitwise-and, npe
 # J08 · Kolay · Kod yazma
 
 Bir öğrencinin notunu alan ve `0–49`, `50–69`, `70–84`, `85–100` aralıklarına göre sonuç metni döndüren bir metot yazın. `0`–`100` dışındaki değerleri de ele alın.
+
+Anahtar noktalar:
+- Önce geçersiz değerleri ele almak: `grade < 0 || grade > 100` için ayrı bir sonuç ya da exception
+- Aralıklar çakışmamalı ve 0–100 arasındaki her değeri kapsamalı; uçlar dahildir
+- Eşikleri sırayla denemek: `< 50`, `< 70`, `< 85`; kalan değerler 85–100 aralığıdır
+- Sınır değerleri test etmek: -1, 0, 49, 50, 69, 70, 84, 85, 100 ve 101
+- Metot sonucu ekrana yazmaz, `String` olarak döndürür
 
 ## J08-01 · Eşleştirme
 Konu: Koşullu sınıflandırma
@@ -429,6 +483,13 @@ switch (day) {
 }
 ```
 
+Anahtar noktalar:
+- Çıktı: `Salı Çarşamba`
+- `switch` eşleşen `case` etiketine atlar; etiketler yürütmeyi kendiliğinden kesmez
+- `break` olmayan bir case'den sonra akış sonraki case'in gövdesine düşer (fall-through)
+- `break` switch'ten çıkar; `default` hiçbir case eşleşmezse çalışır
+- Bilinçli fall-through yorumla belirtilir; Java 14 ile gelen `case ->` sözdiziminde fall-through yoktur
+
 ## J09-01 · Kod çıktısı
 Konu: switch fall-through
 Soru: Kodun standart çıktısını yazın.
@@ -480,6 +541,13 @@ for (int i = 0; i < 10; i++) {
 }
 ```
 
+Anahtar noktalar:
+- Çıktı: `1 3 5`
+- `continue` döngü gövdesinin kalanını atlar ve sonraki yinelemeye geçer
+- `break` döngüden tamamen çıkar
+- Çift sayılar `continue` ile atlanır; i = 7 olunca `break` döngüyü bitirir
+- Etiketsiz `break` ve `continue` en yakın döngüyü etkiler; dıştaki döngü için etiket gerekir
+
 ## J10-01 · Kod çıktısı
 Konu: Döngü kontrolü
 Soru: Kodun çıktısını yazın.
@@ -524,6 +592,12 @@ for (int i = 0; i <= numbers.length; i++) {
     System.out.println(numbers[i]);
 }
 ```
+
+Anahtar noktalar:
+- Hata: `i <= numbers.length` son turda `numbers[3]`'e erişir ve `ArrayIndexOutOfBoundsException` verir
+- Geçerli indeksler 0 ile `length - 1` arasındadır
+- Düzeltme: koşulu `i < numbers.length` yapmak
+- İndekse ihtiyaç yoksa enhanced for (`for (int n : numbers)`) bu hatayı baştan önler
 
 ## J11-01 · Tek seçim
 Konu: Dizi sınırları
@@ -571,6 +645,13 @@ Etiketler: array, index, exception, fill
 # J12 · Kolay · Kod yazma
 
 İki `int` parametre alan ve büyük olan değeri döndüren `max` metodunu yazın. Metot imzasını oluşturan parçaları açıklayın.
+
+Anahtar noktalar:
+- Örnek: `public static int max(int a, int b) { return a >= b ? a : b; }`
+- Bildirimin parçaları: erişim belirleyici (`public`), `static`, dönüş tipi (`int`), ad ve parametre listesi
+- JLS anlamında imza yalnız metot adı ve parametre tiplerinden oluşur: `max(int, int)`
+- Dönüş tipi ve parametre adları imzaya dahil değildir; yalnız dönüş tipi farklı iki metot overload sayılmaz
+- `int` döndüren metot her akışta bir `int` değer döndürmelidir; hazır karşılığı `Math.max`
 
 ## J12-01 · Tek seçim
 Konu: Metot tanımlama
@@ -649,6 +730,13 @@ swap(a, b);
 System.out.println(a + " " + b);
 ```
 
+Anahtar noktalar:
+- Çıktı: `3 8`; `swap` çağıranın değişkenlerini değiştirmez
+- Java her argümanı değerle (by value) geçirir; `x` ve `y`, `a` ile `b`'nin kopyalarıdır
+- Nesne argümanında kopyalanan şey referanstır; nesnenin içi değişirse çağıran bunu görür
+- Parametreye başka bir nesne atamak çağıranın değişkenini etkilemez
+- Java'da by reference geçiş yoktur; takas için dizi, nesne ya da dönüş değeri kullanılır
+
 ## J13-01 · Kod çıktısı
 Konu: Parametre geçirme
 Soru: Kodun çıktısını yazın.
@@ -698,6 +786,13 @@ text.concat(" Mülakatı");
 
 System.out.println(text);
 ```
+
+Anahtar noktalar:
+- Çıktı: `Java`
+- `String` immutable'dır; `concat` mevcut nesneyi değiştirmez, yeni bir `String` döndürür
+- Dönüş değeri atanmadığı için birleştirilmiş metin kaybolur
+- Düzeltme: `text = text.concat(" Mülakatı");`
+- Immutability, String'i güvenle paylaşmayı, hash değerini önbelleğe almayı ve string pool'u mümkün kılar
 
 ## J14-01 · Kod çıktısı
 Konu: String immutability
@@ -749,6 +844,13 @@ String second = new String("java");
 System.out.println(first == second);
 System.out.println(first.equals(second));
 ```
+
+Anahtar noktalar:
+- Çıktı: `false` ve `true`
+- `==` referansları karşılaştırır; iki `new String` iki ayrı nesne oluşturur
+- `String.equals` karakter içeriğini karşılaştırır
+- `a.equals(b)` a null ise `NullPointerException` verir; `Objects.equals(a, b)` null için güvenlidir
+- Literal'lerin intern edilmesine güvenip `==` kullanmak hatalıdır; içerik her zaman `equals` ile karşılaştırılır
 
 ## J15-01 · Kod çıktısı
 Konu: String karşılaştırma
@@ -811,6 +913,13 @@ static String joinWithComma(String[] topics) {
 // Java 8'de String.join(",", topics) da aynı sonucu verir.
 ```
 
+Anahtar noktalar:
+- Tek bir `StringBuilder` oluşturup elemanları `append` ile eklemek
+- Virgülü yalnız elemanların arasına koymak (`i > 0` iken); sonda ayırıcı kalmaz
+- Boş dizide sonuç boş metindir
+- Neden `StringBuilder`: döngüde `+` her turda yeni bir `String` üretir, `StringBuilder` aynı tamponu büyütür
+- Java 8'de `String.join(",", topics)` ya da `StringJoiner` aynı işi yapar
+
 ## J16-01 · Tek seçim
 Konu: StringBuilder
 Soru: Diziyi tam olarak `Java,OOP,Algoritma` metnine dönüştüren, sonda fazladan virgül bırakmayan çözüm hangisidir?
@@ -861,6 +970,12 @@ for (int number : numbers) {
 System.out.println(Arrays.toString(numbers));
 ```
 
+Anahtar noktalar:
+- Çıktı: `[1, 2, 3]`; dizi değişmez
+- Enhanced for her elemanın değerini döngü değişkenine kopyalar; `number`'ı değiştirmek diziye yazmaz
+- Diziyi değiştirmek için indeksli döngü gerekir: `numbers[i] *= 2`
+- Nesne dizilerinde döngü değişkeni aynı nesneyi gösterir; nesnenin içi değiştirilebilir ama dizi yuvası değişmez
+
 ## J17-01 · Kod çıktısı
 Konu: Enhanced for
 Soru: Kodun çıktısını yazın.
@@ -905,6 +1020,13 @@ Etiketler: array, loop, mutation
 # J18 · Kolay · Teori
 
 `public`, `protected`, package-private ve `private` erişim seviyelerini aynı sınıf, aynı paket, alt sınıf ve farklı paket açısından karşılaştırın.
+
+Anahtar noktalar:
+- `private`: yalnız aynı sınıfın içinden erişilir
+- Package-private (belirleyici yazılmazsa): yalnız aynı paketteki sınıflar erişir
+- `protected`: aynı paketteki sınıflar ve farklı paketteki alt sınıflar kalıtım yoluyla erişir
+- `public`: her yerden erişilir
+- Kural: en dar erişimle başlamak; alanları `private` tutup erişimi metotlarla açmak
 
 ## J18-01 · Eşleştirme
 Konu: Erişim belirleyiciler
@@ -957,6 +1079,13 @@ class Counter {
 }
 ```
 
+Anahtar noktalar:
+- Static metot nesneye değil sınıfa aittir; içinde örtük bir `this` yoktur
+- Bu yüzden static bağlamda instance alanı `value` nesne olmadan okunamaz ve `this` kullanılamaz
+- Instance alanı her nesnenin kendi değeridir; static alan tüm nesnelerce paylaşılır
+- Düzeltme: metodu instance metot yapmak ya da bir `Counter` nesnesi üzerinden okumak
+- Değer gerçekten ortaksa alan `static` yapılabilir; o zaman bütün nesneler aynı değeri görür
+
 ## J19-01 · Çoklu seçim
 Konu: static ve instance üyeleri
 Soru: `printValue` gövdesindeki bağımsız derleme sorunlarını seçin.
@@ -1007,6 +1136,13 @@ Etiketler: static, instance-method, this
 
 `final` bir değişken, metot ve sınıf için ne ifade eder? `final` bir referansın gösterdiği nesne yine de değiştirilebilir mi?
 
+Anahtar noktalar:
+- `final` değişken yalnız bir kez atanabilir; blank final constructor'da atanabilir
+- `final` metot alt sınıfta override edilemez
+- `final` sınıftan alt sınıf türetilemez (ör. `String`)
+- `final` referans başka nesneye atanamaz ama gösterdiği nesne değişebilir: `names.add("Ada")` çalışır
+- Gerçek immutability için defensive copy ve değiştirilemez görünüm gerekir (`Collections.unmodifiableList`)
+
 ## J20-01 · Eşleştirme
 Konu: final
 Soru: final kullanım yerlerini temel etkileriyle eşleştirin.
@@ -1056,6 +1192,13 @@ class Developer extends Person {
 
 new Developer();
 ```
+
+Anahtar noktalar:
+- Çıktı: `Person: Ayşe` ve `Developer`
+- Alt sınıf constructor'ı önce üst sınıf constructor'ını çalıştırır; nesne üstten alta kurulur
+- `this` mevcut nesneyi gösterir; `this(...)` aynı sınıftaki başka bir constructor'ı çağırır
+- `super.metot()` üst sınıftaki sürümü, `super(...)` üst sınıfın constructor'ını çağırır
+- `this(...)` ya da `super(...)` ilk satırda olur; yazılmazsa derleyici parametresiz `super()` ekler
 
 ## J21-01 · Kod çıktısı
 Konu: Constructor zinciri
@@ -1125,6 +1268,13 @@ class Calculator {
 }
 ```
 
+Anahtar noktalar:
+- Overload: aynı ad, farklı parametre listesi (sayı, tip ya da sıra)
+- `sum(int, int)` ile `sum(double, double)` geçerli overload'lardır
+- Üçüncü metot ilkiyle aynı imzaya (`sum(int, int)`) sahiptir; yalnız dönüş tipi farklı olduğu için derleme hatasıdır
+- Dönüş tipi imzaya dahil değildir; derleyici çağrıyı sonucun atandığı değişkene göre seçmez
+- Düzeltme: üçüncü metodu silmek ya da farklı bir adla veya farklı parametrelerle tanımlamak
+
 ## J22-01 · Çoklu seçim
 Konu: Method overloading
 Soru: Calculator bildirimleri hakkında doğru ifadeleri seçin.
@@ -1185,6 +1335,13 @@ Animal animal = new Dog();
 animal.speak();
 ```
 
+Anahtar noktalar:
+- Çıktı: `Dog`
+- Derleyici çağrının geçerliliğini referans tipine (`Animal`) göre denetler
+- Çalışma zamanında nesnenin gerçek tipindeki override çalışır (dinamik dispatch)
+- `@Override`, metodun gerçekten bir üst sınıf metodunu ezdiğini derleyiciye denetletir
+- `Dog`'a özel bir metot `Animal` referansıyla cast etmeden çağrılamaz; static metotlar ve alanlar override edilmez
+
 ## J23-01 · Kod çıktısı
 Konu: Overriding ve polymorphism
 Soru: Kodun çıktısını yazın.
@@ -1221,6 +1378,13 @@ Etiketler: reference-type, runtime-type, override
 # J24 · Orta · Teori
 
 Java Collections Framework’ün amacını açıklayın. `Collection`, `Collections` ve `Map` kavramlarının farkı nedir?
+
+Anahtar noktalar:
+- Collections Framework, veri gruplarını saklamak ve işlemek için ortak arayüzler ve hazır uygulamalar sunar
+- `Collection`: `List`, `Set` ve `Queue`'nun üst arayüzüdür; tekil elemanlardan oluşan bir grubu temsil eder
+- `Collections`: `sort`, `unmodifiableList` gibi static yardımcı metotlar içeren bir sınıftır
+- `Map` anahtar-değer çiftleri tutar ve `Collection`'ı genişletmez
+- Kod arayüze göre yazılır (`List<String> list = new ArrayList<>();`); uygulama sonradan değiştirilebilir
 
 ## J24-01 · Eşleştirme
 Konu: Collections Framework
@@ -1259,6 +1423,13 @@ Etiketler: collections-framework, hierarchy
 
 Şu ihtiyaçlar için uygun yapıyı seçin: eklenme sırasıyla görev saklama, benzersiz e-posta adresleri tutma ve kullanıcı kimliğinden kullanıcı bilgisine erişme. `List`, `Set` ve `Map` tercihlerinizi gerekçelendirin.
 
+Anahtar noktalar:
+- Eklenme sırasıyla görevler: `List` (ör. `ArrayList`); sırayı ve tekrarları korur
+- Benzersiz e-postalar: `Set` (ör. `HashSet`); tekrarları `equals` ve `hashCode` ile reddeder
+- Kimlikten kullanıcıya erişim: `Map<Integer, User>` (ör. `HashMap`); anahtarla ortalama O(1) erişim
+- Eklenme sırası da gerekirse `LinkedHashSet` ve `LinkedHashMap`, sıralı tutmak için `TreeSet` ve `TreeMap`
+- Değişkenin tipini arayüz olarak bildirmek: `List`, `Set`, `Map`
+
 ## J25-01 · Eşleştirme
 Konu: List Set Map seçimi
 Soru: İhtiyaçları en doğrudan temel koleksiyon soyutlamasıyla eşleştirin.
@@ -1277,6 +1448,13 @@ Etiketler: list, set, map, selection
 # J26 · Orta · Teori
 
 `ArrayList` ile `LinkedList` yapılarını indeksle erişim, ekleme-silme, bellek kullanımı ve gerçek uygulamalardaki performans açısından karşılaştırın.
+
+Anahtar noktalar:
+- `ArrayList` dizi tabanlıdır: `get(i)` O(1), sona ekleme amortize O(1), ortaya ekleme ve silme kaydırma gerektirir
+- `LinkedList` çift bağlı listedir: `get(i)` O(n), başa ve sona ekleme O(1)
+- `LinkedList`'te indeksle ekleme önce düğümü aradığı için yine O(n)'dir; O(1) yalnız konum zaten elindeyse geçerlidir
+- `LinkedList` her eleman için iki bağlantı taşır; bellek yükü daha fazladır
+- Pratikte `ArrayList` bitişik bellek ve cache locality sayesinde çoğu durumda daha hızlıdır; varsayılan seçimdir
 
 ## J26-01 · Eşleştirme
 Konu: ArrayList ve LinkedList
@@ -1333,6 +1511,13 @@ employees.add(new Employee(10));
 
 System.out.println(employees.size());
 ```
+
+Anahtar noktalar:
+- Çıktı: `2`
+- `equals` ve `hashCode` override edilmezse `Object`'in kimlik karşılaştırması kullanılır; her `new` ayrı bir nesnedir
+- `HashSet` önce `hashCode` ile bucket'ı bulur, sonra `equals` ile eşitliği doğrular
+- Aynı `id`'yi eşit saymak için `equals` ve `hashCode` birlikte, aynı alana göre override edilir
+- Yalnız birini override etmek sözleşmeyi bozar; eşit iki nesne farklı hash üretip ikisi birden saklanabilir
 
 ## J27-01 · Kod çıktısı
 Konu: HashSet eşitliği
@@ -1395,6 +1580,13 @@ static Map<Integer, List<Order>> groupByCustomer(List<Order> orders) {
 // LinkedHashMap kullanılır.
 ```
 
+Anahtar noktalar:
+- `Map<Integer, List<Order>>` kurup her siparişi müşteri kimliğinin listesine eklemek
+- `computeIfAbsent(id, k -> new ArrayList<>()).add(order)` listeyi yalnız ilk seferde oluşturur
+- `get` ile alınan listenin ilk seferde null olduğunu unutmak `NullPointerException` verir
+- n sipariş için ortalama O(n) zaman ve O(n) ek bellek
+- `HashMap` anahtar sırası garanti etmez; ilk görülme sırası gerekirse `LinkedHashMap`, stream ile `Collectors.groupingBy`
+
 ## J28-01 · Tek seçim
 Konu: Map ile gruplama
 Soru: Siparişleri `customerId`'ye göre `Map<Integer,List<Order>>` içinde doğru biçimde gruplayan gövde hangisidir? `Order#getCustomerId()` int döndürür.
@@ -1444,6 +1636,13 @@ Etiketler: hashmap, linkedhashmap, ordering, grouping
 # J29 · Orta · Teori
 
 `HashMap` içinde bir anahtar-değer çifti eklenirken ve aranırken hangi adımlar gerçekleşir? Hash değeri, bucket, collision, `equals()`, kapasite ve yeniden boyutlandırma kavramlarını açıklayın.
+
+Anahtar noktalar:
+- `put`: anahtarın `hashCode`'u hesaplanır ve kapasiteye göre bir bucket indeksine çevrilir
+- Collision: farklı anahtarlar aynı bucket'a düşebilir; bucket içindeki adaylar `equals` ile ayırt edilir
+- Eşit anahtar varsa değer güncellenir, yoksa yeni giriş eklenir; `get` de aynı yolu izler
+- Eleman sayısı kapasite × yük faktörünü (varsayılan 0,75) aşınca tablo büyür ve girişler yeniden dağıtılır
+- İyi dağılımda `get` ve `put` ortalama O(1); Java 8'den beri uzayan bucket'lar ağaca dönüşür
 
 ## J29-01 · Sıralama
 Konu: HashMap çalışma mantığı
@@ -1498,6 +1697,13 @@ static int calculate() {
 
 System.out.println(calculate());
 ```
+
+Anahtar noktalar:
+- Çıktı: `catch`, `finally` ve `-1`
+- `10 / 0` `ArithmeticException` fırlatır; try'ın geri kalanı atlanır ve uyan `catch` çalışır
+- `catch`'teki `return -1` değerlendirilir, ama metottan çıkmadan önce `finally` çalışır
+- `finally` exception olsa da olmasa da çalışır; kaynak kapatma gibi temizlik işleri içindir
+- `finally` içinde `return` yazmak önceki dönüşü ve exception'ı bastırır; bundan kaçınılır
 
 ## J30-01 · Kod çıktısı
 Konu: Exception kontrol akışı
@@ -1556,6 +1762,13 @@ static String readFirstLine(String path) {
     return reader.readLine();
 }
 ```
+
+Anahtar noktalar:
+- `FileReader` constructor'ı ve `readLine`, checked `IOException` (ve alt tipi `FileNotFoundException`) bildirir
+- Derleyici checked exception için ya `try`/`catch` ya da metot imzasında `throws` ister
+- Unchecked exception'lar (`RuntimeException` ve alt tipleri) için bu zorunluluk yoktur
+- Düzeltme: `throws IOException` eklemek ya da hatayı metodun içinde anlamlı biçimde ele almak
+- Kaynağı kapatmak için try-with-resources: `try (BufferedReader reader = new BufferedReader(new FileReader(path)))`
 
 ## J31-01 · Çoklu seçim
 Konu: Checked exception
@@ -1625,6 +1838,13 @@ class RegistrationService {
 }
 ```
 
+Anahtar noktalar:
+- `Exception`'dan türetmek exception'ı checked, `RuntimeException`'dan türetmek unchecked yapar
+- Checked seçimi: çağıran durumu düzeltebilir (kullanıcıdan yeni yaş ister); derleyici ele alınmasını zorlar
+- Unchecked seçimi: geçersiz yaş bir programlama hatasıysa, yani yaş önceden doğrulanmış olmalıysa
+- `throw` exception'ı fırlatır; metot imzasındaki `throws InvalidAgeException` bunu çağırana bildirir
+- Anlamlı bir mesaj ve gerekirse nedeni (cause) taşıyan constructor eklemek
+
 ## J32-01 · Tek seçim
 Konu: Özel exception tasarımı
 Soru: Geçersiz yaşın çağıranın işlemi düzeltip yeniden deneyebileceği iş kuralı ihlali olarak checked exception ile bildirilmesi isteniyor. Doğru tasarım hangisidir?
@@ -1663,6 +1883,13 @@ Etiketler: throw, throws, exception
 # J33 · Orta · Teori
 
 Interface ile abstract class arasındaki temel farklar nelerdir? Ortak davranış sözleşmesi, ortak durum, constructor, çoklu kalıtım ihtiyacı ve genişletilebilirlik açısından hangisini ne zaman tercih edersiniz?
+
+Anahtar noktalar:
+- Interface bir davranış sözleşmesidir; bir sınıf birden çok interface uygulayabilir
+- Abstract class ortak durum (instance alanları) ve constructor içerebilir; bir sınıf yalnız bir sınıfı genişletebilir
+- Java 8'den beri interface `default` ve `static` metot içerebilir; alanları yalnız `public static final` sabitlerdir
+- Birden fazla yetenek ve gevşek bağ için interface, ortak kod ve durum paylaşan yakın sınıflar için abstract class
+- Interface'e `default` metotla eklenen davranış mevcut uygulamaları bozmaz
 
 ## J33-01 · Eşleştirme
 Konu: Interface ve abstract class
@@ -1703,6 +1930,13 @@ Etiketler: interface, abstract-class, java8
 # J34 · Orta · Kod yazma
 
 Herhangi bir türde değer saklayabilen `Box<T>` generic sınıfını yazın. Sınıfı `String` ve `Integer` ile kullanın.
+
+Anahtar noktalar:
+- Örnek: `class Box<T> { private T value; ... T get() { return value; } }`
+- `T` tip parametresidir; kullanırken gerçek tip verilir: `Box<String>`, `Box<Integer>`
+- Derleyici tipi denetler: `get()` cast gerektirmeden doğru tipi döndürür, yanlış tip vermek derleme hatasıdır
+- Primitive tipler tip argümanı olamaz; `Box<int>` yerine `Box<Integer>` kullanılır
+- `new Box<>("Java")` yazınca tip argümanını derleyici çıkarır; tip bilgisi çalışma zamanında silinir (type erasure)
 
 ## J34-01 · Boşluk doldurma
 Konu: Generic sınıflar
@@ -1749,6 +1983,13 @@ values.add(42);
 
 String first = (String) values.get(1);
 ```
+
+Anahtar noktalar:
+- Raw `List` her türü kabul eder ve `get` sonucunu `Object` olarak verir; tip denetimi çalışma zamanına kalır
+- `(String) values.get(1)` derlenir ama eleman `Integer` olduğu için `ClassCastException` verir
+- Düzeltme: `List<String> values = new ArrayList<>();`; artık `values.add(42)` derleme hatasıdır
+- Generic liste `get` ile cast gerektirmeden `String` döndürür
+- Raw type yalnız eski kodla uyumluluk için vardır; derleyicinin "unchecked" uyarıları göz ardı edilmemelidir
 
 ## J35-01 · Tek seçim
 Konu: Raw type ve tip güvenliği
@@ -1808,6 +2049,13 @@ for (String name : names) {
 }
 ```
 
+Anahtar noktalar:
+- Enhanced for listeyi bir iterator ile dolaşır; döngüde `names.remove` iterator'ın dışından yapısal değişiklik yapar
+- Sonraki iterator adımı bunu fark eder ve `ConcurrentModificationException` fırlatır; tek thread'de de olur
+- Güvenli çözüm: `names.removeIf(name -> name.startsWith("A"));`
+- Alternatif: açık bir `Iterator` ile dolaşıp eşleşmede `iterator.remove()` çağırmak
+- İndeksle silinecekse sondan başa dolaşmak; baştan dolaşırken silmek sonraki elemanı atlatır
+
 ## J36-01 · Tek seçim
 Konu: Koleksiyon dolaşırken silme
 Soru: Kod standart ArrayList ile çalıştırıldığında tipik olarak ne olur?
@@ -1858,6 +2106,13 @@ Etiketler: removeif, iterator, arraylist
 # J37 · Zorlayıcı · Generics
 
 `List<? extends Number>` ile `List<? super Integer>` arasındaki farkı açıklayın. Hangi yapıya güvenle veri eklenebileceğini ve hangisinden hangi tipte veri okunabileceğini kod üzerinden gösterin.
+
+Anahtar noktalar:
+- `List<? extends Number>` bir `Integer`, `Double` ya da başka bir `Number` alt tipi listesi olabilir
+- Ondan okunan her eleman `Number`'dır; ama gerçek tip bilinmediği için null dışında eleman eklenemez
+- `List<? super Integer>` bir `Integer`, `Number` ya da `Object` listesi olabilir; `Integer` eklemek güvenlidir
+- Ondan okunan eleman yalnız `Object` olarak garanti edilir
+- PECS: veri veren kaynak `extends`, veri alan hedef `super`; ör. `copy(List<? super T> dest, List<? extends T> src)`
 
 ## J37-01 · Eşleştirme
 Konu: Generic wildcard PECS
@@ -1916,6 +2171,13 @@ static void createUser() {
 }
 ```
 
+Anahtar noktalar:
+- Metot çağrısı stack'te bir frame açar; yerel değişkenler (`age`, `user`) bu frame'dedir
+- `age` primitive değeri (22) doğrudan tutar; `user` bir referans tutar
+- `new User()` nesnesi heap'tedir; `name` alanı bu nesnenin parçasıdır ve `"Deniz"` String nesnesini gösterir
+- Metot dönünce frame kalkar; nesneye başka referans kalmadıysa GC için uygun hâle gelir
+- Bu kavramsal bir modeldir; JVM kaçış analiziyle (escape analysis) bazı nesneleri heap'e hiç koymayabilir
+
 ## J38-01 · Eşleştirme
 Konu: Stack ve heap
 Soru: Yaygın JVM'in kavramsal bellek modelinde öğeleri ilişkileriyle eşleştirin.
@@ -1966,6 +2228,13 @@ Object second = new Object();
 first = second;
 second = null;
 ```
+
+Anahtar noktalar:
+- GC, köklerden (yerel değişkenler, static alanlar gibi) erişilemeyen nesneleri toplayabilir
+- `first = second` sonrası ilk nesneye (A) giden referans kalmaz; A GC için uygun olur
+- `second = null` B'yi etkilemez; `first` hâlâ B'yi gösterir
+- Uygun olmak hemen toplanmak demek değildir; ne zaman çalışacağına JVM karar verir, `System.gc()` yalnız bir istektir
+- Dosya ve bağlantı kapatmak GC'ye bırakılmaz; bunun için try-with-resources kullanılır
 
 ## J39-01 · Tek seçim
 Konu: Garbage collection erişilebilirliği
@@ -2039,6 +2308,13 @@ final class Candidate {
 }
 ```
 
+Anahtar noktalar:
+- `equals(Object o)`: aynı referans kontrolü, `instanceof` ile tip ve null kontrolü, sonra `id` karşılaştırması
+- `hashCode` aynı alandan üretilir (`Integer.hashCode(id)`); eşit nesneler aynı hash'i vermelidir
+- Sözleşme: yansıma, simetri, geçişlilik, tutarlılık ve `x.equals(null)` için her zaman `false`
+- Bozulursa eşit iki nesne farklı bucket'lara düşer: `HashSet` ikisini de saklar, `HashMap.get` değeri bulamaz
+- `equals(Candidate c)` yazmak override değil overload'dur; `@Override` bu hatayı yakalar
+
 ## J40-01 · Tek seçim
 Konu: equals ve hashCode sözleşmesi
 Soru: Candidate nesneleri yalnız `id` alanına göre eşit olacaksa en doğru Java 8 uygulaması hangisidir? `id` constructor'da atanmış `final int`'tir.
@@ -2100,6 +2376,13 @@ map.put(key, "value");
 key.id = 2;
 System.out.println(map.get(key));
 ```
+
+Anahtar noktalar:
+- Çıktı: `null`
+- `put` sırasında giriş, `id = 1` için hesaplanan hash'e göre bir bucket'a yerleşir
+- `id` değişince `get` başka bir hash hesaplar ve girişi bulamaz; giriş map'te kalır ama erişilemez olur
+- `HashMap` anahtar değişince girişi kendiliğinden yeniden yerleştirmez
+- Çözüm: anahtarı immutable yapmak (`final` alan); değiştirmek gerekirse önce `remove`, sonra yeni anahtarla `put`
 
 ## J41-01 · Kod çıktısı
 Konu: Mutable HashMap anahtarı
@@ -2168,6 +2451,13 @@ final class User {
 }
 ```
 
+Anahtar noktalar:
+- Sınıf `final`, alanlar `private final`; setter yoktur
+- Constructor listeyi kopyalar (`new ArrayList<>(roles)`); çağıran kendi listesini değiştirse de nesne etkilenmez
+- Getter iç listeyi doğrudan değil değiştirilemez görünüm olarak döndürür (`Collections.unmodifiableList`)
+- `String` zaten immutable'dır; liste elemanları da immutable olduğu için derin kopya gerekmez
+- Null girdiler constructor'da `Objects.requireNonNull` ile reddedilir
+
 ## J42-01 · Tek seçim
 Konu: Immutable sınıf tasarımı
 Soru: Java 8'de `User(String name, List<String> roles)` sınıfını gerçekten immutable yapmaya en uygun yaklaşım hangisidir?
@@ -2219,6 +2509,13 @@ Thread worker = new Thread(() ->
 worker.run();
 worker.start();
 ```
+
+Anahtar noktalar:
+- `run()` sıradan bir metot çağrısıdır; gövde çağıran thread'de çalışır
+- `start()` yeni bir thread başlatır ve `run()` gövdesini o thread'de çalıştırır
+- Bu yüzden ilk satır çağıranın, ikinci satır yeni thread'in adını yazar
+- `start()` bir thread için yalnız bir kez çağrılabilir; ikinci çağrı `IllegalThreadStateException` verir
+- Thread'in bitmesini beklemek için `join()`; pratikte doğrudan `Thread` yerine `ExecutorService` tercih edilir
 
 ## J43-01 · Kod çıktısı
 Konu: Thread start ve run
@@ -2275,6 +2572,13 @@ class Counter {
     }
 }
 ```
+
+Anahtar noktalar:
+- `value++` atomik değildir: okuma, artırma ve yazma adımlarından oluşur
+- İki thread aynı değeri okuyup aynı sonucu yazarsa bir artış kaybolur (race condition)
+- Senkronizasyon yoksa bir thread'in yazdığını diğerinin görmesi (visibility) de garanti değildir
+- Çözümler: `synchronized` metot ya da blok, `AtomicInteger.incrementAndGet()`, yoğun sayaçlarda `LongAdder`
+- `volatile` tek başına yetmez; yalnız görünürlük sağlar, `++`'yı atomik yapmaz
 
 ## J44-01 · Tek seçim
 Konu: Race condition
@@ -2349,6 +2653,13 @@ first.start();
 second.start();
 ```
 
+Anahtar noktalar:
+- Deadlock: iki thread birbirinin tuttuğu kilidi bekler ve ikisi de ilerleyemez
+- Burada ilk thread `lockA`'yı tutup `lockB`'yi, ikinci thread tersini bekleyebilir; her çalıştırmada olmaz
+- Çözüm: bütün kod yollarında kilitleri aynı global sırayla almak (önce `lockA`, sonra `lockB`)
+- Alternatifler: tek bir ortak kilit ya da `tryLock` ile zaman aşımında kilidi bırakıp yeniden denemek
+- Kilit tutulurken uzun süren ya da başka kilit isteyen çağrılardan kaçınmak
+
 ## J45-01 · Doğru / Yanlış
 Konu: Deadlock
 Soru: İlk thread lockA'yı, ikinci thread lockB'yi aldıktan sonra her biri diğer kilidi beklerse verilen program deadlock'a girebilir.
@@ -2406,6 +2717,13 @@ Etiketler: deadlock, trylock, lock-ordering, concurrency
 
 Lambda ifadesi nedir? Fonksiyonel arayüz ne demektir? `Predicate`, `Function`, `Consumer` ve `Supplier` arayüzlerini birer örnekle açıklayın.
 
+Anahtar noktalar:
+- Fonksiyonel arayüz tek soyut metodu olan arayüzdür (`@FunctionalInterface` isteğe bağlıdır); lambda bu metodu kısa yoldan yazar
+- `Predicate<T>`: `T` alır, `boolean` döner; ör. `filter(s -> !s.isEmpty())`
+- `Function<T, R>`: `T` alır, `R` döner; ör. `map(String::length)`
+- `Consumer<T>`: `T` alır, bir şey döndürmez; ör. `forEach(System.out::println)`
+- `Supplier<T>`: parametre almaz, `T` üretir; ör. `orElseGet(ArrayList::new)`
+
 ## J46-01 · Eşleştirme
 Konu: Fonksiyonel arayüzler
 Soru: `java.util.function` arayüzlerini imzalarıyla eşleştirin.
@@ -2457,6 +2775,13 @@ Etiketler: lambda, function, compose
 # J47 · Orta · Kod okuma
 
 Bir stream zincirinin çıktısını adım adım bulun. Ara (intermediate) ve sonlandırıcı (terminal) işlemler arasındaki farkı ve stream'lerin tembel (lazy) çalışmasını açıklayın.
+
+Anahtar noktalar:
+- Ara işlemler (`filter`, `map`, `sorted`) yeni bir stream döndürür ve yalnız bir işlem zinciri kurar
+- Sonlandırıcı işlem (`collect`, `forEach`, `count`) zinciri çalıştırır ve bir sonuç üretir
+- Stream tembeldir: sonlandırıcı işlem yoksa `peek` ya da `map` gibi adımlar hiç çalışmaz
+- Bir stream yalnız bir kez tüketilir; ikinci sonlandırıcı işlem `IllegalStateException` verir
+- Stream kaynağı değiştirmez; sonuç yeni bir koleksiyona toplanır (`Collectors.toList()`)
 
 ## J47-01 · Kod çıktısı
 Konu: Stream API
@@ -2516,6 +2841,13 @@ Etiketler: stream, illegalstateexception
 # J48 · Orta · Kod yazma
 
 `Employee` nesnelerini önce departmana göre artan, aynı departmandakileri maaşa göre azalan sırada dizin. `Comparable` ile `Comparator` arasındaki farkı açıklayın.
+
+Anahtar noktalar:
+- `Comparable` sınıfın içinde tanımlanan tek doğal sıralamadır (`compareTo`)
+- `Comparator` sınıfın dışında istenen kadar farklı sıralama kurar (`compare`)
+- Örnek: `Comparator.comparing(Employee::getDept).thenComparing(Employee::getSalary, Comparator.reverseOrder())`
+- Sona eklenen `reversed()` bütün sırayı ters çevirir; yalnız maaşı ters çevirmek için ikinci ölçüte `reverseOrder()` verilir
+- `compareTo` ile `equals` tutarlı olmalıdır; `TreeSet` 0 döndüren iki nesneden yalnız birini saklar
 
 ## J48-01 · Tek seçim
 Konu: Comparator
@@ -2582,6 +2914,13 @@ Etiketler: comparable, treeset, equals
 
 `Optional` ne amaçla kullanılır? `orElse` ile `orElseGet` arasındaki fark nedir ve `Optional` nerelerde kullanılmamalıdır?
 
+Anahtar noktalar:
+- `Optional`, bir metodun sonuç döndürmeyebileceğini tipte gösterir; null kontrolünü unutmayı zorlaştırır
+- `orElse(x)` argümanını her durumda değerlendirir; `orElseGet(supplier)` varsayılan değeri yalnız değer yoksa üretir
+- Varsayılan değeri üretmek pahalıysa ya da yan etkisi varsa `orElseGet` kullanılır
+- `get()` yerine `map`, `filter`, `orElse` ve `ifPresent` tercih edilir; boşken `get()` `NoSuchElementException` verir
+- Alanlarda, parametrelerde ve koleksiyon dönüşlerinde kullanılmaz; `Optional.of(null)` NPE verir, `ofNullable` vermez
+
 ## J49-01 · Kod çıktısı
 Konu: Optional
 Soru: Kodun çıktısını satır sırasıyla yazın.
@@ -2642,6 +2981,13 @@ Etiketler: optional, ofnullable
 
 Java'da `enum` nedir? Sabit `int` değerlerine göre avantajları nelerdir? Alan, kurucu ve metot içeren bir enum örneği verin.
 
+Anahtar noktalar:
+- `enum`, sabit sayıda adlandırılmış örneği olan özel bir sınıftır
+- Tip güvenliği: yalnız tanımlı sabitler geçirilebilir; `int` sabitlerde herhangi bir sayı geçer
+- Alan, kurucu ve metot taşıyabilir: `LOW(1)` sabiti `Priority(int weight)` kurucusuna 1 geçirir
+- `values()`, `valueOf()` ve `ordinal()` gibi yardımcılar sunar; `switch` içinde doğrudan kullanılır
+- Her sabit tek örnektir ve `==` ile karşılaştırılır; `ordinal()` sıraya bağlı olduğu için saklanacak değer yapılmaz
+
 ## J50-01 · Kod çıktısı
 Konu: enum
 Soru: Kodun çıktısını satır sırasıyla yazın.
@@ -2698,6 +3044,13 @@ Etiketler: enum, type-safety, switch
 # J51 · Orta · Kod okuma
 
 try-with-resources nasıl çalışır? Birden fazla kaynak hangi sırayla kapatılır? `close` sırasında oluşan bir istisnaya ne olur?
+
+Anahtar noktalar:
+- Parantez içinde açılan kaynaklar, istisna olsa bile, blok bitince otomatik kapatılır
+- Kaynaklar açılış sırasının tersiyle kapanır: önce B, sonra A
+- Kaynak sınıfı `AutoCloseable` (ya da onu genişleten `Closeable`) arayüzünü uygulamalıdır
+- Gövde ve `close` ikisi de fırlatırsa gövdenin istisnası ulaşır; `close` istisnası ona suppressed olarak eklenir
+- Elle yazılan try-finally'de `finally`'deki istisna asıl istisnayı ezer; try-with-resources bunu önler
 
 ## J51-01 · Kod çıktısı
 Konu: try-with-resources
