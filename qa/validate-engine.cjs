@@ -162,7 +162,16 @@ const interviewBank = E.buildInterviewBank(E.getBank());
 check(interviewBank.length === Object.keys(context.window.SOURCE_QUESTIONS).length, 'Mülakat bankası her kaynak soruyu içermeli.');
 check(interviewBank.every((item) => item.keyPoints.length > 0 && item.explanations.length + item.examples.length > 0), 'Her mülakat sorusunun kontrol listesi ve açıklaması olmalı.');
 const o24 = interviewBank.find((item) => item.sourceId === 'O24');
-check(o24.keyPoints.length === 1 && o24.examples.length === 1 && o24.examples[0].code && o24.examples[0].output, 'Soruda görünmeyen koda dayanan kart kontrol listesine değil, koduyla örneğe girmeli.');
+check(o24.examples.length === 1 && o24.examples[0].code && o24.examples[0].output, 'Soruda görünmeyen koda dayanan kart koduyla örneğe girmeli.');
+// Without written key points the checklist comes from the cards, leaving out a card built on code the question does not show.
+const bankSources = context.window.SOURCE_QUESTIONS;
+context.window.SOURCE_QUESTIONS = { X01: { id: 'X01', descriptor: 'Kolay · Teori', prompt: 'Deneme sorusu.' } };
+const fallback = E.buildInterviewBank([
+  { id: 'X01-01', sourceId: 'X01', section: 'Java', type: 'boolean', explanationShort: 'Doğru. Kısa özet.', explanationLong: 'Açıklama.' },
+  { id: 'X01-02', sourceId: 'X01', section: 'Java', type: 'output', code: 'System.out.println(1);', answer: '1', explanationShort: 'Kodun özeti.', explanationLong: 'Kodun açıklaması.' }
+])[0];
+context.window.SOURCE_QUESTIONS = bankSources;
+check(JSON.stringify(fallback.keyPoints) === JSON.stringify(['Kısa özet.']) && fallback.examples.length === 1, 'Yazılmış anahtar nokta yoksa kontrol listesi, soruda görünmeyen koda dayanmayan kartların özetlerinden oluşmalı.');
 check(interviewBank.every((item) => ['Kolay', 'Orta', 'Zorlayıcı'].includes(item.difficulty)), 'Mülakat zorluğu kaynak tanımından okunmalı.');
 const j03 = interviewBank.find((item) => item.sourceId === 'J03');
 check(j03.expectedOutputs.length === 1 && j03.expectedOutputs[0] === '10\n99', 'Aynı kodu çalıştıran çıktı kartı beklenen çıktı olarak gösterilmeli.');

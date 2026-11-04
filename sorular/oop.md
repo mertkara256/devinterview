@@ -4,6 +4,13 @@
 
 Class ile object arasındaki fark nedir? `Car` örneğinde hangisi şablon, hangisi çalışma zamanında oluşturulan örnektir?
 
+Anahtar noktalar:
+- Class bir şablondur: alanları (durum), metotları (davranış) ve kuralları tanımlar
+- Object, `new Car()` ile çalışma zamanında oluşturulan somut bir örnektir
+- Bir sınıftan birçok nesne oluşturulabilir; her nesnenin kendi alan değerleri vardır
+- `Car car;` yalnız bir referans değişkeni bildirir; nesneyi `new` oluşturur
+- Nesne heap'te durur; değişken ona giden referansı tutar
+
 ## O01-01 · Tek seçim
 Konu: Class ve Object
 Soru: Car örneğinde class ile object ayrımını doğru açıklayan seçenek hangisidir?
@@ -26,6 +33,13 @@ Etiketler: class, object, instance
 # O02 · Kolay · Teori
 
 Bir nesnenin state ve behavior özellikleri ne anlama gelir? Bir `BankAccount` nesnesi için örnekler verin.
+
+Anahtar noktalar:
+- State: nesnenin belirli bir andaki verisi; alanlarda tutulur (ör. `ownerId`, `balance`)
+- Behavior: nesnenin yapabildikleri; metotlarla tanımlanır (ör. `deposit`, `withdraw`, `getBalance`)
+- Davranış durumu kontrollü biçimde değiştirir: `deposit(25)` bakiyeyi 100'den 125'e çıkarır
+- Aynı sınıftan iki hesap aynı davranışı paylaşır ama durumları ayrıdır
+- İyi tasarımda durum dışarıdan doğrudan değil, davranış üzerinden değişir
 
 ## O02-01 · Çoklu seçim
 Konu: State ve Behavior
@@ -95,6 +109,13 @@ System.out.println(a.value);
 System.out.println(a == b);
 ```
 
+Anahtar noktalar:
+- Çıktı: `6` ve `true`
+- `Counter b = a;` nesneyi kopyalamaz; aynı nesneye ikinci bir referans oluşturur
+- `b.value++` ortak nesneyi değiştirdiği için değişiklik `a` üzerinden de görünür
+- `a == b` iki referansın aynı nesneyi gösterip göstermediğini sınar
+- Bağımsız bir kopya için yeni bir nesne oluşturmak gerekir (ör. kopya constructor)
+
 ## O03-01 · Kod çıktısı
 Konu: Nesne Referansları
 Soru: İki referans aynı Counter nesnesini gösterirken kodun çıktısını satır sırasıyla yazın.
@@ -141,6 +162,13 @@ Etiketler: reference, aliasing, mutation
 # O04 · Kolay · Teori
 
 Constructor nedir ve normal bir metottan hangi yönleriyle ayrılır? Bir sınıfta constructor yazılmazsa ne olur?
+
+Anahtar noktalar:
+- Constructor nesne oluşturulurken çalışır ve nesnenin ilk geçerli durumunu kurar
+- Adı sınıf adıyla aynıdır ve dönüş tipi yoktur; `void` bile yazılmaz
+- Miras alınmaz; alt sınıf üst sınıfın constructor'ını `super(...)` ile çağırır
+- Hiç constructor yazılmazsa derleyici parametresiz bir default constructor ekler
+- Herhangi bir constructor yazılırsa derleyici parametresiz constructor'ı artık eklemez
 
 ## O04-01 · Çoklu seçim
 Konu: Constructor
@@ -189,6 +217,12 @@ class User {
 
 User user = new User();
 ```
+
+Anahtar noktalar:
+- Kod derlenmez: `User(String)` yazıldığı için derleyici parametresiz `User()` eklemez
+- Çözüm: parametresiz constructor'ı ayrıca yazmak
+- Tekrarı önlemek için `User()` ilk satırda `this("Misafir")` ile isimli constructor'a yönlenebilir
+- Constructor'lar parametre listeleriyle overload edilir: `User()` ve `User(String)`
 
 ## O05-01 · Tek seçim
 Konu: Constructor
@@ -248,6 +282,13 @@ Etiketler: constructor, overloading, this
 
 Encapsulation nedir? Alanları `private` yapıp otomatik getter ve setter eklemek neden her zaman yeterli değildir?
 
+Anahtar noktalar:
+- Encapsulation: veriyi ve onu işleyen davranışı bir arada tutup iç durumu dışarıdan korumak
+- `private` alan yalnız başlangıçtır; asıl amaç nesnenin kurallarını (invariant) korumaktır
+- Kuralsız bir `setBalance` her değeri kabul ederse alanın `public` olmasından farkı kalmaz
+- İyi bir API niyeti anlatır ve doğrular: `deposit` ile `withdraw` geçersiz tutarı reddeder
+- Her alana otomatik getter ve setter eklemek iç yapıyı dışarı sızdırır; yalnız gereken erişim açılır
+
 ## O06-01 · Tek seçim
 Konu: Encapsulation
 Soru: Bir BankAccount sınıfında gerçek encapsulation'ı en iyi sağlayan tasarım hangisidir?
@@ -294,6 +335,13 @@ class BankAccount {
     }
 }
 ```
+
+Anahtar noktalar:
+- `balance` alanı `private`'tır; dışarıdan yalnız `getBalance()` ile okunur
+- `deposit` sıfır veya negatif tutarı reddeder
+- `withdraw` sıfır veya negatif tutarı ve bakiyeyi aşan çekimi reddeder; bakiye eksiye düşmez
+- Geçersiz istekte durum değişmez; sonuç `false` dönüşüyle ya da exception ile bildirilir
+- Bakiyeyi doğrudan değiştiren bir setter yoktur
 
 ## O07-01 · Çoklu seçim
 Konu: Encapsulation ve Invariant
@@ -352,6 +400,13 @@ Etiketler: encapsulation, invariant, output
 
 Inheritance hangi problemi çözebilir? “Is-a” ilişkisini kullanarak uygun ve uygun olmayan birer kalıtım örneği verin.
 
+Anahtar noktalar:
+- Kalıtım ortak durumu ve davranışı üst sınıfta toplar; alt sınıflar bunu yeniden kullanır ve özelleştirir
+- Yalnız gerçek "is-a" ilişkisinde kullanılır: `Dog extends Animal`, çünkü köpek bir hayvandır
+- Uygun olmayan örnek: `Car extends Engine`; araba bir motor değildir, bir motoru vardır
+- "Has-a" ilişkisi composition ile kurulur: `Car` bir `Engine` alanı tutar
+- Alt sınıf, üst sınıfın beklendiği her yerde onun yerine sorunsuz kullanılabilmelidir (Liskov)
+
 ## O08-01 · Tek seçim
 Konu: Inheritance
 Soru: Aşağıdaki ilişkilerden hangisi kalıtım için geçerli bir is-a örneğidir?
@@ -389,6 +444,13 @@ Etiketler: inheritance, composition, is-a, has-a
 # O09 · Kolay · Teori
 
 Method overloading nedir? Aynı işlemin farklı parametrelerle sunulmasının yararlı ve kafa karıştırıcı olabileceği durumlara örnek verin.
+
+Anahtar noktalar:
+- Overload: aynı ad, farklı parametre listesi (sayı, tip ya da sıra)
+- Yalnız dönüş tipini değiştirmek overload oluşturmaz
+- Hangi sürümün çağrılacağına derleme zamanında, argümanların statik tiplerine göre karar verilir
+- Yararlı örnek: `send(String message)` ve `send(String message, int retryCount)`
+- Kafa karıştırıcı örnek: `send(Object)` ile `send(String)` varken `send(null)` en özgül olan `String` sürümünü çağırır
 
 ## O09-01 · Çoklu seçim
 Konu: Method Overloading
@@ -433,6 +495,13 @@ Etiketler: overloading, null, most-specific, output
 # O10 · Kolay · Teori
 
 Method overriding nedir? Alt sınıfın üst sınıf davranışını değiştirmesi gereken bir senaryo anlatın.
+
+Anahtar noktalar:
+- Override: alt sınıf, üst sınıftaki instance metodu aynı imzayla yeniden tanımlar
+- Hangi sürümün çalışacağına çalışma zamanında nesnenin gerçek tipine göre karar verilir (dinamik dispatch)
+- Kurallar: aynı ad ve parametreler, aynı ya da covariant dönüş tipi, daraltılmayan erişim
+- `@Override` imza hatalarını derleme zamanında yakalar; `static`, `private` ve `final` metotlar override edilmez
+- Senaryo: `EmailNotification`, `Notification.send()`'i kendi gönderimiyle değiştirir; gerekirse `super.send()` çağrılır
 
 ## O10-01 · Kod çıktısı
 Konu: Method Overriding
@@ -481,6 +550,13 @@ Etiketler: overriding, covariant-return, access
 # O11 · Kolay · Teori
 
 Polymorphism nedir? Farklı ödeme yöntemlerinin tek bir ortak tip üzerinden kullanılmasını örnek göstererek açıklayın.
+
+Anahtar noktalar:
+- Polymorphism: farklı sınıfların nesneleri ortak bir tip üzerinden kullanılır, her biri kendi davranışını sergiler
+- Örnek: `CardPayment`, `TransferPayment` ve `WalletPayment` aynı `PaymentMethod` arayüzünü uygular
+- `CheckoutService` yalnız `PaymentMethod.pay()`'i çağırır; doğru uygulamayı dinamik dispatch seçer
+- Türe bakan `if` ya da `instanceof` dalları gerekmez; yeni ödeme türü mevcut kodu değiştirmeden eklenir
+- Derleme zamanı polymorphism'i overload, çalışma zamanı polymorphism'i override ile gerçekleşir
 
 ## O11-01 · Kod çıktısı
 Konu: Polymorphism
@@ -538,6 +614,13 @@ Etiketler: polymorphism, payment, extensibility
 
 Abstraction ile encapsulation arasındaki farkı bir ödeme sistemi üzerinden açıklayın.
 
+Anahtar noktalar:
+- Abstraction: neyin yapıldığını gösterip nasıl yapıldığını gizlemek; ör. `PaymentMethod.pay(amount)` sözleşmesi
+- Encapsulation: sınıfın verisini ve kurallarını içeride tutup dışarıdan doğrudan erişimi engellemek
+- Ödeme örneği: istemci yalnız `pay`'i bilir; kart numarası ve doğrulama `CardPayment` içinde korunur
+- Abstraction tasarım düzeyinde arayüzle, encapsulation uygulama düzeyinde erişim belirleyicilerle sağlanır
+- İkisi birbirini tamamlar ama aynı kavram değildir
+
 ## O12-01 · Tek seçim
 Konu: Abstraction ve Encapsulation
 Soru: Bir ödeme sistemi için abstraction ile encapsulation ayrımını doğru kuran seçenek hangisidir?
@@ -560,6 +643,13 @@ Etiketler: abstraction, encapsulation, payment
 # O13 · Kolay · Teori
 
 Interface ve abstract class ne amaçla kullanılır? Her biri için uygun birer kullanım örneği verin.
+
+Anahtar noktalar:
+- Interface bir yetenek sözleşmesidir; bir sınıf birden çok interface uygulayabilir
+- Abstract class yakın sınıfların ortak durumunu, constructor'ını ve hazır metotlarını paylaşır; tek kalıtım vardır
+- Interface örneği: `Comparable`, `Runnable` ya da bağımsız sınıflara verilen `Printable` gibi bir yetenek
+- Abstract class örneği: ortak `id` ve doğrulama koduna sahip `Vehicle`'dan türeyen `Car` ve `Truck`
+- İstemciler somut sınıfa değil interface'e bağlanır; abstract class bir interface'i kısmen uygulayabilir
 
 ## O13-01 · Tek seçim
 Konu: Interface ve Abstract Class
@@ -602,6 +692,13 @@ Etiketler: interface, capability, multiple-inheritance
 # O14 · Orta · Modelleme
 
 Öğrencilerin birden fazla derse, derslerin de birden fazla öğrenciye sahip olduğu üniversite kayıt sistemini modelleyin. Temel sınıfları, sorumlulukları ve ilişkileri belirtin.
+
+Anahtar noktalar:
+- Temel sınıflar: `Student`, `Course` ve aralarındaki kaydı temsil eden `Enrollment`
+- Öğrenci–ders ilişkisi çoktan çoğadır; her `Enrollment` bir öğrenciyi bir derse bağlar
+- Kayda özgü bilgi (kayıt tarihi, not) ne öğrenciye ne derse aittir; `Enrollment`'ta tutulur
+- Kontenjan gibi kurallar `Course`'ta, not ve tarih kuralları `Enrollment`'ta tek yerde tutulur
+- Kalıtım yanlış olur: `Student` bir `Course` değildir; ilişki association ile kurulur
 
 ## O14-01 · Eşleştirme
 Konu: Nesne Modelleme
@@ -665,6 +762,13 @@ class C extends B {
 new C();
 ```
 
+Anahtar noktalar:
+- Çıktı: `A`, `B` ve `C`
+- Her constructor ilk iş olarak üst sınıf constructor'ını çağırır; yazılmazsa derleyici `super()` ekler
+- Nesne üstten alta kurulur: önce `A`, sonra `B`, en son `C` gövdesi çalışır
+- Böylece alt sınıfın gövdesi çalışırken üst sınıfın kısmı hazırdır
+- Zincirin en başında `Object` constructor'ı vardır
+
 ## O15-01 · Kod çıktısı
 Konu: Constructor Zinciri
 Soru: new C() çağrısında constructor zincirinin çıktısını satır sırasıyla yazın.
@@ -711,6 +815,13 @@ class Employee extends Person {
     }
 }
 ```
+
+Anahtar noktalar:
+- Hata: `Employee(int)` açık bir çağrı yapmadığı için derleyici `super()` ekler, ama `Person`'da parametresiz constructor yoktur
+- `Person(String)` yazıldığı için derleyici `Person()` üretmez
+- Düzeltme: `Employee(int id)` ilk satırda `super("Ada")` gibi uygun bir çağrı yapar
+- Alternatif `Person`'a parametresiz constructor eklemektir; ama anlamsız bir varsayılan ad üretmemek gerekir
+- `id` ayrıca `Employee`'nin kendi alanında saklanır
 
 ## O16-01 · Tek seçim
 Konu: Constructor Zinciri
@@ -780,6 +891,13 @@ class Product {
     }
 }
 ```
+
+Anahtar noktalar:
+- Hata: `Product()` `Product(String)`'i, o da `Product()`'ı çağırır; döngüsel constructor zinciri derleme hatasıdır
+- `this(...)` aynı sınıftaki başka bir constructor'ı çağırır ve ilk satırda olmalıdır
+- Zincirin bir ucunda `this(...)` çağırmadan alanları başlatan tek bir ana constructor bulunmalıdır
+- Düzeltme: `Product()` `this("Unknown")` çağırır; `Product(String name)` alanı kendisi atar
+- Gövdeler içten dışa çalışır: önce ana constructor, sonra onu çağıranların geri kalanı
 
 ## O17-01 · Tek seçim
 Konu: Constructor Zinciri
@@ -867,6 +985,13 @@ vehicle.start();
 vehicle.openTrunk();
 ```
 
+Anahtar noktalar:
+- Çıktı: `Car started`; `vehicle.openTrunk()` satırı derlenmez
+- Referansın bildirilen tipi (`Vehicle`) hangi metotların çağrılabileceğini belirler
+- Nesnenin çalışma zamanı tipi (`Car`) override edilmiş metotlardan hangisinin çalışacağını belirler
+- `openTrunk` yalnız `Car`'da olduğu için `Vehicle` referansıyla çağrılamaz
+- Gerekirse `instanceof` kontrolünden sonra cast edilir: `((Car) vehicle).openTrunk()`
+
 ## O18-01 · Kod çıktısı
 Konu: Polymorphism
 Soru: Yalnızca derlenebilen start çağrısı çalıştırıldığında çıktı nedir?
@@ -925,6 +1050,13 @@ class Child extends Parent {
     }
 }
 ```
+
+Anahtar noktalar:
+- Override eden metot erişimi daraltamaz: `public` metot `protected` yapılamaz, bu yüzden kod derlenmez
+- Dönüş tipi aynı ya da alt tip (covariant) olabilir: `Number` yerine `Integer` geçerlidir
+- Daha genel bir dönüş tipi (`Object`) geçersizdir
+- Düzeltme: `public Integer getValue()` ya da `public Number getValue()`
+- Kural Liskov ilkesinden gelir: üst tipi kullanan istemci alt tipte de aynı erişimi bulmalıdır
 
 ## O19-01 · Çoklu seçim
 Konu: Method Overriding
@@ -990,6 +1122,13 @@ printer.print(object);
 printer.print(null);
 ```
 
+Anahtar noktalar:
+- Çıktı: `String`, `Object` ve `String`
+- Overload seçimi derleme zamanında, argümanların bildirilen (statik) tiplerine göre yapılır
+- `text` `String` olarak bildirildiği için değeri null olsa da `print(String)` seçilir
+- `object` `Object` olarak bildirildiği için `print(Object)` seçilir; içindeki değer önemsizdir
+- `print(null)` iki sürüme de uyar; derleyici en özgül olan `print(String)`'i seçer
+
 ## O20-01 · Kod çıktısı
 Konu: Method Overloading
 Soru: Üç print çağrısının çıktısını satır sırasıyla yazın.
@@ -1054,6 +1193,13 @@ Dog dog = (Dog) animal;
 Cat cat = (Cat) animal;
 ```
 
+Anahtar noktalar:
+- Upcasting (`Animal animal = new Dog();`) her zaman güvenlidir ve açık cast gerektirmez
+- Downcasting açık cast ister; derleyici yalnız tiplerin ilişkili olup olmadığına bakar
+- `(Dog) animal` başarılıdır, çünkü nesne gerçekten bir `Dog`'dur
+- `(Cat) animal` derlenir ama çalışma zamanında `ClassCastException` verir; nesne `Cat` değildir
+- Güvenli yol cast'ten önce `instanceof` ile kontrol etmektir; sık downcast tasarım sorununa işaret eder
+
 ## O21-01 · Çoklu seçim
 Konu: Upcasting ve Downcasting
 Soru: Gösterilen kod için doğru değerlendirmeleri seçin.
@@ -1114,6 +1260,13 @@ Etiketler: instanceof, downcasting, runtime-type, output
 
 Ortak alanları ve ortak metot uygulamaları bulunan sınıflarda abstract class mı, interface mi tercih edersiniz? Birden fazla bağımsız davranış paylaşılacaksa kararınız değişir mi?
 
+Anahtar noktalar:
+- Ortak alanları ve ortak metot uygulamaları olan yakın sınıflar için abstract class uygundur
+- Abstract class durum, constructor ve `protected` yardımcılar sağlar; ama bir sınıf yalnız bir sınıfı genişletebilir
+- Birden fazla bağımsız davranış paylaşılacaksa interface tercih edilir; bir sınıf birçok interface uygular
+- Örnek: başka bir sınıftan türeyen `Report`, `Exportable` ve `Printable` arayüzlerini birlikte uygular
+- İkisi birlikte kullanılabilir: sözleşme interface'te, ortak uygulama onu kısmen uygulayan abstract class'ta
+
 ## O22-01 · Eşleştirme
 Konu: Interface ve Abstract Class
 Soru: Tasarım gereksinimlerini en uygun başlangıç yapısıyla eşleştirin.
@@ -1171,6 +1324,13 @@ class C implements A, B {
 }
 ```
 
+Anahtar noktalar:
+- `C`, `A` ve `B`'den aynı imzalı `label()` default metodunu alır; derleyici hangisini seçeceğini bilemez
+- Bu çakışmada sınıf `label()`'ı kendisi override etmek zorundadır; yoksa derleme hatası olur
+- Override içinde belirli bir uygulama `A.super.label()` ya da `B.super.label()` ile seçilir
+- İstenirse iki sonuç birleştirilir ya da tamamen yeni bir davranış yazılır
+- Sınıfta ya da üst sınıfta tanımlı bir metot, interface default metotlarına her zaman üstün gelir
+
 ## O23-01 · Doğru / Yanlış
 Konu: Interface Default Metotları
 Soru: A ve B interface'leri aynı imzalı label() default metodunu sağlarken C implements A, B sınıfı label() metodunu override etmeden derlenir.
@@ -1222,6 +1382,13 @@ Etiketler: interface, default-method, super, fill
 # O24 · Orta · Teori
 
 Composition ve inheritance arasındaki fark nedir? Bir `Stack` sınıfının genel amaçlı bir listeden kalıtım alması yerine listeyi içinde tutması neden daha güvenli olabilir?
+
+Anahtar noktalar:
+- Inheritance "is-a" ilişkisi kurar ve üst sınıfın bütün public API'sini alt sınıfa taşır
+- Composition "has-a" ilişkisi kurar: sınıf başka bir nesneyi alanında tutar ve yalnız gereken işlemleri açar
+- `Stack` bir listeden kalıtım alırsa `add(index, x)` gibi metotlar LIFO kuralını bozar; `java.util.Stack` bu yüzden eleştirilir
+- Listeyi `private` alanda tutan `Stack` yalnız `push`, `pop` ve `peek`'i sunar; kurallar korunur
+- İç yapı (`ArrayList`, `ArrayDeque`) istemcileri etkilemeden değiştirilebilir
 
 ## O24-01 · Çoklu seçim
 Konu: Composition
@@ -1332,6 +1499,13 @@ class Order {
 }
 ```
 
+Anahtar noktalar:
+- `Product` ürün bilgisini (ad, birim fiyat) taşır
+- `OrderItem` bir ürünü ve adedi tutar; satır toplamını (birim fiyat × adet) kendisi hesaplar
+- `Order` satırları oluşturur ve yönetir; genel toplam satır toplamlarının toplamıdır
+- Composition: satırlar siparişe aittir ve onunla yaşar; `Product` ise siparişler arasında paylaşılır
+- Satır listesi dışarıya değiştirilemez görünüm olarak verilir; para için `double` yerine `BigDecimal` tercih edilir
+
 ## O25-01 · Eşleştirme
 Konu: Composition ile Modelleme
 Soru: Order composition modelindeki sorumlulukları uygun sınıfla eşleştirin.
@@ -1399,6 +1573,13 @@ class CheckoutService {
 }
 ```
 
+Anahtar noktalar:
+- `CheckoutService`, `EmailSender`'a doğrudan bağımlıdır: nesneyi `new` ile kendisi oluşturur
+- Sonuç: testte gerçek e-posta yerine sahte bir gönderici verilemez, gönderim yöntemi değiştirilemez
+- Çözüm: bir `MessageSender` arayüzü tanımlamak ve `EmailSender`'a bunu uygulatmak
+- Bağımlılık constructor ile alınır (constructor injection): `CheckoutService(MessageSender sender)`
+- Testte kayıt tutan sahte (fake) bir gönderici, üretimde e-posta ya da SMS uygulaması verilir
+
 ## O26-01 · Tek seçim
 Konu: Dependency Injection
 Soru: Kaynak tasarımda CheckoutService'in doğrudan bağımlı olduğu somut sınıf hangisidir?
@@ -1461,6 +1642,13 @@ Etiketler: dependency-injection, constructor-injection, testability
 
 Cohesion ve coupling nedir? Yüksek cohesion ve düşük coupling hedefinin bakım ve test edilebilirliğe etkisini açıklayın.
 
+Anahtar noktalar:
+- Cohesion: bir sınıfın üyelerinin tek ve anlamlı bir amaç etrafında toplanma derecesi; yüksek olması istenir
+- Coupling: sınıfların birbirinin somut ayrıntılarına bağımlılık derecesi; düşük olması istenir
+- Yüksek cohesion sınıfı anlaşılır kılar; bir değişiklik tek bir yere dokunur
+- Düşük coupling için arayüzlere bağlanılır ve bağımlılıklar dışarıdan alınır; bir sınıf değişince diğerleri etkilenmez
+- Test etkisi: bağımlılıklar sahteleriyle değiştirilebildiği için sınıflar izole test edilir
+
 ## O27-01 · Tek seçim
 Konu: Cohesion ve Coupling
 Soru: Yüksek cohesion ve düşük coupling hedefini en iyi karşılayan tasarım hangisidir?
@@ -1492,6 +1680,13 @@ class UserService {
     void generateMonthlyUserReport() {}
 }
 ```
+
+Anahtar noktalar:
+- `UserService` dört ayrı değişim nedeni taşır: kayıt akışı, veritabanı, e-posta ve raporlama
+- SRP: bir sınıfın değişmesi için tek bir neden olmalıdır; her metot için ayrı sınıf demek değildir
+- Ayrım: `UserRepository` (kalıcılık), `EmailService` (bildirim), `UserReportService` (rapor)
+- `RegistrationService` kayıt akışını yürütür ve diğerlerini arayüzleri üzerinden kullanır
+- Sonuç: veritabanı ya da e-posta sağlayıcısı değişince kayıt kodu etkilenmez; her parça ayrı test edilir
 
 ## O28-01 · Çoklu seçim
 Konu: SOLID · Single Responsibility
@@ -1554,6 +1749,13 @@ double calculateDiscount(String customerType, double amount) {
 }
 ```
 
+Anahtar noktalar:
+- Mevcut tasarım her yeni müşteri türünde `if/else` zincirini değiştirmeyi gerektirir; OCP ihlalidir
+- OCP: kod genişletmeye açık, değiştirmeye kapalı olmalıdır
+- Çözüm: `DiscountPolicy` arayüzü ve her tür için bir uygulama (`RegularDiscount`, `PremiumDiscount`)
+- Hesaplayıcı politikayı dışarıdan alır ve yalnız `policy.calculate(amount)` çağırır
+- Yeni tür yeni bir sınıf eklenerek desteklenir; `String` karşılaştırmaları ve yazım hatası riski ortadan kalkar
+
 ## O29-01 · Tek seçim
 Konu: SOLID · Open/Closed
 Soru: Yeni müşteri türleri eklendiğinde mevcut indirim hesaplayıcıdaki if/else zincirini değiştirmemeyi sağlayan tasarım hangisidir?
@@ -1605,6 +1807,13 @@ Etiketler: solid, ocp, strategy, output
 
 DRY, KISS ve YAGNI prensiplerini açıklayın. Tekrarlanan doğrulama kodu ile henüz gerekmeyen kapsamlı bir kural motorunu bu prensipler açısından değerlendirin.
 
+Anahtar noktalar:
+- DRY (Don't Repeat Yourself): aynı bilginin ya da kuralın tek bir kaynağı olmalıdır
+- KISS (Keep It Simple, Stupid): sorunu anlaşılır en basit tasarımla çözmek
+- YAGNI (You Aren't Gonna Need It): ileride gerekebilir diye özellik eklememek
+- Tekrarlanan doğrulama kodu DRY ihlalidir; tek bir doğrulama metoduna ya da sınıfına taşınır
+- Henüz ihtiyaç yokken kurulan kapsamlı bir kural motoru YAGNI ve KISS ihlalidir; ihtiyaç doğunca eklenir
+
 ## O30-01 · Eşleştirme
 Konu: DRY, KISS ve YAGNI
 Soru: Kodlama kararlarını en doğrudan ilgili prensiple eşleştirin.
@@ -1638,6 +1847,13 @@ class Penguin extends Bird {
     }
 }
 ```
+
+Anahtar noktalar:
+- LSP: alt tip, üst tipin beklendiği her yerde istemciyi şaşırtmadan kullanılabilmelidir
+- `Penguin.fly()` exception fırlatarak `Bird`'ün "her kuş uçar" sözleşmesini bozar; istemci tip kontrolüne zorlanır
+- Sorun modeldedir: uçmak her kuşun yeteneği değildir
+- Çözüm: uçmayı ayrı bir `Flyable` arayüzüne taşımak; `Sparrow` uygular, `Penguin` uygulamaz
+- Boş (no-op) bir `fly()` da çözüm değildir; istemcinin uçuş beklentisini sessizce bozar
 
 ## O31-01 · Tek seçim
 Konu: SOLID · Liskov Substitution
@@ -1702,6 +1918,13 @@ interface Worker {
 }
 ```
 
+Anahtar noktalar:
+- ISP: istemciler kullanmadıkları metotlara bağımlı bırakılmamalıdır
+- Büyük `Worker` arayüzü robotu `eat` ve `sleep`, insanı `recharge` uygulamaya zorlar
+- Çözüm: `Workable`, `Eatable`, `Sleepable` ve `Rechargeable` gibi küçük arayüzler
+- `HumanWorker` `Workable`, `Eatable` ve `Sleepable`'ı; `RobotWorker` `Workable` ve `Rechargeable`'ı uygular
+- Anlamsız boş metotlar ve `UnsupportedOperationException` ortadan kalkar; istemci yalnız gerektiği arayüze bağlanır
+
 ## O32-01 · Eşleştirme
 Konu: SOLID · Interface Segregation
 Soru: Worker interface'indeki operasyonları ayrıştırılmış yetenek interface'leriyle eşleştirin.
@@ -1756,6 +1979,13 @@ class OrderService {
     }
 }
 ```
+
+Anahtar noktalar:
+- `OrderService` (üst seviye iş kuralı) `MySqlOrderRepository`'ye (alt seviye ayrıntı) doğrudan bağımlıdır
+- DIP: iki seviye de bir soyutlamaya bağlanmalıdır; ayrıntı soyutlamaya uyar
+- Çözüm: `OrderRepository` arayüzü tanımlamak; `MySqlOrderRepository` bunu uygular
+- `OrderService` arayüzü constructor ile alır: `OrderService(OrderRepository repository)`
+- Veritabanını değiştirmek ya da testte bellek içi bir repository vermek `OrderService` değişmeden mümkün olur
 
 ## O33-01 · Tek seçim
 Konu: SOLID · Dependency Inversion
@@ -1812,6 +2042,13 @@ Etiketler: solid, dip, constructor-injection, fill
 # O34 · Zorlayıcı · Tasarım
 
 Bir alt sınıfın override ettiği `withdraw` metodunun, üst sınıfta geçerli olan bazı girdiler için yeni bir exception fırlatması hangi substitutability sorununu doğurur? Sözleşmeyi veya sınıf hiyerarşisini yeniden tasarlayın.
+
+Anahtar noktalar:
+- LSP'ye göre alt tip önkoşulu güçlendiremez, sonkoşulu zayıflatamaz
+- Üst sınıf 1..bakiye arasını kabul ederken alt sınıfın 100'ün altını reddetmesi önkoşulu güçlendirir
+- Üst sınıfla çalışan istemci alt sınıf verildiğinde beklenmedik hata alır ve tip kontrolüne zorlanır
+- Çözüm: minimum kuralını ortak sözleşmeye açıkça koymak ya da farklı çekim kurallarını ayrı arayüzlerle ifade etmek
+- Alternatif: kabul kuralını `WithdrawalPolicy` gibi bir bileşen olarak dışarıdan vermek (composition)
 
 ## O34-01 · Tek seçim
 Konu: SOLID · Liskov Substitution
@@ -1887,6 +2124,13 @@ class CheckoutService {
 }
 ```
 
+Anahtar noktalar:
+- Ortak sözleşme: `PaymentMethod` arayüzü ve `pay(amount)` metodu
+- Her ödeme türü bir uygulamadır: `CreditCardPayment`, `BankTransferPayment`, `WalletPayment`
+- `CheckoutService` yalnız arayüzü bilir; ödeme yöntemini dışarıdan alır ve `pay`'i çağırır
+- Türe bakan `if/else` ya da `switch` yoktur; doğru uygulamayı polymorphism seçer
+- Yeni ödeme türü yeni bir sınıf eklenerek desteklenir, mevcut kod değişmez (Open/Closed)
+
 ## O35-01 · Çoklu seçim
 Konu: Ödeme Sistemi Tasarımı
 Soru: Yeni ödeme türlerinde koşul bloklarının büyümesini engelleyen checkout tasarımının parçalarını seçin.
@@ -1937,6 +2181,13 @@ Etiketler: payment, strategy, polymorphism, output
 
 E-posta, SMS ve mobil bildirim gönderen bir sistem modelleyin. Ortak mesaj bilgilerini ve kanala özgü doğrulama/gönderim davranışlarını belirleyin.
 
+Anahtar noktalar:
+- Ortak mesaj bilgisi bir `Message` nesnesinde tutulur (başlık, içerik, gönderim zamanı gibi)
+- Her kanal ortak bir `NotificationChannel` arayüzünü uygular: `send(Message, Recipient)`
+- Kanala özgü kurallar kanalın içindedir: e-posta adresi biçimi, SMS karakter sınırı, push için cihaz token'ı
+- `NotificationService` kanal seçimini ve akışı yönetir; sağlayıcı ayrıntısını kanala bırakır
+- Yeni kanal yeni bir sınıfla eklenir; büyük bir `switch` gerekmez ve her kanal ayrı test edilir
+
 ## O36-01 · Eşleştirme
 Konu: Bildirim Sistemi Modelleme
 Soru: Bildirim sistemindeki verileri ve davranışları en uygun sahibine eşleştirin.
@@ -1975,6 +2226,13 @@ Etiketler: notification, polymorphism, cohesion
 # O37 · Zorlayıcı · Modelleme
 
 Ödünç alma, iade, rezervasyon ve gecikme cezasını destekleyen bir kütüphane sistemi modelleyin. Kitap ile fiziksel kitap kopyasının ayrı nesneler olup olmayacağını gerekçelendirin.
+
+Anahtar noktalar:
+- `Book` eserin bilgisini (ISBN, başlık, yazar), `BookCopy` her fiziksel kopyayı (barkod, konum, durum) temsil eder
+- Ayrım gerekir: aynı ISBN'li kopyaların ödünç durumu ve konumu birbirinden bağımsızdır
+- `Loan` belirli bir `Member` ile belirli bir `BookCopy`'yi ödünç ve iade tarihleriyle bağlar
+- `Reservation` genellikle eser (`Book`) düzeyinde tutulur; uygun ilk kopya iade edilince üyeye ayrılır
+- Gecikme cezası `LateFeePolicy` gibi ayrı bir kurala verilir; kural değişince `Loan` değişmez
 
 ## O37-01 · Tek seçim
 Konu: Kütüphane Sistemi Modelleme
@@ -2016,6 +2274,13 @@ Etiketler: library, modeling, composition, policy
 
 Bir e-ticaret siparişinin oluşturulma, ödeme, hazırlanma, kargolanma ve iptal durumlarını modelleyin. Geçersiz durum geçişlerini engelleyin.
 
+Anahtar noktalar:
+- Durumlar bir `enum` ile tanımlanır: `CREATED`, `PAID`, `PREPARING`, `SHIPPED`, `CANCELLED`
+- Durum alanı `private`'tır; dışarıdan setter ile değiştirilemez
+- Geçişler davranış metotlarıyla yapılır (`pay()`, `prepare()`, `ship()`, `cancel()`); her metot mevcut durumu denetler
+- Geçersiz geçiş (ör. `SHIPPED` iken `cancel()`) durumu değiştirmeden reddedilir
+- Geçiş kuralları tek yerde tutulur: `Order` içinde ya da her durumun izinli hedeflerini bilen bir state machine'de
+
 ## O38-01 · Sıralama
 Konu: Sipariş Durum Modelleme
 Soru: Başarılı bir siparişin normal yaşam döngüsü durumlarını sıralayın.
@@ -2048,6 +2313,13 @@ Etiketler: order, state-machine, invariant, cancellation
 # O39 · Zorlayıcı · Modelleme
 
 Otomobil, motosiklet ve kamyon kabul eden bir otopark sistemi tasarlayın. Park yeri atama, giriş-çıkış ve ücret hesaplama sorumluluklarını dağıtın.
+
+Anahtar noktalar:
+- Araç türleri (`Motorcycle`, `Car`, `Truck`) gereken yer boyutunu bilir: `SMALL`, `MEDIUM`, `LARGE`
+- `ParkingLot` boş yerleri yönetir; atama politikası uygun en küçük boş yeri seçer
+- Girişte bir `Ticket` oluşturulur: araç, park yeri ve giriş zamanı
+- Çıkışta ücret `FeePolicy` ile hesaplanır ve yer yeniden boşaltılır
+- Ücret ve atama kuralları ayrı bileşenlerdir; değiştiklerinde araç ve otopark sınıfları değişmez
 
 ## O39-01 · Eşleştirme
 Konu: Otopark Sistemi Modelleme
@@ -2087,6 +2359,13 @@ Etiketler: parking-lot, allocation-policy, deterministic
 # O40 · Zorlayıcı · Modelleme ve kod yazma
 
 Saatlik, maaşlı ve komisyonlu çalışanları destekleyen bir bordro sistemi tasarlayın. Ücret hesaplamasında polymorphism; vergi ve prim politikalarında composition kullanın.
+
+Anahtar noktalar:
+- Ortak sözleşme: `Employee` soyut sınıfı ya da arayüzü ve `grossPay()` metodu
+- `HourlyEmployee` saat × ücret, `SalariedEmployee` sabit maaş, `CommissionEmployee` maaş ve satış komisyonu hesaplar
+- Bordro döngüsü yalnız `grossPay()`'i çağırır; doğru hesabı polymorphism seçer
+- Vergi ve prim kuralları çalışan türünden bağımsız değişir; `TaxPolicy` ve `BonusPolicy` bileşen olarak verilir
+- Bu ayrım her tür, vergi ve prim birleşimi için alt sınıf yazma (sınıf patlaması) gereğini ortadan kaldırır
 
 ## O40-01 · Kod çıktısı
 Konu: Bordro Sistemi Modelleme
