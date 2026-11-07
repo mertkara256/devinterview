@@ -4,6 +4,13 @@
 
 Big O notasyonu neyi ifade eder? En iyi, ortalama ve en kötü durum karmaşıklıkları arasındaki fark nedir?
 
+Anahtar noktalar:
+- Big O, girdi büyürken çalışma süresinin ya da belleğin nasıl büyüdüğünü gösteren asimptotik bir üst sınırdır
+- Sabit çarpanlar ve küçük terimler atılır: 3n² + 5n, O(n²) olur
+- En iyi, ortalama ve en kötü durum aynı algoritmanın farklı girdilerdeki maliyetidir; hangisinden söz edildiği belirtilir
+- Örnek: doğrusal aramada en iyi durum hedefin başta olması (Θ(1)), en kötü durum hedefin olmaması (Θ(n))
+- Ortalama durum bir girdi dağılımı varsayar; Θ sıkı sınırı, Ω alt sınırı ifade eder
+
 ## A01-01 · Tek seçim
 Konu: Karmaşıklık analizi
 Soru: Big O notasyonu bir algoritma için öncelikle neyi ifade eder?
@@ -40,6 +47,13 @@ Etiketler: best-case, average-case, worst-case
 
 `O(1)`, `O(log n)`, `O(n)`, `O(n log n)`, `O(n²)` ve `O(2ⁿ)` karmaşıklıklarını büyüme hızına göre sıralayın.
 
+Anahtar noktalar:
+- Sıra: O(1) < O(log n) < O(n) < O(n log n) < O(n²) < O(2ⁿ)
+- Örnekler: dizide indeksle erişim O(1), binary search O(log n), doğrusal arama O(n)
+- Merge sort O(n log n), iç içe iki döngü O(n²), bütün alt kümeleri denemek O(2ⁿ)
+- Logaritmanın tabanı sınıfı değiştirmez; sabitler büyük n'de önemini yitirir
+- Küçük n'de sabitler baskın olabilir; asimptotik sıra büyük girdiler için geçerlidir
+
 ## A02-01 · Sıralama
 Konu: Karmaşıklık analizi
 Soru: n büyürken karmaşıklık sınıflarını en yavaş büyüyenden en hızlı büyüyene sıralayın.
@@ -69,6 +83,13 @@ for (int j = 0; j < n; j++) {
     process(j);
 }
 ```
+
+Anahtar noktalar:
+- Her döngü n kez döner ve `process` O(1)'dir; her döngü Θ(n) sürer
+- Ardışık döngülerin maliyetleri toplanır: n + n = 2n, yani Θ(n)
+- Çarpma yalnız iç içe döngülerde uygulanır: iç döngü dış döngünün her turunda baştan çalışır
+- Sabit çarpan (2) Big O'da atılır
+- Ek bellek kullanılmadığı için alan Θ(1)'dir
 
 ## A03-01 · Tek seçim
 Konu: Döngü analizi
@@ -117,6 +138,13 @@ for (int i = 0; i < n; i++) {
     }
 }
 ```
+
+Anahtar noktalar:
+- `i` için iç döngü `i + 1` kez döner; toplam 1 + 2 + … + n = n(n+1)/2 çağrı yapılır
+- Bu üçgensel toplam n²/2 + n/2'dir; sabitler atılınca Θ(n²) olur
+- İç döngünün sınırı `n` değil `i` olsa da sonuç yine karesel büyür
+- Alan Θ(1)'dir; yalnız döngü değişkenleri kullanılır
+- Aynı kalıp her elemanı kendinden öncekilerle karşılaştıran algoritmalarda görülür (ör. insertion sort'un en kötü durumu)
 
 ## A04-01 · Boşluk doldurma
 Konu: Döngü analizi
@@ -167,6 +195,13 @@ Etiketler: ic-ice-dongu, theta
 
 Zaman karmaşıklığı ile alan karmaşıklığı arasındaki fark nedir? Bir diziyi kopyalayan çözümle yerinde değiştiren çözümü karşılaştırın.
 
+Anahtar noktalar:
+- Zaman karmaşıklığı yapılan işin, alan karmaşıklığı kullanılan ek belleğin girdiyle nasıl büyüdüğünü ölçer
+- Diziyi yeni bir diziye kopyalayan çözüm Θ(n) zaman ve Θ(n) ek alan kullanır; girdi değişmez
+- Yerinde (in-place) çözüm Θ(n) zaman ama Θ(1) ek alan kullanır; girdiyi değiştirir
+- Seçim bağlama bağlıdır: girdi korunmalıysa kopya, bellek kısıtlıysa yerinde değişiklik
+- Yardımcı alan girdinin kendisini saymaz; özyineleme yığını da ek alandır
+
 ## A05-01 · Eşleştirme
 Konu: Zaman ve alan
 Soru: n elemanlı bir diziyi kopyalama ile aynı diziyi yerinde ters çevirme özelliklerini eşleştirin.
@@ -184,6 +219,13 @@ Etiketler: alan-karmasikligi, yerinde-algoritma
 # A06 · Kolay · Teori
 
 Dizide indeksle erişim neden hızlıdır? Dizinin başına eleman eklemek veya silmek neden daha maliyetlidir?
+
+Anahtar noktalar:
+- Dizi elemanları bellekte bitişik ve eşit boyuttadır; adres `başlangıç + i × eleman boyutu` ile doğrudan hesaplanır
+- Bu yüzden `arr[i]` erişimi Θ(1)'dir; önceki elemanları dolaşmak gerekmez
+- Başa eleman eklemek ya da ilk elemanı silmek diğer bütün elemanları bir konum kaydırmayı gerektirir: Θ(n)
+- Java dizilerinin boyutu sabittir; büyütmek için yeni bir dizi oluşturup elemanları kopyalamak gerekir
+- Başta sık ekleme ve silme gerekiyorsa `ArrayDeque` gibi bir yapı daha uygundur
 
 ## A06-01 · Tek seçim
 Konu: Diziler
@@ -221,6 +263,13 @@ Etiketler: dizi, ekleme, silme
 # A07 · Kolay · Kod yazma
 
 Bir dizideki en küçük ve en büyük elemanı tek geçişte bulun. Boş dizi davranışını tanımlayın.
+
+Anahtar noktalar:
+- Tek geçiş: `min` ve `max` ilk elemanla başlatılır, kalan elemanlar ikisiyle de karşılaştırılır
+- Boş dizi için tanımlı bir davranış seçilir: `IllegalArgumentException` fırlatmak ya da boş sonuç (`OptionalInt`) dönmek
+- `min`'i `Integer.MAX_VALUE` ile başlatmak boş dizide anlamsız bir sonuç üretir; ilk elemanla başlamak daha güvenlidir
+- Zaman Θ(n), ek alan Θ(1)
+- İki değeri birlikte döndürmek için küçük bir sonuç nesnesi ya da iki elemanlı bir dizi kullanılır
 
 ## A07-01 · Kod çıktısı
 Konu: Diziler
@@ -281,6 +330,13 @@ static void reverse(int[] arr) {
 }
 ```
 
+Anahtar noktalar:
+- İki işaretçi: `left` baştan, `right` sondan başlar
+- `left < right` iken iki elemanın yeri değiştirilir, `left` artar ve `right` azalır
+- Her takas iki elemanı son yerine koyar; toplam n/2 takas yapılır
+- Zaman Θ(n), ek alan Θ(1); girdi dizisi yerinde değişir
+- Boş ve tek elemanlı dizilerde döngü hiç çalışmaz; ayrı bir kontrol gerekmez
+
 ## A08-01 · Sıralama
 Konu: Diziler
 Soru: {1,2,3,4} dizisini iki uçlu yerinde ters çevirme algoritmasının adımlarını sıralayın.
@@ -315,6 +371,13 @@ Etiketler: dizi-ters-cevirme, yan-etki, karmasiklik
 # A09 · Kolay · Kod yazma
 
 Linear search ile hedefin ilk indeksini döndüren, bulunamazsa `-1` veren bir metot yazın.
+
+Anahtar noktalar:
+- Dizi baştan sona dolaşılır; hedef görüldüğü ilk indekste hemen döndürülür
+- Döngü bittiğinde hedef bulunmadıysa `-1` döndürülür
+- En iyi durum Θ(1) (hedef başta), en kötü durum Θ(n) (hedef yok ya da sonda)
+- Ek alan Θ(1); dizinin sıralı olması gerekmez
+- Dizi sıralıysa binary search ile O(log n)'de bulunabilir
 
 ## A09-01 · Kod çıktısı
 Konu: Doğrusal arama
@@ -367,6 +430,13 @@ static int find(int[] arr, int target) {
 }
 ```
 
+Anahtar noktalar:
+- Hata: `i <= arr.length` son turda `arr[arr.length]`'e erişir; geçerli son indeks `arr.length - 1`'dir
+- Hedef yoksa `-1` satırına ulaşmadan `ArrayIndexOutOfBoundsException` oluşur
+- Düzeltme: koşulu `i < arr.length` yapmak
+- Hedef dizide varsa hata görünmeyebilir; bu yüzden "bulunamadı" durumu da test edilir
+- Sınır hataları için boş dizi, tek eleman ve hedefin son elemanda olduğu durumlar denenir
+
 ## A10-01 · Boşluk doldurma
 Konu: Doğrusal arama
 Soru: Sınır hatasını düzeltmek için döngü koşulunu yazın: for (int i = 0; _____; i++).
@@ -415,6 +485,13 @@ Etiketler: off-by-one, exception, kod-ciktisi
 
 Hazır bir `reverse()` metodu kullanmadan bir String’i ters çevirin.
 
+Anahtar noktalar:
+- Metni `char[]`'a çevirip iki işaretçiyle uçlardan ortaya doğru takas etmek
+- Alternatif: sondan başa dolaşıp `StringBuilder`'a eklemek; döngüde `String +=` her turda yeni nesne üretir
+- Zaman Θ(n), ek alan Θ(n); `String` immutable olduğu için yerinde değiştirilemez
+- Java'da `char` bir UTF-16 kod birimidir; emoji gibi BMP dışı karakterler iki `char` tutar ve takas onları bozar
+- Güvenli yol: `codePoints()` ile kod noktalarını ters sırayla eklemek
+
 ## A11-01 · Kod çıktısı
 Konu: String işlemleri
 Soru: reverse("Java") çağrısının dönüş değeri nedir?
@@ -457,6 +534,13 @@ Etiketler: unicode, code-point, string
 
 Bir String’in palindrome olup olmadığını kontrol edin. Boş ve tek karakterli String davranışını belirtin.
 
+Anahtar noktalar:
+- İki işaretçi: baştaki ve sondaki karakterleri karşılaştırıp ortaya doğru ilerlemek
+- İlk uyuşmazlıkta `false` dönülür; işaretçiler buluşursa `true`
+- Boş String ve tek karakter palindromdur; döngü hiç çalışmaz
+- Zaman Θ(n), ek alan Θ(1); metni ters çevirip karşılaştırmak da doğrudur ama Θ(n) ek alan kullanır
+- Politika belirtilir: büyük-küçük harf, boşluk ve noktalama yok sayılacak mı?
+
 ## A12-01 · Doğru / Yanlış
 Konu: Palindrome
 Soru: Tam karakter eşitliği kullanan standart tanımda boş String ve tek karakterli String palindrome kabul edilir.
@@ -495,6 +579,13 @@ Etiketler: palindrome, two-pointer, kod-ciktisi
 # A13 · Kolay · Kod yazma
 
 Küçük İngilizce harflerinden oluşan bir String için `int[26]` frekans tablosu oluşturun. Karakter kümesi genişlerse çözümünüzü nasıl değiştirirsiniz?
+
+Anahtar noktalar:
+- `int[26]` tablosunda `c - 'a'` her küçük harfi 0..25 indeksine eşler
+- Her karakter bir kez işlenir: zaman Θ(n); alan sabit 26 hücre olduğu için Θ(1)
+- Aralık dışı bir karakter (büyük harf, Türkçe karakter, rakam) geçersiz indeks üretir; girdi önceden doğrulanır
+- Karakter kümesi genişlerse `Map<Integer, Integer>` (kod noktası → sayı) kullanılır; alan farklı karakter sayısı kadardır
+- Yalnız ASCII varsa `int[128]` dizisi yeterlidir
 
 ## A13-01 · Kod çıktısı
 Konu: Frekans tablosu
@@ -544,6 +635,13 @@ static boolean hasDuplicate(int[] arr) {
     return false;
 }
 ```
+
+Anahtar noktalar:
+- Dizi dolaşılırken her eleman bir `HashSet`'e eklenir
+- `add` eleman zaten varsa `false` döner; ilk `false`'ta tekrar bulunmuştur ve hemen `true` dönülür
+- Beklenen zaman Θ(n), ek alan Θ(n)
+- Alternatif: diziyi sıralayıp komşuları karşılaştırmak; O(n log n) zaman, az ek alan, ama girdi değişir
+- İç içe döngüyle her çifti karşılaştırmak O(n²)'dir
 
 ## A14-01 · Doğru / Yanlış
 Konu: Set
@@ -611,6 +709,13 @@ static String normalize(String text) {
 }
 ```
 
+Anahtar noktalar:
+- Önce politika belirlenir: boşluklar yok sayılır, harfler `Locale.ROOT` ile küçültülür
+- Normalize edilmiş uzunluklar farklıysa hemen `false` dönülür
+- Tek bir `int[26]` tablosunda ilk metnin harfleri artırılır, ikincinin harfleri azaltılır; sonunda bütün sayaçlar 0 olmalıdır
+- Zaman Θ(n + m), ek alan Θ(1); iki metni sıralayıp karşılaştırmak O(n log n)'dir
+- Unicode ya da Türkçe karakter için `int[26]` yerine `Map` kullanılır
+
 ## A15-01 · Doğru / Yanlış
 Konu: Anagram
 Soru: Politika: boşlukları yok say ve Locale.ROOT ile küçük harfe dönüştür. Bu politikada "Dormitory" ile "Dirty room" anagramdır.
@@ -644,6 +749,13 @@ Etiketler: anagram, frekans-tablosu, sinir-durumu
 # A16 · Kolay · Kod yazma
 
 Negatif olmayan bir sayının rakamları toplamını ve rakam sayısını hesaplayın. `0` girdisini ele alın.
+
+Anahtar noktalar:
+- `n % 10` son basamağı verir, `n / 10` onu atar; `n` 0 olana kadar tekrarlanır
+- Her turda basamak toplama eklenir ve sayaç bir artar
+- `0` özel durumdur: döngüye girmez ama bir basamağı vardır; toplam 0, basamak sayısı 1
+- Negatif girdi sözleşmeyle reddedilir (`IllegalArgumentException`)
+- Zaman basamak sayısı kadar, yani Θ(log n); ek alan Θ(1)
 
 ## A16-01 · Kod çıktısı
 Konu: Sayı algoritmaları
@@ -684,6 +796,13 @@ static long factorial(int n) {
     return result;
 }
 ```
+
+Anahtar noktalar:
+- Döngü `result = 1` ile başlar ve 2'den n'e kadar çarpar; `0! = 1`
+- Negatif girdi geçersizdir: `IllegalArgumentException`
+- `long` en fazla 20!'i tutar; 21! sığmaz
+- Java taşmada hata vermez, değeri sessizce sarar; `Math.multiplyExact` taşmada `ArithmeticException` fırlatır
+- Daha büyük n için `BigInteger`; zaman Θ(n), ek alan Θ(1)
 
 ## A17-01 · Boşluk doldurma
 Konu: Faktoriyel
@@ -730,6 +849,13 @@ static int fib(int n) {
 }
 ```
 
+Anahtar noktalar:
+- Çıktı: `fib(0) = 0`, `fib(1) = 1` ve `fib(6) = 8`
+- Döngü her turda `(a, b)` çiftini bir sonraki Fibonacci çiftine kaydırır; n tur sonunda `a = F(n)`
+- Zaman Θ(n), ek alan Θ(1); önceki değerler saklanmaz
+- Naif özyinelemeli çözüm aynı alt problemleri tekrar hesapladığı için üstel zaman alır
+- `int` en fazla F(46)'yı tutar; daha büyük n için `long` ya da `BigInteger` gerekir
+
 ## A18-01 · Kod çıktısı
 Konu: Fibonacci
 Soru: Kod fib(0), fib(1) ve fib(6) değerlerini hangi sırayla yazdırır?
@@ -770,6 +896,13 @@ Etiketler: fibonacci, karmasiklik, overflow
 # A19 · Kolay · Kod yazma
 
 Bir sayının asal olup olmadığını kontrol edin. Kontrollerin neden karekök sınırına kadar yapılabileceğini açıklayın.
+
+Anahtar noktalar:
+- 2'den küçük sayılar asal değildir; 2 asaldır
+- Bölenler yalnız √n'e kadar denenir: n = a × b ise çarpanlardan biri mutlaka √n'den küçük ya da ona eşittir
+- `d <= n / d` koşulu √n sınırını taşma riski olmadan uygular; `d * d <= n` büyük n'de taşabilir
+- 2'yi ayrıca kontrol edip yalnız tek bölenleri denemek işi yarıya indirir
+- Zaman O(√n), ek alan O(1); çok sayıda sorgu için Eratosthenes eleği kullanılır
 
 ## A19-01 · Kod çıktısı
 Konu: Asal sayı
@@ -814,6 +947,13 @@ Etiketler: asal-sayi, carpan-cifti, karmasiklik
 
 `0` ile `n` arasındaki sayılardan birinin eksik olduğu dizide eksik sayıyı bulun. Toplam ve XOR yaklaşımlarını karşılaştırın.
 
+Anahtar noktalar:
+- Toplam yaklaşımı: beklenen toplam n(n+1)/2'den dizinin toplamı çıkarılır
+- `int` ile n(n+1)/2 büyük n'de taşabilir; hesap `long` ile yapılır
+- XOR yaklaşımı: 0..n arası bütün sayılar ve dizi elemanları XOR'lanır; iki kez görülenler sıfırlanır, eksik sayı kalır
+- XOR'da taşma riski yoktur; iki yöntem de Θ(n) zaman ve Θ(1) ek alan kullanır
+- İkisi de girdinin geçerli olduğunu (tam bir sayı eksik, tekrar yok) varsayar; bunu doğrulamaz
+
 ## A20-01 · Kod çıktısı
 Konu: Eksik sayı
 Soru: XOR tabanlı missing(new int[]{3,0,1}) çağrısı ne döndürür?
@@ -855,6 +995,13 @@ Etiketler: xor, toplam-formulu, overflow
 
 “Eleman daha önce görüldü mü?” ve “Her eleman kaç kez görüldü?” problemlerinde `Set` ve `Map` arasında nasıl seçim yaparsınız?
 
+Anahtar noktalar:
+- "Daha önce görüldü mü?" için `Set`: yalnız benzersiz elemanları tutar; `add`'in dönüş değeri tekrarı söyler
+- "Kaç kez görüldü?" için `Map`: her elemana bir sayaç bağlar
+- `HashSet` ve `HashMap`'te işlemler ortalama O(1); toplam O(n) zaman, k farklı eleman için O(k) alan
+- Eklenme sırası gerekiyorsa `LinkedHashSet` ya da `LinkedHashMap`, sıralı çıktı için `TreeMap`
+- Sayma için kısa yol: `counts.merge(x, 1, Integer::sum)`
+
 ## A21-01 · Eşleştirme
 Konu: Set ve Map
 Soru: İhtiyacı uygun veri yapısıyla eşleştirin.
@@ -872,6 +1019,13 @@ Etiketler: set, map, veri-yapisi-secimi
 # A22 · Kolay · Teori
 
 Hash table nasıl çalışır? Hash değeri, bucket, collision ve ortalama/kötü durum arama sürelerini açıklayın.
+
+Anahtar noktalar:
+- Hash fonksiyonu anahtarı bir tamsayıya çevirir; bu değer kapasiteye göre bir bucket indeksine dönüştürülür
+- Collision: farklı anahtarlar aynı bucket'a düşebilir; zincirleme ya da açık adresleme ile çözülür
+- Aramada önce bucket bulunur, sonra bucket içindeki anahtarlar `equals` ile karşılaştırılır
+- İyi dağılım ve kontrollü yük faktöründe arama beklenen O(1); bütün anahtarlar tek bucket'a düşerse O(n)
+- Yük faktörü eşiği aşılınca tablo büyütülür ve anahtarlar yeniden dağıtılır (rehash)
 
 ## A22-01 · Eşleştirme
 Konu: Hash table
@@ -918,6 +1072,13 @@ for (String word :
 }
 ```
 
+Anahtar noktalar:
+- Sonuç: `java` → 2, `oop` → 1, `array` → 1
+- `getOrDefault(word, 0) + 1` ilk görülen kelimeyi 1 ile başlatır, sonrakilerde sayacı artırır
+- n kelime ve k farklı kelime için beklenen zaman Θ(n), ek alan Θ(k)
+- `HashMap`'in yazdırma sırası garanti edilmez; sıra gerekiyorsa `LinkedHashMap` ya da `TreeMap`
+- Daha kısa yazım: `counts.merge(word, 1, Integer::sum)`
+
 ## A23-01 · Kod çıktısı
 Konu: Frekans Map'i
 Soru: Döngüden sonra belirtilen anahtarlar hangi değerleri yazdırır?
@@ -958,6 +1119,13 @@ Etiketler: hashmap, karmasiklik, frekans
 
 Binary search uygulanabilmesi için girdi hangi koşulu sağlamalıdır? Arama alanının sürekli yarıya düşmesi karmaşıklığı nasıl etkiler?
 
+Anahtar noktalar:
+- Binary search için dizi sıralı olmalıdır; sıra olmadan bir yarıyı elemek hatalı sonuç verir
+- Her adımda ortadaki eleman hedefle karşılaştırılır ve aranacak aralığın yarısı atılır
+- n, k adımda n/2^k'ya iner; aralık 1'e düşene kadar yaklaşık log₂ n adım gerekir: O(log n)
+- Ortayı `left + (right - left) / 2` ile hesaplamak `int` taşmasını önler
+- Sınırlar dikkatle güncellenir (`left = mid + 1`, `right = mid - 1`); yanlış güncelleme sonsuz döngüye yol açar
+
 ## A24-01 · Doğru / Yanlış
 Konu: Binary search
 Soru: Standart binary search, dizi sıralı olmasa da hedef dizide bulunuyorsa onu bulur; sıralılık aramanın doğruluğu için değil, Θ(log n) adımda bitmesi için gereklidir.
@@ -992,6 +1160,13 @@ Etiketler: binary-search, logaritma, karmasiklik
 # A25 · Kolay · Teori
 
 Stack’in LIFO davranışını `push`, `pop` ve `peek` üzerinden açıklayın. İki kullanım örneği verin.
+
+Anahtar noktalar:
+- Stack LIFO çalışır: son eklenen eleman ilk çıkar
+- `push` tepeye ekler, `pop` tepedekini çıkarıp döndürür, `peek` çıkarmadan gösterir
+- Java'da `Stack` sınıfı yerine `ArrayDeque` kullanılır; işlemler O(1)'dir
+- Boş stack'te `pop` exception fırlatır; önce `isEmpty()` kontrol edilir
+- Kullanım örnekleri: dengeli parantez kontrolü, geri al (undo) geçmişi, metot çağrı yığını
 
 ## A25-01 · Kod çıktısı
 Konu: Stack
@@ -1032,6 +1207,13 @@ Etiketler: stack, kullanim-alani, lifo
 
 Queue’nun FIFO davranışını açıklayın. Stack’ten farkını ve iki kullanım örneğini belirtin.
 
+Anahtar noktalar:
+- Queue FIFO çalışır: ilk eklenen eleman ilk çıkar
+- `offer` sona ekler, `poll` baştakini çıkarır, `peek` baştakini çıkarmadan gösterir
+- Stack'te ekleme ve çıkarma aynı uçtan, queue'da farklı uçlardan yapılır
+- Java'da `ArrayDeque` ya da `LinkedList` kullanılır; boş queue'da `poll` ve `peek` null döner
+- Kullanım örnekleri: görev ya da yazıcı kuyruğu, BFS (genişlik öncelikli arama)
+
 ## A26-01 · Kod çıktısı
 Konu: Queue
 Soru: FIFO queue işlemlerinden sonra çıktı nedir?
@@ -1070,6 +1252,13 @@ Etiketler: queue, stack, fifo, lifo
 # A27 · Kolay · Teori
 
 Tek yönlü linked list düğümü nasıl modellenir? Linked list ile diziyi erişim, başa ekleme ve bellek kullanımı açısından karşılaştırın.
+
+Anahtar noktalar:
+- Düğüm bir değer ve sonraki düğüme bir referans tutar: `class Node { int value; Node next; }`
+- Dizi `arr[i]`'ye Θ(1)'de erişir; linked list'te i. düğüm için baştan i adım gidilir (Θ(n))
+- Başa ekleme linked list'te Θ(1)'dir (yeni düğüm `head` olur); dizide bütün elemanları kaydırmak gerekir (Θ(n))
+- Linked list bitişik bellek istemez ama her düğüm ek bir referans taşır; cache locality zayıftır
+- Son düğümün `next` alanı null'dır; `head` null ise liste boştur
 
 ## A27-01 · Eşleştirme
 Konu: Linked list
@@ -1111,6 +1300,13 @@ static int search(int[] arr, int target) {
     return -1;
 }
 ```
+
+Anahtar noktalar:
+- Hata: `right = arr.length` kapsayıcı aralıkta geçersiz bir indeks bırakır; `arr.length - 1` olmalıdır
+- Hata: `left = mid` ve `right = mid` aralığı daraltmayabilir ve sonsuz döngüye yol açar; `mid + 1` ve `mid - 1` olmalıdır
+- Hata: `(left + right) / 2` çok büyük indekslerde taşabilir; `left + (right - left) / 2` güvenlidir
+- `[left, right]` kapsayıcı aralıkta döngü koşulu `left <= right`'tır
+- Test: boş dizi, tek eleman, hedefin ilk ya da son eleman olması ve hedefin bulunmaması
 
 ## A28-01 · Çoklu seçim
 Konu: Binary search
@@ -1159,6 +1355,13 @@ Etiketler: binary-search, guvenli-mid, sinir
 # A29 · Orta · Kod yazma
 
 Sıralı bir dizide hedef değerin ilk görüldüğü indeksi binary search ile bulun.
+
+Anahtar noktalar:
+- Hedef bulununca hemen dönülmez; indeks `result`'a kaydedilir ve `right = mid - 1` ile sol yarıda aranmaya devam edilir
+- `arr[mid] < target` ise `left = mid + 1`, aksi hâlde `right = mid - 1`
+- Döngü bitince son kaydedilen indeks döndürülür; hedef yoksa `-1`
+- Zaman O(log n), ek alan O(1); tekrar sayısı çok olsa da logaritmik kalır
+- Son indeksi bulmak için simetrik olarak eşleşmede `left = mid + 1` yapılır
 
 ## A29-01 · Kod çıktısı
 Konu: Binary search
@@ -1223,6 +1426,13 @@ static char openingOf(char closing) {
 }
 ```
 
+Anahtar noktalar:
+- Karakterler soldan sağa taranır; açılış parantezleri stack'e konur
+- Kapanışta stack boşsa ya da tepedeki açılış türü uymuyorsa ifade dengesizdir
+- Tür uyarsa tepedeki eleman çıkarılır (`pop`)
+- Tarama bitince stack boş olmalıdır; `"("` gibi kapanmamış parantezler böyle yakalanır
+- Zaman Θ(n), en kötü ek alan Θ(n); Java'da stack olarak `ArrayDeque` kullanılır
+
 ## A30-01 · Doğru / Yanlış
 Konu: Stack
 Soru: Yalnız ()[]{} karakterlerini kabul eden dengeli parantez denetiminde "{[()]}" geçerli, "([)]" geçersizdir.
@@ -1266,6 +1476,13 @@ queue.offer(30);
 int next = queue.peek();
 ```
 
+Anahtar noktalar:
+- Çıktı: `first = 10`, `next = 20` ve kalan kuyruk `[20, 30]`
+- `offer` sona ekler; `poll` baştakini çıkarıp döndürür, kuyruk boşsa null döner
+- `peek` baştakini çıkarmadan döndürür, kuyruk boşsa null döner
+- `add`, `remove` ve `element` aynı işleri yapar ama başarısız olunca exception fırlatır
+- Boş kuyrukta `int first = queue.poll();` null'ı `int`'e açmaya çalıştığı için `NullPointerException` verir
+
 ## A31-01 · Kod çıktısı
 Konu: Queue
 Soru: Kod first, next ve kuyruğun kalan sırası için ne yazdırır?
@@ -1305,6 +1522,13 @@ Etiketler: queue-api, offer, poll, peek
 # A32 · Orta · Kod yazma
 
 Tek yönlü linked list’i dolaşarak düğüm sayısını ve son düğümün değerini bulun. Boş listeyi ele alın.
+
+Anahtar noktalar:
+- `current = head` ile başlayıp `current != null` iken düğümleri sayarak ilerlemek
+- Son düğüm, `current` ilerlemeden önce `last`'a kaydedilir
+- Boş liste (`head == null`) için sayı 0'dır ve son değer yoktur
+- "Değer yok" durumu 0 ile değil `OptionalInt.empty()` ya da null ile bildirilir; 0 geçerli bir değer olabilir
+- Zaman Θ(n), ek alan Θ(1)
 
 ## A32-01 · Kod çıktısı
 Konu: Linked list
@@ -1366,6 +1590,13 @@ static Node remove(Node head, int target) {
 }
 ```
 
+Anahtar noktalar:
+- Hata: `head` null ise `current.next` erişimi `NullPointerException` verir
+- Hata: döngü yalnız `current.next`'e baktığı için ilk düğüm hiç kontrol edilmez
+- Düzeltme: önce `if (head == null) return null;`, sonra `if (head.value == target) return head.next;`
+- Diğer düğümler, öncülün `next` alanı silinen düğümün `next`'ine bağlanarak silinir
+- Alternatif: listenin başına sahte (dummy) bir düğüm koyup ilk düğümü de aynı kuralla silmek
+
 ## A33-01 · Çoklu seçim
 Konu: Linked list silme
 Soru: Verilen remove metodundaki sorunları seçin.
@@ -1415,6 +1646,13 @@ Etiketler: linked-list, head-removal, guard-clause
 # A34 · Orta · Kod yazma
 
 Linked list’in orta düğümünü slow/fast pointer tekniğiyle bulun. Çift uzunlukta hangi orta düğümün döndürüleceğini tanımlayın.
+
+Anahtar noktalar:
+- `slow` bir, `fast` iki adım ilerler; `fast` sona ulaştığında `slow` ortadadır
+- Döngü koşulu `fast != null && fast.next != null` olur
+- `fast = head` ile başlamak çift uzunlukta ikinci ortayı verir (1 → 2 → 3 → 4 için 3)
+- İlk orta isteniyorsa `fast = head.next` ile başlanır; hangisinin döndüğü sözleşmede belirtilir
+- Zaman Θ(n), ek alan Θ(1); uzunluğu önce sayıp sonra ortaya gitmek de Θ(n) ama iki geçiş ister
 
 ## A34-01 · Kod çıktısı
 Konu: Slow/fast pointer
@@ -1475,6 +1713,13 @@ static Node reverse(Node head) {
 }
 ```
 
+Anahtar noktalar:
+- Üç işaretçi: `previous` (null ile başlar), `current` (`head`) ve döngüde saklanan `next`
+- Her turda önce `next = current.next` saklanır, sonra `current.next = previous` ile bağlantı ters çevrilir
+- `previous = current` ve `current = next` ile ilerlenir
+- `current` null olunca `previous` yeni `head`'dir
+- Zaman Θ(n), ek alan Θ(1); boş ve tek düğümlü listeler ek kontrol gerektirmez
+
 ## A35-01 · Sıralama
 Konu: Linked list ters çevirme
 Soru: Tek yönlü linked list'i iteratif ters çeviren döngünün adımlarını sıralayın.
@@ -1505,6 +1750,13 @@ for (int j = 0; j < arr.length - 1; j++) {
     }
 }
 ```
+
+Anahtar noktalar:
+- Çıktı: `[1, 4, 2, 5]`; 3 karşılaştırma ve 3 takas
+- Tek geçişte yan yana elemanlar karşılaştırılır; soldaki büyükse yer değiştirir
+- Bir geçiş en büyük elemanı (5) sona taşır ama diziyi tamamen sıralamaz
+- Tam sıralama n - 1 geçiş gerektirebilir; her geçişte sondaki sıralı kısım bir eleman büyür
+- Hiç takas olmayan bir geçiş dizinin sıralı olduğunu gösterir (erken çıkış)
 
 ## A36-01 · Kod çıktısı
 Konu: Bubble sort
@@ -1552,6 +1804,13 @@ static void bubbleSort(int[] arr) {
     // Kötü durum (ters sıralı girdi) Θ(n²) zamandır; ek bellek her durumda Θ(1).
 }
 ```
+
+Anahtar noktalar:
+- Yan yana elemanlar karşılaştırılır, soldaki büyükse yer değiştirir; her geçiş en büyük elemanı sona taşır
+- Her geçişte sondaki sıralı kısım bir büyür; iç döngünün sınırı her turda bir azalır
+- Erken çıkış: bir geçişte hiç takas olmadıysa dizi sıralıdır ve döngü biter
+- En iyi durum (sıralı girdi) Θ(n), en kötü durum (ters sıralı) Θ(n²); ek alan Θ(1)
+- Kararlıdır: yalnız `>` ile karşılaştırıldığı için eşit elemanların sırası korunur
 
 ## A37-01 · Çoklu seçim
 Konu: Bubble sort
@@ -1615,6 +1874,13 @@ static void selectionSort(int[] arr) {
 }
 ```
 
+Anahtar noktalar:
+- Her dış turda sıralanmamış kısmın en küçüğü bulunur ve `i` konumuna alınır
+- Her tur sonunda `arr[0..i]` nihai ve sıralıdır; bu döngü değişmezidir
+- Karşılaştırma sayısı girdiden bağımsızdır: her durumda Θ(n²)
+- Takas sayısı en fazla n - 1'dir; yazma maliyeti yüksekse bu bir avantajdır
+- Yerinde çalışır (Θ(1) ek alan) ama standart hâli kararlı değildir
+
 ## A38-01 · Sıralama
 Konu: Selection sort
 Soru: Selection sort'un her dış döngü yinelemesindeki adımları sıralayın.
@@ -1644,6 +1910,13 @@ Etiketler: selection-sort, trace, dizi
 # A39 · Orta · Kod yazma
 
 Insertion sort’u uygulayın. Neredeyse sıralı dizilerde neden avantajlı olabileceğini açıklayın.
+
+Anahtar noktalar:
+- Her adımda `key = a[i]` alınır; soldaki sıralı kısımda ondan büyük elemanlar bir sağa kaydırılır ve `key` boşluğa yazılır
+- Döngü değişmezi: `i`. turun sonunda `a[0..i]` sıralıdır
+- En iyi durum (sıralı girdi) Θ(n), en kötü durum (ters sıralı) Θ(n²); ek alan Θ(1)
+- Neredeyse sıralı dizide az kaydırma yapılır; ters çift sayısı k için süre Θ(n + k)'dır
+- Kararlıdır; küçük dizilerde hızlı olduğu için gelişmiş sıralama algoritmaları küçük parçalarda onu kullanır
 
 ## A39-01 · Kod çıktısı
 Konu: Insertion sort
@@ -1686,6 +1959,13 @@ Etiketler: insertion-sort, nearly-sorted, inversion
 
 Bubble, selection ve insertion sort’u kararlılık, yerinde çalışma, en iyi/kötü durum ve swap sayısı açısından karşılaştırın.
 
+Anahtar noktalar:
+- Üçü de yerinde çalışır (Θ(1) ek alan) ve en kötü durumda Θ(n²) zaman alır
+- Bubble sort: erken çıkışla en iyi durum Θ(n); takas sayısı çoktur; kararlıdır
+- Selection sort: her durumda Θ(n²) karşılaştırma ama en fazla n - 1 takas; standart hâli kararlı değildir
+- Insertion sort: en iyi durum Θ(n); neredeyse sıralı girdide hızlıdır; kararlıdır
+- Pratikte küçük ya da neredeyse sıralı veride insertion sort, büyük veride O(n log n) algoritmalar tercih edilir
+
 ## A40-01 · Eşleştirme
 Konu: Sıralama karşılaştırması
 Soru: Standart yerinde uygulamaları özellik kümeleriyle eşleştirin.
@@ -1704,6 +1984,13 @@ Etiketler: sorting, stability, in-place, comparison
 # A41 · Orta · Teori
 
 Recursion’da base case neden gereklidir? Çağrıların stack üzerinde tutulması ve `StackOverflowError` riskini açıklayın.
+
+Anahtar noktalar:
+- Base case özyinelemeyi durduran ve doğrudan sonuç döndüren koşuldur
+- Her özyinelemeli adım girdiyi base case'e yaklaştırmalıdır; yoksa çağrılar sonlanmaz
+- Her çağrı stack'te bir frame (parametreler, yerel değişkenler, dönüş adresi) tutar; frame'ler dönüşte LIFO sırasıyla kalkar
+- Derinlik stack sınırını aşarsa, sonuç matematiksel olarak doğru olsa bile `StackOverflowError` oluşur
+- Java tail-call optimizasyonu yapmaz; çok derin özyineleme döngüye çevrilir
 
 ## A41-01 · Boşluk doldurma
 Konu: Recursion
@@ -1748,6 +2035,13 @@ static long factorial(int n) {
     return n * factorial(n - 1);
 }
 ```
+
+Anahtar noktalar:
+- Base case yalnız `n == 1`'dir; `factorial(0)` 1'e hiç ulaşmaz ve stack taşar (`StackOverflowError`)
+- Negatif n de 1'e yaklaşmadığı için aynı hatayı verir
+- Düzeltme: negatif girdiyi reddetmek ve base case'i `n <= 1` yapmak
+- `long` 20!'den sonra sessizce taşar; `Math.multiplyExact` ya da `BigInteger` kullanılır
+- Zaman Θ(n), stack alanı Θ(n); döngülü çözüm aynı işi Θ(1) alanla yapar
 
 ## A42-01 · Çoklu seçim
 Konu: Recursive faktoriyel
@@ -1804,6 +2098,13 @@ static int fib(int n) {
 }
 ```
 
+Anahtar noktalar:
+- Her çağrı iki çağrı daha yapar ve aynı alt problemler tekrar tekrar hesaplanır: `fib(5)` içinde `fib(2)` üç kez çağrılır
+- Zaman üsteldir: Θ(φⁿ) (φ ≈ 1,618); sık söylenen O(2ⁿ) geçerli ama gevşek bir üst sınırdır
+- Stack derinliği en fazla n'dir: alan Θ(n)
+- Memoization ile her değer bir kez hesaplanır ve zaman Θ(n)'e iner
+- Döngülü çözüm Θ(n) zaman ve Θ(1) alan kullanır; `int` F(46)'dan sonra taşar
+
 ## A43-01 · Tek seçim
 Konu: Recursive Fibonacci
 Soru: Naif recursive fib(n) için sıkı asimptotik zaman ve en büyük çağrı-stack alanı hangisidir?
@@ -1846,6 +2147,13 @@ Etiketler: fibonacci, repeated-subproblem, trace
 # A44 · Orta · Kod yazma
 
 Sıralı olmayan bir dizide toplamı hedefe eşit iki elemanın indekslerini `Map` kullanarak bulun.
+
+Anahtar noktalar:
+- Dizi bir kez dolaşılır; her eleman için gereken tamamlayıcı `target - a[i]` hesaplanır
+- Tamamlayıcı `Map`'te varsa iki indeks döndürülür; yoksa elemanın değeri ve indeksi `Map`'e eklenir
+- Kontrol eklemeden önce yapıldığı için aynı eleman iki kez kullanılmaz
+- Beklenen zaman Θ(n), ek alan Θ(n); iç içe döngülü kaba kuvvet çözümü O(n²)'dir
+- Birden çok çift varsa hangisinin döneceği ve çift yoksa ne döneceği sözleşmede belirtilir
 
 ## A44-01 · Kod çıktısı
 Konu: Two sum
@@ -1891,6 +2199,13 @@ Etiketler: two-sum, hashmap, overflow, contract
 
 Artan sıradaki bir dizide toplamı hedefe eşit iki elemanı two pointer tekniğiyle bulun.
 
+Anahtar noktalar:
+- `left` baştan, `right` sondan başlar; dizinin artan sırada olması gerekir
+- Toplam hedefe eşitse iki indeks döndürülür
+- Toplam küçükse `left` artırılır (toplam büyür), büyükse `right` azaltılır (toplam küçülür)
+- Her adım bir adayı güvenle eler: zaman Θ(n), ek alan Θ(1)
+- Toplamı `long` ile hesaplamak `int` taşmasını önler; dizi sıralı değilse `Map` çözümü kullanılır
+
 ## A45-01 · Kod çıktısı
 Konu: Two pointer
 Soru: Artan sıralı {-2,1,4,6,9} dizisinde hedef 10 için two-pointer metodu hangi indeksleri döndürür?
@@ -1934,6 +2249,13 @@ Etiketler: two-pointer, monotonicity, proof
 
 Sıralı bir dizide tekrar eden elemanları ek dizi kullanmadan kaldırın ve benzersiz kısmın yeni uzunluğunu döndürün.
 
+Anahtar noktalar:
+- Sıralı dizide tekrarlar yan yanadır
+- `write` bir sonraki benzersiz değerin yazılacağı konumu, `read` incelenen elemanı gösterir
+- `a[read]` son yazılan değerden (`a[write - 1]`) farklıysa `a[write++]` konumuna yazılır
+- Sonuç dizinin ilk `write` elemanıdır; bu uzunluk döndürülür, sonrası önemsizdir
+- Boş dizi için 0 döner; zaman Θ(n), ek alan Θ(1)
+
 ## A46-01 · Kod çıktısı
 Konu: Tekrar kaldırma
 Soru: removeDuplicates({1,1,2,2,3}) çağrısı yeni uzunluk ve geçerli önek olarak ne üretir?
@@ -1972,6 +2294,13 @@ Etiketler: remove-duplicates, karmasiklik, in-place
 # A47 · Orta · Kod yazma
 
 Bir dizideki tüm sıfırları sona taşıyın; sıfır olmayan elemanların sırasını koruyun ve ek dizi kullanmayın.
+
+Anahtar noktalar:
+- `write` işaretçisi sıfır olmayan bir sonraki değerin yazılacağı konumu tutar
+- İlk geçişte sıfır olmayan değerler okunma sırasıyla `write` konumlarına yazılır; sıraları korunur
+- Ardından kalan konumlar sıfırla doldurulur
+- Zaman Θ(n), ek alan Θ(1); dizi yerinde değişir
+- Takaslı tek geçişli sürüm de aynı sonucu verir; yalnız yazma sayısı farklıdır
 
 ## A47-01 · Kod çıktısı
 Konu: Sıfırları taşıma
@@ -2012,6 +2341,13 @@ Etiketler: move-zeroes, in-place, stability
 # A48 · Zorlayıcı · Kod yazma
 
 Uzunluğu `k` olan ardışık alt diziler arasındaki en büyük toplamı bulun. Kaba kuvvet ve sabit boyutlu sliding window çözümlerini karşılaştırın.
+
+Anahtar noktalar:
+- Kaba kuvvet her pencerenin toplamını baştan hesaplar: Θ((n - k + 1) · k), k büyükse Θ(n²)
+- Sliding window'da ilk k elemanın toplamı bir kez hesaplanır
+- Her kaymada pencereden çıkan eleman çıkarılır, giren eklenir: her adım O(1), toplam Θ(n)
+- En büyük toplam her kaymadan sonra güncellenir; ek alan Θ(1)
+- Geçersiz girdiler (`k <= 0`, `k > n`) reddedilir; toplamı `long` tutmak taşmayı önler
 
 ## A48-01 · Kod çıktısı
 Konu: Sliding window
@@ -2054,6 +2390,13 @@ Etiketler: sliding-window, brute-force, complexity
 # A49 · Zorlayıcı · Kod yazma
 
 Tekrar etmeyen karakterlerden oluşan en uzun ardışık alt String’in uzunluğunu değişken boyutlu sliding window ile bulun.
+
+Anahtar noktalar:
+- Pencere `[left, right]` tekrar içermeyen bir alt metindir; `right` her adımda bir ilerler
+- Her karakterin son görüldüğü indeks bir `Map`'te tutulur
+- Karakter pencerenin içinde daha önce görüldüyse `left` o konumun bir sağına atlar; `left` hiç geri gitmez
+- En iyi uzunluk her adımda `right - left + 1` ile güncellenir
+- Her konum en fazla iki kez işlenir: zaman Θ(n), ek alan farklı karakter sayısı kadardır
 
 ## A49-01 · Kod çıktısı
 Konu: Değişken sliding window
@@ -2131,6 +2474,13 @@ static boolean hasCycleWithSet(Node head) {
     return false;
 }
 ```
+
+Anahtar noktalar:
+- Floyd: `slow` bir, `fast` iki adım ilerler; döngü varsa `fast` döngü içinde `slow`'a yetişir
+- `fast` ya da `fast.next` null olursa liste biter ve döngü yoktur
+- Zaman Θ(n), ek alan Θ(1)
+- Alternatif: görülen düğümleri bir `HashSet`'te saklamak; aynı düğüm ikinci kez görülürse döngü vardır ama ek alan Θ(n)'dir
+- Düğümler referanslarıyla karşılaştırılır; aynı değeri taşımak döngü kanıtı değildir
 
 ## A50-01 · Doğru / Yanlış
 Konu: Linked list döngüsü
