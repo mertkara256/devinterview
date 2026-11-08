@@ -666,7 +666,7 @@ Soru: İki int parametreden büyük olanı döndüren geçerli metot hangisidir?
 - [ ] d: static int max(int a; int b) { return a + b; }
   Neden: Parametre ayırıcı sözdizimi yanlış, gövde de maksimumu bulmuyor.
 İpucu: Dönüş tipi int olmalı ve iki parametre virgülle ayrılmalı.
-Kısa açıklama: A seçeneği geçerli imza ve doğru karşılaştırmayı içerir.
+Kısa açıklama: Doğru metot `int` döndürür, parametreleri virgülle ayırır ve büyük olanı seçer.
 Açıklama: Metot int döndürdüğünü bildirdiği için her normal akışta int ifade return etmelidir. Parametreler virgülle ayrılır. Ternary ifade a ve b'den büyük olanı seçer; eşitlikte a'yı döndürmek gereksinimi karşılar.
 Varsayım: Math.max kullanma zorunluluğu yoktur; int karşılaştırmasında taşma oluşmaz.
 Etiketler: method, return, max
@@ -937,7 +937,7 @@ String[] topics = {"Java", "OOP", "Algoritma"};
 - [ ] d: `StringBuilder sb = new StringBuilder(); for (int i=0; i<topics.length; i++) { sb.append(topics[i]); if (i>0) sb.append(','); } return sb.toString();`
   Neden: Virgül elemandan sonra eklendiği için ilk ayraç kaybolur ve sonda fazladan virgül kalır.
 İpucu: Ayırıcıyı ilk elemandan önce değil, sonraki elemanlardan önce ekleyin.
-Kısa açıklama: B seçeneği elemanlar arasına virgül koyar ve sonda ayırıcı bırakmaz.
+Kısa açıklama: Virgülü ilk elemandan sonra her elemanın önüne eklemek, sonda ayırıcı bırakmaz.
 Açıklama: Tek bir StringBuilder oluşturulur. `i>0` koşulu yalnız ikinci ve sonraki elemanlardan önce virgül ekler. Boş dizi için de güvenle boş String üretir. A sonda virgül bırakır, C null dereference eder, d dizi içeriğini birleştirmez.
 Varsayım: topics null değildir; elemanların null olması hâlinde StringBuilder `null` metnini ekler, ancak verilen dizi null eleman içermez.
 Etiketler: stringbuilder, array, join
@@ -1012,7 +1012,7 @@ int[] numbers = {1, 2, 3};
 - [ ] d: `for (int i=0; i<numbers.length; i++) { int n = numbers[i]; n *= 2; }`
   Neden: Yalnız yerel `n` değişir; değer dizi elemanına geri yazılmaz.
 İpucu: Dizi hücresine yazmak için indeks gerekir.
-Kısa açıklama: B seçeneği her `numbers[i]` yuvasını günceller.
+Kısa açıklama: İndeksli döngü her `numbers[i]` yuvasına geri yazar.
 Açıklama: Primitive enhanced-for değişkeni elemanın kopyasıdır. İndeks tabanlı döngü doğrudan dizi elemanına atama yapar. `length` sabittir ve atanamaz.
 Varsayım: Her çarpım int aralığında kalır; taşma beklenmez.
 Etiketler: array, loop, mutation
@@ -1601,7 +1601,7 @@ Soru: Siparişleri `customerId`'ye göre `Map<Integer,List<Order>>` içinde doğ
   Neden: Müşteri kimliğini kullanmaz ve gruplamaz.
 İpucu: Anahtar ilk kez görülürse liste oluşturun; her durumda siparişi o listeye ekleyin.
 Kısa açıklama: `computeIfAbsent` her müşteri için listeyi bir kez oluşturup siparişi ekler.
-Açıklama: A seçeneğinde mapping function yalnız anahtar için mevcut non-null değer yoksa ArrayList üretir; dönen listeye sipariş eklenir. B her siparişte boş listeyle önceki grubu ezer. C ilk anahtarda `get` null döndürdüğü için `add` çağrısında NPE üretir.
+Açıklama: `computeIfAbsent` çözümünde mapping function yalnız anahtar için mevcut non-null değer yoksa ArrayList üretir; dönen listeye sipariş eklenir. Her siparişte yeni liste açıp `put` eden çözüm önceki grubu ezer. Doğrudan `get(...).add(o)` çağıran çözümde ilk anahtarda `get` null döndürdüğü için `add` çağrısı NPE üretir.
 Varsayım: `orders` ve içindeki Order öğeleri null değildir; `getCustomerId` int döndürür; `result` başlangıçta boş mutable HashMap'tir.
 Etiketler: map, grouping, computeifabsent
 
@@ -1858,7 +1858,7 @@ Soru: Geçersiz yaşın çağıranın işlemi düzeltip yeniden deneyebileceği 
 - [ ] d: `class InvalidAgeException {}` ve `throw InvalidAgeException;`
   Neden: Throwable alt tipi değildir ve `throw` bir nesne ifadesi ister.
 İpucu: Checked tür Exception'dan türemeli; tür bildiriminde `throws`, nesne üretiminde `throw` kullanılır.
-Kısa açıklama: A seçeneği checked türü, throws sözleşmesini ve throw ifadesini doğru kurar.
+Kısa açıklama: Doğru tasarım türü `Exception`'dan türetir, metotta `throws` ile bildirir ve `throw new` ile fırlatır.
 Açıklama: Exception alt sınıfı RuntimeException dışında kaldığı için checked'dır. Constructor mesajı üst sınıfa iletir. `register` metodunun bildirimi olası türü `throws InvalidAgeException` ile açıklar; koşul oluşunca `throw new InvalidAgeException(...)` bir nesneyi fırlatır.
 Varsayım: Geçerli yaş aralığının alt sınırı bu kartta 0'dır; üst sınır gereksinimi verilmemiştir.
 Varsayım: Checked/unchecked seçimi bağlama bağlıdır; kart açıkça checked politika istemektedir.

@@ -592,7 +592,7 @@ tr:last-child td { border-bottom: 0; }
 .chart-list { display: grid; gap: .9rem; }
 .chart-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(60px, 1.6fr) auto; gap: .75rem; align-items: center; }
 .chart-row > span { overflow-wrap: anywhere; }
-.trend-bars { display: flex; align-items: flex-end; gap: .45rem; min-height: 150px; padding-top: 1rem; }
+.trend-bars { display: flex; align-items: flex-end; gap: .45rem; height: 150px; padding-top: 1rem; }
 .trend-bar { flex: 1; min-width: 16px; max-width: 46px; height: calc(var(--value) * 1%); min-height: 4px; border-radius: 7px 7px 2px 2px; background: linear-gradient(var(--teal), var(--primary)); position: relative; }
 .trend-bar:hover::after { content: attr(data-label); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); padding: .25rem .4rem; border-radius: 6px; background: var(--text); color: var(--surface); font-size: .65rem; white-space: nowrap; }
 
@@ -662,6 +662,8 @@ kbd { display: inline-flex; justify-content: center; min-width: 52px; padding: .
 .focus-mode #app { max-width: 1120px; }
 .focus-mode .session-layout { grid-template-columns: minmax(0, 1fr); }
 .focus-mode .session-side { display: none; }
+.focus-only { display: none; }
+.focus-mode .focus-only { display: inline-flex; }
 
 .storage-warning { padding: .75rem 1rem; border: 1px solid color-mix(in srgb, var(--warning) 35%, var(--line)); border-radius: 11px; background: var(--warning-soft); color: var(--warning); font-size: .8rem; }
 

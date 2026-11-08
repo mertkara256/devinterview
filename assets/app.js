@@ -163,6 +163,9 @@
     root.dataset.fontScale = state.settings.fontScale;
     root.dataset.contrast = state.settings.highContrast ? 'high' : 'normal';
     root.dataset.reducedMotion = state.settings.reducedMotion ? 'true' : 'false';
+    // Older settings hold 'normal' here; only a pixel size set with A+/A− applies.
+    if (typeof state.settings.codeFontSize === 'number') root.style.setProperty('--code-font-size', state.settings.codeFontSize + 'px');
+    else root.style.removeProperty('--code-font-size');
     shell.classList.toggle('focus-mode', !!state.settings.focusMode);
     var focusToggle = document.getElementById('focus-toggle');
     if (focusToggle) {
@@ -540,7 +543,7 @@
       mastery[section] = { mastered: mastered, total: ids.length, percent: ids.length ? Math.round(mastered / ids.length * 100) : 0 };
     });
     var lastBackup = state.settings.lastBackupAt ? new Date(state.settings.lastBackupAt).getTime() : 0;
-    var backupDue = completed.length >= 5 && Date.now() - lastBackup > 7 * 86400000;
+    var backupDue = completed.length + interviewSummary.rated >= 5 && Date.now() - lastBackup > 7 * 86400000;
 
     var activeHtml = active.length ? active.slice(0, 4).map(function (attempt) {
       return '<div class="list-item"><div class="list-item-main"><strong>' + E.escapeHtml(attempt.title) + '</strong>' +
@@ -609,7 +612,7 @@
     });
     return '<section class="form-section"><h2>Şirket</h2><label class="field"><span class="sr-only">Şirket</span><select name="company"><option value="all">Tüm sorular</option>' + state.companies.map(function (company) {
       return '<option value="' + E.escapeHtml(company) + '" ' + (selected === company ? 'selected' : '') + '>' + E.escapeHtml(company) + '</option>';
-    }).join('') + '</select></label><p class="tiny muted" style="margin:.65rem 0 0">Şirket seçersen yalnız o şirkette sorulduğu bilinen sorular gelir. Şirket bilgisi şu an yalnız ' + E.escapeHtml(sections.join(', ')) + ' sorularında var.</p></section>';
+    }).join('') + '</select></label><p class="tiny muted" style="margin:.65rem 0 0">Şirket seçersen yalnız o şirketin mülakatında sorulduğu ya da iş ilanında istendiği bilinen sorular gelir. Şirket bilgisi şu an yalnız ' + E.escapeHtml(sections.join(', ')) + ' sorularında var.</p></section>';
   }
 
   // Area chips are not rendered while their section is unselected; keep the earlier choice then.
@@ -926,6 +929,8 @@
           '<button class="button ' + (response.flagged ? 'warning' : 'ghost') + '" type="button" data-action="toggle-flag" aria-label="' + (response.flagged ? 'İşaretli: sonra dön durumu' : 'Sonra dön olarak işaretle') + '" aria-pressed="' + (response.flagged ? 'true' : 'false') + '" aria-keyshortcuts="F">' + (response.flagged ? 'İşaretli' : 'Sonra dön') + '</button>' +
           '<button class="button ' + (cardState.favorite ? 'soft' : 'ghost') + '" type="button" data-action="toggle-favorite" aria-label="Favori olarak işaretle" aria-pressed="' + (cardState.favorite ? 'true' : 'false') + '" aria-keyshortcuts="V">' + (cardState.favorite ? '★ Favori' : '☆ Favori') + '</button></div>' +
           '<div class="question-actions-right"><button class="button ghost" type="button" data-action="open-issue">Sorun bildir</button>' +
+          // Focus mode hides the side panel, which holds the other finish button.
+          '<button class="button ghost focus-only" type="button" data-action="finish-attempt">Oturumu bitir</button>' +
           (locked ? '<button class="button ghost" type="button" data-action="retry-question">Yeni tek soru denemesi</button><button class="button primary" type="button" data-action="next-question">Sonraki →</button>' :
             '<button class="button ghost" type="button" data-action="next-question">Geç</button><button class="button primary" type="button" data-action="submit-answer" aria-keyshortcuts="Enter">' + (attempt.mode === 'practice' ? 'Cevabı gönder' : 'Cevabı kaydet') + '</button>') + '</div></div></article>' +
         '<aside class="session-side"><div class="card pad"><div class="card-head"><div><span class="eyebrow">SORULAR</span><h3>Oturum paleti</h3></div><span class="badge primary">' + answeredCount + '/' + attempt.items.length + '</span></div>' + paletteHtml(attempt, state.responseMap) +
@@ -1012,8 +1017,17 @@
     clearTimeout(saveTimers.draft);
     saveTimers.draft = setTimeout(function () {
       saveTimers.draft = null;
-      DB.put('responses', response).catch(function (error) { console.error(error); });
+      DB.put('responses', response).catch(reportSaveError);
     }, 180);
+  }
+
+  // Autosave runs on every keystroke, so a failing store shows one message at most every 10 seconds.
+  var lastSaveErrorAt = 0;
+  function reportSaveError(error) {
+    console.error(error);
+    if (Date.now() - lastSaveErrorAt < 10000) return;
+    lastSaveErrorAt = Date.now();
+    toast('Son yazdığın kaydedilemedi' + (error && error.message ? ' (' + error.message + ')' : '') + '. Metni kopyala ve sayfayı yenileyip yeniden dene.', 'error');
   }
 
   async function isSlow(card, response) {
@@ -1877,10 +1891,22 @@
     await renderInterviewSession();
   }
 
+  // A second tap while a rating or skip is still saving would move past the next question unseen.
+  var interviewStepBusy = false;
+
   async function rateInterview(rating) {
     var session = state.interview;
     var current = session && session.current;
-    if (!current || !current.revealed || !E.INTERVIEW_RATINGS[rating]) return;
+    if (!current || !current.revealed || !E.INTERVIEW_RATINGS[rating] || interviewStepBusy) return;
+    interviewStepBusy = true;
+    try {
+      await saveInterviewRating(session, current, rating);
+    } finally {
+      interviewStepBusy = false;
+    }
+  }
+
+  async function saveInterviewRating(session, current, rating) {
     var item = state.interviewById[current.sourceId];
     var previous = await DB.get('interview', current.sourceId);
     await DB.put('interview', E.nextInterviewState(previous, {
@@ -1898,9 +1924,14 @@
 
   async function skipInterview() {
     var session = state.interview;
-    if (!session || !session.current) return;
-    session.results[session.current.sourceId] = 'skipped';
-    await advanceInterview();
+    if (!session || !session.current || interviewStepBusy) return;
+    interviewStepBusy = true;
+    try {
+      session.results[session.current.sourceId] = 'skipped';
+      await advanceInterview();
+    } finally {
+      interviewStepBusy = false;
+    }
   }
 
   async function finishInterview() {
@@ -2338,7 +2369,9 @@
     if (action === 'code-larger' || action === 'code-smaller') {
       var block = target.closest('.code-wrap').querySelector('.code-block');
       var current = parseFloat(getComputedStyle(block).fontSize);
-      block.style.setProperty('--code-font-size', Math.max(11, Math.min(24, current + (action === 'code-larger' ? 1 : -1))) + 'px');
+      state.settings.codeFontSize = Math.max(11, Math.min(24, Math.round(current) + (action === 'code-larger' ? 1 : -1)));
+      applySettings();
+      saveSettings().catch(reportSaveError);
       return;
     }
     if (action === 'print-result') return window.print();
@@ -2405,7 +2438,7 @@
     }
     if (event.target.name === 'interview-point' && state.interview && state.interview.current) {
       state.interview.current.checked = Array.from(document.querySelectorAll('input[name="interview-point"]:checked')).map(function (input) { return Number(input.value); });
-      saveInterview().catch(function (error) { console.error(error); });
+      saveInterview().catch(reportSaveError);
     }
     if (event.target.id === 'import-file' && event.target.files[0]) readImportFile(event.target.files[0]);
     if (['explorer-section', 'explorer-area', 'explorer-company', 'explorer-difficulty', 'explorer-type'].indexOf(event.target.id) !== -1) {
@@ -2426,20 +2459,20 @@
       if (attempt) {
         attempt.scratch = event.target.value;
         attempt.updatedAt = new Date().toISOString();
-        DB.put('attempts', attempt).catch(function (error) { console.error(error); });
+        DB.put('attempts', attempt).catch(reportSaveError);
       }
     }
     if (event.target.id === 'note-input') {
       var questionId = currentCard().id;
       var value = event.target.value;
-      DB.put('notes', { id: questionId, questionId: questionId, text: value, updatedAt: new Date().toISOString() }).catch(function (error) { console.error(error); });
+      DB.put('notes', { id: questionId, questionId: questionId, text: value, updatedAt: new Date().toISOString() }).catch(reportSaveError);
     }
     if (event.target.id === 'interview-answer' && state.interview && state.interview.current && !state.interview.current.revealed) {
       state.interview.current.answerText = event.target.value;
       clearTimeout(saveTimers.interview);
       saveTimers.interview = setTimeout(function () {
         saveTimers.interview = null;
-        saveInterview().catch(function (error) { console.error(error); });
+        saveInterview().catch(reportSaveError);
       }, 400);
     }
     if (event.target.id === 'explorer-search') {
