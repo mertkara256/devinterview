@@ -504,6 +504,7 @@ pre.code-block {
 .matching-row { display: grid; grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr); gap: .7rem; align-items: center; }
 .matching-left { min-height: 46px; display: flex; align-items: center; padding: .65rem .75rem; border-radius: 10px; background: var(--surface-soft); border: 1px solid var(--line); }
 .matching-row select { min-width: 0; }
+.matching-choice { grid-column: 3; color: var(--text-soft); font-size: .82rem; line-height: 1.4; overflow-wrap: anywhere; }
 
 .confidence { display: flex; align-items: center; flex-wrap: wrap; gap: .45rem; margin-top: 1rem; }
 .confidence > span { color: var(--text-soft); font-size: .78rem; font-weight: 700; }
@@ -732,7 +733,8 @@ kbd { display: inline-flex; justify-content: center; min-width: 52px; padding: .
   .question-actions .button { flex: 1; }
   .matching-row { grid-template-columns: 1fr; }
   .answer-comparison { grid-template-columns: 1fr; }
-  .matching-row > span[aria-hidden="true"] { display: none; }
+  .matching-row > span[aria-hidden="true"]:not(.matching-choice) { display: none; }
+  .matching-choice { grid-column: auto; }
   .progress-row,
   .chart-row { grid-template-columns: minmax(0, 1fr) auto; }
   .progress-row > strong,
@@ -747,6 +749,11 @@ kbd { display: inline-flex; justify-content: center; min-width: 52px; padding: .
   .setting-row { align-items: flex-start; flex-direction: column; }
   .setting-row select,
   .setting-row input[type="number"] { width: 100% !important; }
+}
+
+/* On phones the two-row header would stay on screen; let it scroll away instead. */
+@media (max-width: 560px), (max-height: 500px) {
+  .topbar { position: static; }
 }
 
 @media (max-width: 360px) {

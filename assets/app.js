@@ -830,10 +830,16 @@
       var rightOrder = withNewIds(item.rightOrder, Object.keys(rightMap));
       return '<div class="matching-list" role="group" aria-label="Eşleştirilecek öğeler">' + ((card.pairs && card.pairs.left) || []).map(function (left) {
         return '<label class="matching-row"><span class="matching-left">' + E.inlineMarkdown(left.text) + '</span><span aria-hidden="true">→</span><select name="match-' + E.escapeHtml(left.id) + '" ' + (locked ? 'disabled' : '') + ' aria-label="' + E.escapeHtml(E.plainInline(left.text)) + ' için eşleşme"><option value="">Seç…</option>' +
-          rightOrder.map(function (rightId) { var right = rightMap[rightId]; return '<option value="' + E.escapeHtml(rightId) + '" ' + (mapping[left.id] === rightId ? 'selected' : '') + '>' + E.escapeHtml(right ? E.plainInline(right.text) : rightId) + '</option>'; }).join('') + '</select></label>';
+          rightOrder.map(function (rightId) { var right = rightMap[rightId]; return '<option value="' + E.escapeHtml(rightId) + '" ' + (mapping[left.id] === rightId ? 'selected' : '') + '>' + E.escapeHtml(right ? E.plainInline(right.text) : rightId) + '</option>'; }).join('') + '</select>' +
+          matchChoiceNote(rightMap[mapping[left.id]] ? E.plainInline(rightMap[mapping[left.id]].text) : '') + '</label>';
       }).join('') + '</div>';
     }
     return '<p class="muted">Bu soru türü gösterilemiyor.</p>';
+  }
+
+  // A closed select cuts long options off, so the full choice is repeated below it.
+  function matchChoiceNote(text) {
+    return '<span class="matching-choice" aria-hidden="true"' + (text.length > 30 ? '' : ' hidden') + '>' + E.escapeHtml(text) + '</span>';
   }
 
   function renderConfidence(response, locked) {
@@ -2365,6 +2371,10 @@
   }
 
   function handleAppChange(event) {
+    if (event.target.matches('.matching-row select')) {
+      var choice = event.target.value ? event.target.selectedOptions[0].text : '';
+      event.target.nextElementSibling.outerHTML = matchChoiceNote(choice);
+    }
     if (event.target.closest('#question-form')) scheduleDraftSave(event.target.name !== 'confidence');
     if (event.target.closest('#builder-form')) {
       state.builderDefaults = readBuilderForm(document.getElementById('builder-form'));
